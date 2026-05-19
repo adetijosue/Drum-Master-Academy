@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurez votre profil | DMA</title>
+    <meta name="description" content="Finalisez la configuration de votre profil étudiant Drum Master Academy pour accéder à vos cours.">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Configurez votre profil | DMA">
+    <meta property="og:description" content="Finalisez la configuration de votre profil étudiant Drum Master Academy pour accéder à vos cours.">
+    
+    <!-- Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" as="style">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .setup-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #141414 0%, #050505 100%);
+            padding: 2rem;
+        }
+
+        .setup-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3.5rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--shadow-dark);
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .setup-step {
+            display: none;
+        }
+
+        .setup-step.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .avatar-preview-lg {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #222;
+            margin: 0 auto 1.5rem;
+            border: 3px solid var(--gold-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .avatar-preview-lg:hover { transform: scale(1.05); }
+
+        .level-option {
+            background: #111;
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            text-align: left;
+        }
+
+        .level-option:hover, .level-option.selected {
+            border-color: var(--gold-primary);
+            background: rgba(214, 163, 47, 0.05);
+        }
+
+        .level-option h4 { color: var(--gold-primary); margin: 0; }
+        .level-option p { margin: 0.2rem 0 0 0; font-size: 0.8rem; color: var(--text-muted); }
+
+        .interest-tag {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            margin: 0.4rem;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .interest-tag.selected {
+            background: var(--gold-primary);
+            color: var(--bg-main);
+            border-color: var(--gold-primary);
+            font-weight: 700;
+        }
+
+        .step-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-top: 2rem;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #333;
+        }
+
+        .dot.active { background: var(--gold-primary); }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="setup-card">
+            
+            <form id="setup-form">
+                <!-- Step 1: Photo -->
+                <div class="setup-step active" id="step-1">
+                    <h2 class="text-gold">Personnalisez votre profil</h2>
+                    <p style="margin-bottom: 2rem;">Une photo permet aux autres étudiants de vous reconnaître dans la communauté.</p>
+                    
+                    <div class="avatar-preview-lg" id="avatar-display">👤</div>
+                    <label for="photo-input" class="btn btn-outline" style="margin-bottom: 2rem;">Choisir une photo</label>
+                    <input type="file" id="photo-input" style="display: none;" accept="image/*">
+                    
+                    <div style="margin-top: 1rem;">
+                        <button type="button" class="btn btn-primary next-btn" style="width: 100%;">Continuer</button>
+                    </div>
+                    <div style="margin-top: 1.5rem; text-align: center;">
+                        <a href="#" id="postpone-setup-link" style="color: var(--text-muted); font-size: 0.9rem; text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='var(--gold-primary)'" onmouseout="this.style.color='var(--text-muted)'">Plus tard, je le ferai après →</a>
+                    </div>
+                </div>
+
+                <!-- Step 2: Quiz Evaluation -->
+                <div class="setup-step" id="step-2">
+                    <h2 class="text-gold">Évaluation Technique</h2>
+                    <p style="margin-bottom: 2rem;">Répondez à ces 5 questions pour évaluer votre niveau réel.</p>
+                    
+                    <div id="quiz-container" style="text-align: left;">
+                        <!-- Question 1 -->
+                        <div class="quiz-question" data-q="1">
+                            <p><strong>1. Qu'est-ce qu'un "Paradiddle" ?</strong></p>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q1" value="0"> Un type de cymbale</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q1" value="1"> Un rudiment alternant coups simples et doubles (D-G-D-D)</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q1" value="0"> Une technique de pédale de grosse caisse</label>
+                        </div>
+
+                        <!-- Question 2 (Hidden initially) -->
+                        <div class="quiz-question" data-q="2" style="display:none;">
+                            <p><strong>2. Dans une mesure en 4/4, combien y a-t-il de croches ?</strong></p>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q2" value="0"> 4 croches</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q2" value="1"> 8 croches</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q2" value="0"> 16 croches</label>
+                        </div>
+
+                        <!-- Question 3 -->
+                        <div class="quiz-question" data-q="3" style="display:none;">
+                            <p><strong>3. Qu'est-ce que le "Ghost Note" ?</strong></p>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q3" value="1"> Une note jouée très doucement, presque inaudible</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q3" value="0"> Une note qu'on oublie de jouer</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q3" value="0"> Une technique de Jazz uniquement</label>
+                        </div>
+
+                        <!-- Question 4 -->
+                        <div class="quiz-question" data-q="4" style="display:none;">
+                            <p><strong>4. Quelle partie de la batterie produit le son le plus grave ?</strong></p>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q4" value="0"> Le Tom Basse</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q4" value="1"> La Grosse Caisse</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q4" value="0"> La Caisse Claire</label>
+                        </div>
+
+                        <!-- Question 5 -->
+                        <div class="quiz-question" data-q="5" style="display:none;">
+                            <p><strong>5. Lequel de ces styles utilise le plus souvent la polyrythmie ?</strong></p>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q5" value="1"> L'Afro-beat / Jazz Fusion</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q5" value="0"> Le Punk Rock</label>
+                            <label class="level-option" style="padding: 1rem;"><input type="radio" name="q5" value="0"> La Variété française</label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="button" class="btn btn-outline prev-btn" style="flex: 1;">Retour</button>
+                        <button type="button" class="btn btn-primary" id="next-q-btn" style="flex: 1;">Question suivante</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Interests -->
+                <div class="setup-step" id="step-3">
+                    <h2 class="text-gold">Vos styles préférés</h2>
+                    <p style="margin-bottom: 2rem;">Quels sont les genres musicaux qui vous passionnent ?</p>
+                    
+                    <div id="interests-container">
+                        <span class="interest-tag" data-val="Gospel">Gospel</span>
+                        <span class="interest-tag" data-val="Jazz">Jazz</span>
+                        <span class="interest-tag" data-val="Afro">Afro-beat</span>
+                        <span class="interest-tag" data-val="Funk">Funk</span>
+                        <span class="interest-tag" data-val="Rock">Rock</span>
+                        <span class="interest-tag" data-val="Fusion">Fusion</span>
+                        <span class="interest-tag" data-val="Latin">Latin</span>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 3rem;">
+                        <button type="button" class="btn btn-outline prev-btn" style="flex: 1;">Retour</button>
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">Terminer la configuration</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="step-dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="assets/js/auth-core.js"></script>
+    <script>
+        const user = AuthCore.getCurrentUser();
+        if (!user) window.location.href = 'login.html';
+
+        let currentStep = 1;
+        let currentQuestion = 1;
+        const totalSteps = 3;
+        const totalQuestions = 5;
+        const setupData = {
+            photo: null,
+            level: 'beginner',
+            interests: [],
+            quizScore: 0
+        };
+
+        // Quiz Logic
+        const nextQBtn = document.getElementById('next-q-btn');
+        nextQBtn.onclick = () => {
+            const currentQEl = document.querySelector(`.quiz-question[data-q="${currentQuestion}"]`);
+            const selected = currentQEl.querySelector('input:checked');
+            if (!selected) { alert("Veuillez sélectionner une réponse."); return; }
+            setupData.quizScore += parseInt(selected.value);
+            if (currentQuestion < totalQuestions) {
+                currentQEl.style.display = 'none';
+                currentQuestion++;
+                document.querySelector(`.quiz-question[data-q="${currentQuestion}"]`).style.display = 'block';
+                if (currentQuestion === totalQuestions) nextQBtn.textContent = "Voir mon niveau";
+            } else {
+                if (setupData.quizScore <= 2) setupData.level = 'beginner';
+                else if (setupData.quizScore <= 4) setupData.level = 'intermediate';
+                else setupData.level = 'advanced';
+                alert(`Évaluation terminée ! Votre score : ${setupData.quizScore}/5. Niveau attribué : ${setupData.level.toUpperCase()}`);
+                document.getElementById(`step-2`).classList.remove('active');
+                currentStep = 3;
+                document.getElementById(`step-3`).classList.add('active');
+                updateDots();
+            }
+        };
+
+        // Bind click on avatar display to trigger file input
+        document.getElementById('avatar-display').onclick = () => {
+            document.getElementById('photo-input').click();
+        };
+
+        // Photo Upload (With Compression)
+        document.getElementById('photo-input').onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        const MAX_SIZE = 200;
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        if (width > height) {
+                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                        } else {
+                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Compress to JPEG with 0.7 quality
+                        setupData.photo = canvas.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('avatar-display').innerHTML = `<img src="${setupData.photo}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Interests selection
+        document.querySelectorAll('.interest-tag').forEach(tag => {
+            tag.onclick = () => {
+                tag.classList.toggle('selected');
+                const val = tag.dataset.val;
+                if (setupData.interests.includes(val)) {
+                    setupData.interests = setupData.interests.filter(i => i !== val);
+                } else {
+                    setupData.interests.push(val);
+                }
+            };
+        });
+
+        // Navigation
+        document.querySelectorAll('.next-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                updateDots();
+            };
+        });
+        document.querySelectorAll('.prev-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                updateDots();
+            };
+        });
+
+        function updateDots() {
+            document.querySelectorAll('.dot').forEach((dot, idx) => {
+                dot.classList.toggle('active', idx + 1 === currentStep);
+            });
+        }
+
+        // Final Submit
+        document.getElementById('setup-form').onsubmit = (e) => {
+            e.preventDefault();
+            const users = AuthCore.getUsers();
+            const idx = users.findIndex(u => u.email === user.email);
+            if (idx !== -1) {
+                users[idx].photo = setupData.photo;
+                users[idx].level = setupData.level;
+                users[idx].interests = setupData.interests;
+                users[idx].quizScore = setupData.quizScore;
+                users[idx].setupCompleted = true;
+                localStorage.setItem('dma_users_db', JSON.stringify(users));
+                localStorage.setItem('dma_current_session', JSON.stringify(users[idx]));
+                alert("Profil configuré avec succès ! Votre niveau d'entrée est " + setupData.level.toUpperCase());
+                window.location.href = 'dashboard.html';
+            }
+        };
+
+        // Postpone logic
+        document.getElementById('postpone-setup-link').onclick = (e) => {
+            e.preventDefault();
+            if (confirm("Souhaitez-vous reporter la configuration ? Vous pourrez le faire plus tard depuis vos paramètres.")) {
+                AuthCore.postponeSetup();
+                window.location.href = 'dashboard.html';
+            }
+        };
+    </script>
+</body>
+</html>
+

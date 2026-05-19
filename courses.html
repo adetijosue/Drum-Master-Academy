@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nos Formations | DRUM MASTER ACADEMY</title>
+    <meta name="description" content="Découvrez les programmes de formation d'élite de la Drum Master Academy. Gospel, Afro, Jazz et Technique.">
+    
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Nos Formations | DRUM MASTER ACADEMY">
+    <meta property="og:description" content="Découvrez les programmes de formation d'élite de la Drum Master Academy. Gospel, Afro, Jazz et Technique.">
+    <meta property="og:image" content="https://www.drummasteracademy.com/assets/images/josue_5.jpg">
+    <meta property="twitter:card" content="summary_large_image">
+
+    <!-- Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" as="style">
+    <link rel="preload" as="image" href="assets/images/josue_5.jpg" fetchpriority="high">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-family: var(--font-heading);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--gold-gradient);
+            color: var(--bg-main);
+            border-color: transparent;
+            box-shadow: var(--shadow-gold);
+        }
+        
+        .course-card {
+            display: block; /* For filtering */
+        }
+        
+        .course-card.hidden {
+            display: none;
+        }
+
+        .level-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            color: var(--gold-light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid var(--gold-primary);
+            z-index: 2;
+        }
+
+        .course-features {
+            list-style: none;
+            margin: 1.5rem 0;
+            padding: 0;
+        }
+
+        .course-features li {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .course-features li::before {
+            content: '✓';
+            color: var(--gold-primary);
+            font-weight: bold;
+        }
+
+        .price-tag {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-top: 1.5rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Premium Utilities -->
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+    <div id="scroll-progress"></div>
+
+    <!-- Navigation -->
+    <header id="main-header"></header>
+
+    <!-- Courses Hero -->
+    <section style="min-height: 50vh; display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(rgba(5, 5, 5, 0.8), var(--bg-main)), url('assets/images/josue_5.jpg') center/cover; padding-top: 140px;">
+        <div class="container">
+            <span class="hero-subtitle">Programmes d'Excellence</span>
+            <h1>Élevez votre <span class="text-gold">Jeu</span>.</h1>
+            <p style="max-width: 700px; margin: 1.5rem auto 0 auto; color: var(--text-secondary);">Des cursus structurés, conçus par un professionnel pour vous amener vers la maîtrise totale de votre instrument.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section style="padding: var(--space-xl) 0;">
+        <div class="container">
+            <!-- Filter -->
+            <div class="filter-container reveal">
+                <button class="filter-btn active" data-filter="all">Tous</button>
+                <button class="filter-btn" data-filter="gospel">Gospel</button>
+                <button class="filter-btn" data-filter="afro">Afro Fusion</button>
+                <button class="filter-btn" data-filter="jazz">Jazz & Studio</button>
+                <button class="filter-btn" data-filter="technique">Technique</button>
+            </div>
+
+            <!-- Grid -->
+            <div class="courses-grid">
+                <!-- Course 0 (The Foundation) -->
+                <div class="course-card reveal" data-category="technique" style="border: 1px solid var(--gold-primary);">
+                    <span class="level-badge" style="background: var(--gold-primary); color: var(--bg-main);">Recommandé</span>
+                    <div style="position: relative; height: 250px; overflow: hidden;">
+                        <img src="assets/images/josue_1.jpg" alt="DMA Special" class="course-img" style="height: 100%;">
+                        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, transparent 60%); display: flex; flex-direction: column; justify-content: flex-end; padding: 1.5rem; border-bottom: 2px solid var(--gold-primary);">
+                            <h4 style="color: white; margin: 0; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px;">Spécial DMA</h4>
+                            <span style="color: var(--gold-primary); font-size: 0.75rem; font-weight: 800; letter-spacing: 2px;">NIVEAU : DÉBUTANT À INTERMÉDIAIRE</span>
+                        </div>
+                    </div>
+                    <div class="course-content">
+                        <span class="course-category">Fondation Complète</span>
+                        <h3>Spécial Drum Master Academy</h3>
+                        <p>Le programme idéal pour débuter. Apprenez les bases solides et progressez jusqu'au niveau intermédiaire avec la méthode exclusive de Josué ADETI.</p>
+                        <ul class="course-features">
+                            <li>Posture & Tenue de baguettes</li>
+                            <li>Premiers Grooves & Coordination</li>
+                            <li>Indépendance & Lecture</li>
+                        </ul>
+                        <a href="course-dma-special.html" class="btn btn-primary" style="width: 100%; text-align: center;">Démarrer ici</a>
+                    </div>
+                </div>
+
+                <!-- Course 1 -->
+                <div class="course-card reveal" data-category="gospel">
+                    <span class="level-badge">Avancé</span>
+                    <img src="assets/images/gospel-pro-thumbnail.png" alt="Masterclass Gospel Pro" class="course-img" loading="lazy">
+                    <div class="course-content">
+                        <span class="course-category">Gospel Chops & Grooves</span>
+                        <h3>Masterclass Gospel</h3>
+                        <p>Maîtrisez les rudiments avancés, les fills linéaires et la dynamique émotionnelle propre à la musique worship moderne.</p>
+                        <ul class="course-features">
+                            <li>Fills linéaires & complexes</li>
+                            <li>Grooves Worship modernes</li>
+                            <li>Indépendance avancée</li>
+                        </ul>
+                        <a href="course-gospel.html" class="btn btn-primary" style="width: 100%; text-align: center;">Découvrir le cursus</a>
+                    </div>
+                </div>
+
+                <!-- Course 2 -->
+                <div class="course-card reveal" data-category="afro" style="transition-delay: 0.1s;">
+                    <span class="level-badge">Intermédiaire</span>
+                    <img src="assets/images/josue_2.jpg" alt="Afro Fusion" class="course-img" loading="lazy">
+                    <div class="course-content">
+                        <span class="course-category">Rythmes du Monde</span>
+                        <h3>Spécialisation Afro Fusion</h3>
+                        <p>Intégrez les polyrythmies ouest-africaines et les grooves Afrobeats dans un contexte de batterie moderne.</p>
+                        <ul class="course-features">
+                            <li>Polyrythmies 6/8 & 12/8</li>
+                            <li>Grooves Afrobeats modernes</li>
+                            <li>Techniques de caisse claire</li>
+                        </ul>
+                        <a href="course-afro.html" class="btn btn-outline" style="width: 100%; text-align: center;">Découvrir le cursus</a>
+                    </div>
+                </div>
+
+                <!-- Course 3 -->
+                <div class="course-card reveal" data-category="jazz" style="transition-delay: 0.2s;">
+                    <span class="level-badge">Avancé</span>
+                    <img src="assets/images/josue_3.jpg" alt="Jazz & Studio" class="course-img" loading="lazy">
+                    <div class="course-content">
+                        <span class="course-category">Technique Pro</span>
+                        <h3>Jazz Moderne & Studio</h3>
+                        <p>Développez votre vocabulaire jazz, l'indépendance de vos membres et l'art d'enregistrer en studio professionnel.</p>
+                        <ul class="course-features">
+                            <li>Swing & Bebop vocabulaire</li>
+                            <li>Recording en studio pro</li>
+                            <li>Improvisation & Solo</li>
+                        </ul>
+                        <a href="course-jazz.html" class="btn btn-outline" style="width: 100%; text-align: center;">Découvrir le cursus</a>
+                    </div>
+                </div>
+
+                <!-- Course 4 -->
+                <div class="course-card reveal" data-category="technique" style="transition-delay: 0.3s;">
+                    <span class="level-badge">Débutant - Pro</span>
+                    <img src="assets/images/etudes_rythmes.jpg" alt="Etudes des rythmes" class="course-img" loading="lazy">
+                    <div class="course-content">
+                        <span class="course-category">Rythmes & Technique</span>
+                        <h3>Etudes des Rythmes</h3>
+                        <p>Explorez les fondamentaux rythmiques à travers une diversité de styles internationaux.</p>
+                        <ul class="course-features">
+                            <li>Latin salsa & merengue</li>
+                            <li>Afro-Cuban clave</li>
+                            <li>Subdivisions & Tempo</li>
+                        </ul>
+                        <a href="course-rythmes.html" class="btn btn-outline" style="width: 100%; text-align: center;">Découvrir le cursus</a>
+                    </div>
+                </div>
+
+                <!-- Course 5 (Bonus) -->
+                <div class="course-card reveal" data-category="technique" style="transition-delay: 0.4s; border: 1px solid var(--gold-primary);">
+                    <span class="level-badge" style="background: var(--gold-primary); color: var(--bg-main);">Indispensable</span>
+                    <img src="assets/images/rudiments-pro-thumbnail.png" alt="40 Drum Basic Rudiments Pro Edition" class="course-img" loading="lazy">
+                    <div class="course-content">
+                        <span class="course-category">Fondations Essentielles</span>
+                        <h3>40 Drum Basic Rudiments</h3>
+                        <p>Maîtrisez le lexique international de la batterie. Un parcours structuré couvrant les 40 rudiments officiels.</p>
+                        <ul class="course-features">
+                            <li>Roulés, Frisés, Paradiddles</li>
+                            <li>Technique de mains (Moeller)</li>
+                            <li>Contrôle & Vitesse</li>
+                        </ul>
+                        <a href="course-rudiments.html" class="btn btn-primary" style="width: 100%; text-align: center;">Accéder au programme</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Section -->
+    <section style="background: var(--bg-secondary); padding: var(--space-lg) 0;">
+        <div class="container">
+            <div class="about-grid">
+                <div class="reveal">
+                    <h2>Pourquoi choisir <span class="text-gold">DMA</span> ?</h2>
+                    <p>Nos formations ne sont pas de simples vidéos. Ce sont des cursus pensés pour une progression réelle, basés sur des années d'expérience sur les scènes internationales.</p>
+                    <div style="margin-top: 2rem;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <h4 style="color: var(--gold-primary); margin-bottom: 0.5rem;">Pédagogie structurée</h4>
+                            <p style="font-size: 1rem;">Chaque leçon suit une suite logique pour éviter les lacunes techniques.</p>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <h4 style="color: var(--gold-primary); margin-bottom: 0.5rem;">Qualité Premium</h4>
+                            <p style="font-size: 1rem;">Vidéos HD, son professionnel et partitions détaillées incluses.</p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--gold-primary); margin-bottom: 0.5rem;">Support Direct</h4>
+                            <p style="font-size: 1rem;">Accès à une communauté privée pour poser vos questions à Josué.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image reveal" style="transition-delay: 0.2s;">
+                    <img src="assets/images/josue_3.jpg" alt="DMA Coaching" style="border-radius: 12px; box-shadow: var(--shadow-dark);" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="main-footer"></footer>
+
+    <script src="assets/js/main.js" defer></script>
+    <script src="assets/js/components.js" defer></script>
+    <script src="assets/js/auth-checker.js" defer></script>
+    <script src="assets/js/gemini-coach.js" defer></script>
+    <script src="assets/js/josue-widget.js" defer></script>
+    <script>
+        // Simple filter logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const cards = document.querySelectorAll('.course-card');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active from all
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filter = btn.getAttribute('data-filter');
+
+                    cards.forEach(card => {
+                        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                            card.classList.remove('hidden');
+                        } else {
+                            card.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

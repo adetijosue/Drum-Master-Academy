@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Espace Étudiant | DMA</title>
+    <meta name="description" content="Tableau de bord étudiant de la Drum Master Academy. Suivez votre progression, téléchargez vos ressources et accédez à vos cours.">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Mon Espace Étudiant | DMA">
+    <meta property="og:description" content="Tableau de bord étudiant de la Drum Master Academy. Suivez votre progression, téléchargez vos ressources et accédez à vos cours.">
+    
+    <!-- Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" as="style">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            background: var(--bg-main);
+        }
+
+        .sidebar-dashboard {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-profile {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--gold-gradient);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--bg-main);
+            font-weight: 800;
+        }
+
+        .dash-nav {
+            list-style: none;
+            flex: 1;
+        }
+
+        .dash-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .dash-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition-fast);
+        }
+
+        .dash-nav a:hover, .dash-nav a.active {
+            background: rgba(214, 163, 47, 0.1);
+            color: var(--gold-primary);
+        }
+
+        .main-dash {
+            padding: 3rem;
+            overflow-y: auto;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(to right, rgba(214, 163, 47, 0.15), transparent);
+            border: 1px solid var(--glass-border);
+            padding: 2.5rem;
+            border-radius: 16px;
+            margin-bottom: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .course-progress-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            transition: var(--transition-smooth);
+        }
+
+        .course-progress-card:hover {
+            border-color: var(--gold-primary);
+            transform: translateX(10px);
+        }
+
+        .course-thumb-mini {
+            width: 120px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: #222;
+            border-radius: 4px;
+            margin-top: 0.8rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gold-gradient);
+            border-radius: 4px;
+        }
+
+        .stats-dash-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-dash-item {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .stat-dash-item h3 {
+            color: var(--gold-primary);
+            font-size: 1.8rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-dash-item p {
+            font-size: 0.8rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .sidebar-dashboard { display: none; }
+        }
+
+        /* Premium Settings CSS */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 2.5rem;
+            margin-top: 1rem;
+        }
+
+        .settings-tabs-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border-right: 1px solid var(--glass-border);
+            padding-right: 1.5rem;
+        }
+
+        .settings-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.9rem 1.2rem;
+            text-align: left;
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            width: 100%;
+        }
+
+        .settings-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: white;
+        }
+
+        .settings-tab-btn.active {
+            background: rgba(214, 163, 47, 0.1);
+            color: var(--gold-primary);
+            box-shadow: inset 3px 0 0 var(--gold-primary);
+        }
+
+        .settings-pane {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .settings-pane.active {
+            display: block;
+        }
+
+        .settings-section-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-dark);
+        }
+
+        .settings-title {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.8rem;
+            color: white;
+        }
+
+        .settings-level-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-level-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .settings-level-card:hover {
+            border-color: rgba(214, 163, 47, 0.4);
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .settings-level-card.selected {
+            border-color: var(--gold-primary);
+            background: rgba(214, 163, 47, 0.08);
+            box-shadow: 0 4px 15px rgba(214, 163, 47, 0.1);
+        }
+
+        .settings-level-card.selected h4 {
+            color: var(--gold-primary);
+        }
+
+        .settings-level-card h4 {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+            transition: color 0.2s;
+        }
+
+        .settings-level-card p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .settings-interests-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-interest-chip {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+        }
+
+        .settings-interest-chip:hover {
+            border-color: rgba(214, 163, 47, 0.4);
+            color: white;
+        }
+
+        .settings-interest-chip.selected {
+            background: var(--gold-gradient);
+            color: var(--bg-main);
+            border-color: var(--gold-primary);
+            font-weight: 700;
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--gold-primary);
+            padding: 1rem 1.8rem;
+            border-radius: 10px;
+            color: white;
+            box-shadow: var(--shadow-dark), var(--shadow-gold);
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .danger-zone-banner {
+            border: 1px solid rgba(255, 68, 68, 0.2);
+            background: linear-gradient(135deg, rgba(255, 68, 68, 0.05) 0%, transparent 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Glassmorphism Modal */
+        .glass-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .glass-modal-card {
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(255, 68, 68, 0.15), var(--shadow-dark);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-modal-backdrop.show {
+            display: flex;
+        }
+
+        .glass-modal-backdrop.show .glass-modal-card {
+            transform: scale(1);
+        }
+
+        /* Mobile Premium Header & Bottom Navigation */
+        .mobile-dash-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 999;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+        }
+
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid var(--glass-border);
+            z-index: 999;
+            align-items: center;
+            justify-content: space-around;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            gap: 0.2rem;
+            flex: 1;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--gold-primary);
+        }
+
+        .mobile-nav-icon {
+            font-size: 1.25rem;
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-dash-header {
+                display: flex;
+            }
+            .mobile-bottom-nav {
+                display: flex;
+            }
+            .main-dash {
+                padding: 80px 1.5rem 100px 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            .settings-tabs-menu {
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid var(--glass-border);
+                padding-right: 0;
+                padding-bottom: 1rem;
+                overflow-x: auto;
+                white-space: nowrap;
+                gap: 1rem;
+                scrollbar-width: none; /* Hide scrollbar Firefox */
+            }
+            .settings-tabs-menu::-webkit-scrollbar {
+                display: none; /* Hide scrollbar Webkit */
+            }
+            .settings-tab-btn {
+                width: auto;
+                flex-shrink: 0;
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Premium Top Header -->
+    <header class="mobile-dash-header">
+        <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+            <img src="assets/images/logo.jpg" alt="DMA Logo" style="width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gold-primary);">
+            <span style="font-family: var(--font-heading); font-weight: 800; color: white; font-size: 1.15rem; letter-spacing: 1px;">DMA<span style="color: var(--gold-primary);">.</span></span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div id="mobile-avatar-display" class="user-avatar" style="width: 38px; height: 38px; font-size: 0.95rem; margin: 0; cursor: pointer; border: 1px solid var(--gold-primary);">JS</div>
+        </div>
+    </header>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar-dashboard">
+            <div class="user-profile">
+                <div style="position: relative; width: 80px; margin: 0 auto 1rem;">
+                    <div class="user-avatar" id="user-avatar-container">JS</div>
+                    <label for="avatar-upload" style="position: absolute; bottom: 0; right: 0; background: var(--bg-tertiary); border: 1px solid var(--gold-primary); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; box-shadow: var(--shadow-dark);">
+                        📷
+                    </label>
+                    <input type="file" id="avatar-upload" style="display: none;" accept="image/*">
+                </div>
+                <h4 id="user-name-sidebar">Étudiant DMA</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Membre Premium</p>
+            </div>
+            <ul class="dash-nav" id="dash-sidebar-nav">
+                 <li><a href="#" class="active" data-view="dashboard"><span>🏠</span> Tableau de bord</a></li>
+                 <li><a href="courses.html"><span>📚</span> Mes Formations</a></li>
+                 <li><a href="#" data-view="community"><span>🤝</span> Communauté</a></li>
+                 <li><a href="#" data-view="tools"><span>⏱️</span> Outils</a></li>
+                 <li><a href="settings.html"><span>⚙️</span> Paramètres</a></li>
+             </ul>
+             <a href="#" id="logout-btn" style="margin-top: 2rem; color: #ff4444; text-decoration: none; font-size: 0.9rem; padding: 1rem; border-top: 1px solid var(--glass-border); display: block;">🚪 Déconnexion</a>
+             <a href="delete-account.html" style="margin-top: 1rem; color: #ff6b6b; text-decoration: none; font-size: 0.85rem; padding: 0.8rem 1rem; border: 1px dashed rgba(255, 107, 107, 0.3); border-radius: 8px; display: block; text-align: center; transition: all 0.3s; font-weight: 600;" onmouseover="this.style.background='rgba(255,68,68,0.1)'" onmouseout="this.style.background='transparent'">🗑️ Supprimer mon compte</a>
+         </aside>
+
+        <main class="main-dash">
+            <div class="welcome-banner">
+                <div>
+                    <h1 style="font-size: 2.2rem; margin: 0;">Ravi de vous revoir, <span class="text-gold" id="user-firstname">Étudiant</span> !</h1>
+                    <p style="margin: 0.5rem 0 0 0;">Continuez votre progression vers l'excellence.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Session active</span>
+                    <strong style="color: var(--gold-light);">2026 Season</strong>
+                </div>
+            </div>
+
+            <div class="stats-dash-grid">
+                <div class="stat-dash-item"><h3 id="stat-active-courses">0</h3><p>Cours actifs</p></div>
+                <div class="stat-dash-item"><h3>12h</h3><p>Temps d'étude</p></div>
+                <div class="stat-dash-item"><h3 id="stat-avg-progress">0%</h3><p>Progression moy.</p></div>
+                <div class="stat-dash-item"><h3>2</h3><p>Badges acquis</p></div>
+            </div>
+
+            <div id="dashboard-content">
+                <h2 style="margin-bottom: 2rem;">Reprendre l'apprentissage</h2>
+                <div id="enrolled-courses-list">
+                    <!-- Dynamic Content Here -->
+                </div>
+                <div id="empty-courses-state" style="text-align: center; padding: 4rem; background: var(--bg-secondary); border-radius: 12px; border: 1px dashed var(--glass-border); display: none;">
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Vous n'êtes inscrit à aucun cours pour le moment.</p>
+                    <a href="courses.html" class="btn btn-primary">Explorer le catalogue</a>
+                </div>
+
+                <div style="margin-top: 4rem;">
+                    <h2 style="margin-bottom: 2rem;">Cadeau de Bienvenue</h2>
+                    <div style="background: var(--bg-tertiary); border: 1px solid var(--gold-primary); border-radius: 12px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;">
+                        <div style="display: flex; align-items: center; gap: 2rem;">
+                            <img src="assets/images/rudiments-pro-thumbnail.png" alt="40 Drum Basic Rudiments" style="width: 120px; border-radius: 8px;">
+                            <div>
+                                <span style="background: var(--gold-primary); color: var(--bg-main); font-size: 0.75rem; font-weight: 800; padding: 0.3rem 0.8rem; border-radius: 4px; text-transform: uppercase;">Inclus gratuitement</span>
+                                <h3 style="margin: 0.5rem 0;">40 Drum Basic Rudiments (PDF)</h3>
+                                <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Votre lexique essentiel pour maîtriser la grammaire de la batterie. Document complet avec partitions.</p>
+                            </div>
+                        </div>
+                        <a href="assets/documents/pdf/40%20Drum%20Basic%20Rudiments.pdf" target="_blank" download="40_Drum_Basic_Rudiments.pdf" class="btn btn-outline" style="border-color: var(--gold-primary); color: var(--gold-primary); display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.2rem;">⬇️</span> Télécharger / Lire le PDF</a>
+                    </div>
+                </div>
+
+                <!-- Account Management Section / Danger Zone Shortcut -->
+                <div style="margin-top: 4rem; border-top: 1px solid var(--glass-border); padding-top: 2.5rem; margin-bottom: 2rem;">
+                    <h2 style="margin-bottom: 1.2rem; color: #ff5555; display: flex; align-items: center; gap: 0.5rem;">⚙️ Paramètres & Zone de Danger</h2>
+                    <div style="background: rgba(255, 68, 68, 0.03); border: 1px dashed rgba(255, 68, 68, 0.25); border-radius: 16px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;">
+                        <div style="flex: 1; min-width: 280px;">
+                            <h3 style="margin: 0; font-size: 1.2rem; color: white; font-weight: 700;">Gestion du compte étudiant</h3>
+                            <p style="color: var(--text-secondary); margin: 0.5rem 0 0 0; font-size: 0.95rem; line-height: 1.5;">
+                                Vous pouvez modifier vos informations de profil, changer votre mot de passe, ou procéder à la <strong>suppression irrévocable</strong> de votre compte étudiant et de vos données.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <a href="settings.html" class="btn btn-outline" style="border-color: var(--gold-primary); color: var(--gold-primary); font-weight: 600; padding: 0.8rem 1.5rem;">⚙️ Modifier mon profil</a>
+                            <a href="delete-account.html" class="btn" style="background: #ff4444; color: white; font-weight: 700; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#ff2222'" onmouseout="this.style.background='#ff4444'">🗑️ SUPPRIMER MON COMPTE</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Community Mini-Feed Section -->
+            <div id="community-content" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2 style="margin: 0;">Communauté DMA</h2>
+                    <a href="community.html" class="btn btn-primary" style="padding: 0.7rem 1.5rem; font-size: 0.9rem;">🌐 Ouvrir le Hub complet</a>
+                </div>
+
+                <!-- Quick Publish Box -->
+                <div style="background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <h4 style="margin: 0 0 1rem 0; color: var(--gold-primary);">✍️ Publier dans la communauté</h4>
+                    <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                        <div id="dash-post-avatar" style="width: 45px; height: 45px; border-radius: 50%; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: var(--bg-main); flex-shrink: 0;">JS</div>
+                        <div style="flex: 1;">
+                            <textarea id="dash-post-text" placeholder="Partagez votre progression, posez une question, ou inspirez vos camarades..." style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 12px; color: white; padding: 0.9rem 1rem; font-family: inherit; font-size: 0.95rem; resize: none; min-height: 80px; transition: border-color 0.3s;" onfocus="this.style.borderColor='var(--gold-primary)'" onblur="this.style.borderColor='var(--glass-border)'"></textarea>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; flex-wrap: wrap; gap: 0.5rem;">
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <select id="dash-post-category" style="background: var(--bg-tertiary); color: #fff; border: 1px solid var(--glass-border); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem;">
+                                        <option value="partage">🔥 Progression</option>
+                                        <option value="aide">🆘 Demande d'aide</option>
+                                        <option value="materiel">⚙️ Matériel</option>
+                                        <option value="offtopic">☕ Lounge</option>
+                                    </select>
+                                    <button class="btn btn-outline" onclick="document.getElementById('dash-media-input').click()" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-color: var(--glass-border); color: var(--text-secondary);">🖼️ Photo</button>
+                                    <input type="file" id="dash-media-input" style="display: none;" accept="image/*,video/*">
+                                </div>
+                                <button id="dash-publish-btn" class="btn btn-primary" style="padding: 0.6rem 1.8rem;">Publier 🚀</button>
+                            </div>
+                            <div id="dash-media-preview-container" style="display: none; position: relative; margin-top: 1rem;">
+                                <div id="dash-media-preview-content" style="border-radius: 8px; overflow: hidden; max-height: 150px; border: 1px solid var(--glass-border);"></div>
+                                <button id="dash-remove-media" style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.7); border: none; color: white; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 0.7rem;">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mini Feed -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.2rem;">Dernières publications</h4>
+                    <div id="dash-mini-feed"></div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <a href="community.html" class="btn btn-outline" style="border-color: var(--gold-primary); color: var(--gold-primary);">Voir toutes les publications</a>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Tools Section -->
+            <div id="tools-content" style="display: none;">
+                <h2 style="margin-bottom: 2rem;">Outils Pédagogiques</h2>
+                <div style="background: var(--bg-secondary); padding: 2.5rem; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; max-width: 500px; margin: 0 auto;">
+                    <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">Métronome Pro</h3>
+                    
+                    <div style="font-size: 4rem; font-weight: 900; font-family: 'Outfit', sans-serif; margin: 1rem 0; color: white;" id="bpm-display">120</div>
+                    <p style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">BPM</p>
+                    
+                    <input type="range" id="bpm-slider" min="40" max="240" value="120" style="width: 100%; margin: 2rem 0; cursor: pointer; accent-color: var(--gold-primary);">
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem;">
+                        <button class="btn btn-outline" id="btn-minus-bpm" style="padding: 0.5rem 1.5rem; font-size: 1.5rem;">-</button>
+                        <button class="btn btn-primary" id="btn-play-metronome" style="padding: 0.5rem 2rem; font-size: 1.2rem; min-width: 120px;">PLAY</button>
+                        <button class="btn btn-outline" id="btn-plus-bpm" style="padding: 0.5rem 1.5rem; font-size: 1.5rem;">+</button>
+                    </div>
+                    
+                    <button class="btn btn-outline" id="btn-tap-tempo" style="width: 100%; border-color: var(--social-accent); color: var(--social-accent);">TAP TEMPO</button>
+                </div>
+
+
+
+
+        </main>
+    </div>
+
+    <!-- Toast Notification System -->
+    <div id="toast-notif" class="toast-notification">
+        <span id="toast-icon">✨</span>
+        <span id="toast-message">Modifications enregistrées !</span>
+    </div>
+
+    <!-- Mobile Premium Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="#" class="mobile-nav-item active" data-view="dashboard">
+            <span class="mobile-nav-icon">🏠</span>
+            <span class="mobile-nav-label">Tableau</span>
+        </a>
+        <a href="courses.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon">📚</span>
+            <span class="mobile-nav-label">Formations</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-view="community">
+            <span class="mobile-nav-icon">🤝</span>
+            <span class="mobile-nav-label">Membres</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-view="tools">
+            <span class="mobile-nav-icon">⏱️</span>
+            <span class="mobile-nav-label">Outils</span>
+        </a>
+        <a href="settings.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon">⚙️</span>
+            <span class="mobile-nav-label">Réglages</span>
+        </a>
+    </nav>    
+    <script src="assets/js/gemini-coach.js"></script>
+    <script src="assets/js/josue-widget.js"></script>
+    <script src="assets/js/auth-core.js"></script>
+    <script src="assets/js/tools.js"></script>
+    <script>
+        // Courses Database for UI
+        const COURSES_DATA = {
+            'gospel': {
+                title: 'Masterclass Gospel',
+                img: 'assets/images/gospel-pro-thumbnail.png',
+                url: 'course-gospel.html',
+                totalLessons: 6
+            },
+            'rudiments': {
+                title: '40 Drum Basic Rudiments',
+                img: 'assets/images/rudiments-pro-thumbnail.png',
+                url: 'course-rudiments.html',
+                totalLessons: 6
+            },
+            'dma-special': {
+                title: 'Spécial Drum Master Academy',
+                img: 'assets/images/josue_1.jpg',
+                url: 'course-dma-special.html',
+                totalLessons: 6
+            },
+            'afro': {
+                title: 'Spécialisation Afro Fusion',
+                img: 'assets/images/josue_2.jpg',
+                url: 'course-afro.html',
+                totalLessons: 6
+            },
+            'jazz': {
+                title: 'Jazz Moderne & Studio',
+                img: 'assets/images/josue_3.jpg',
+                url: 'course-jazz.html',
+                totalLessons: 6
+            },
+            'rythmes': {
+                title: 'Étude des Rythmes',
+                img: 'assets/images/etudes_rythmes.jpg',
+                url: 'course-rythmes.html',
+                totalLessons: 6
+            }
+        };
+
+        // Security Check - Immediate
+        const currentUser = AuthCore.getCurrentUser();
+        if (!currentUser) {
+            window.location.href = 'login.html';
+            throw new Error("Session absente, redirection...");
+        } else if (currentUser.setupCompleted === false && !currentUser.setupPostponed) {
+            window.location.href = 'setup-profile.html';
+            throw new Error("Profil non configuré, redirection...");
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!currentUser) return;
+
+            // Update Profile UI
+            const avatarContainer = document.getElementById('user-avatar-container');
+            const mobileAvatarContainer = document.getElementById('mobile-avatar-display');
+            document.getElementById('user-firstname').textContent = currentUser.name.split(' ')[0];
+            document.getElementById('user-name-sidebar').textContent = currentUser.name;
+            
+            if (currentUser.photo) {
+                avatarContainer.innerHTML = `<img src="${currentUser.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                if (mobileAvatarContainer) mobileAvatarContainer.innerHTML = `<img src="${currentUser.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            } else {
+                const initials = currentUser.name.substring(0, 2).toUpperCase();
+                avatarContainer.textContent = initials;
+                if (mobileAvatarContainer) mobileAvatarContainer.textContent = initials;
+            }
+
+            // Render Enrolled Courses
+            const courseContainer = document.getElementById('enrolled-courses-list');
+            const emptyState = document.getElementById('empty-courses-state');
+            
+            let totalProgressSum = 0;
+
+            if (currentUser.enrolledCourses.length > 0) {
+                emptyState.style.display = 'none';
+                currentUser.enrolledCourses.forEach(courseId => {
+                    const course = COURSES_DATA[courseId];
+                    if (course) {
+                        let progress = 0;
+                        if (currentUser.courseProgress && currentUser.courseProgress[courseId]) {
+                            const completedCount = currentUser.courseProgress[courseId].completedLessons.length;
+                            progress = Math.round((completedCount / course.totalLessons) * 100);
+                            if (progress > 100) progress = 100;
+                        }
+                        
+                        totalProgressSum += progress;
+
+                        courseContainer.innerHTML += `
+                            <div class="course-progress-card">
+                                <img src="${course.img}" alt="${course.title}" class="course-thumb-mini">
+                                <div class="progress-bar-container">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <h4 style="margin: 0;">${course.title}</h4>
+                                        <span style="font-size: 0.85rem; color: var(--gold-primary);">${progress}% Terminé</span>
+                                    </div>
+                                    <div class="progress-track"><div class="progress-fill" style="width: ${progress}%;"></div></div>
+                                </div>
+                                <a href="${course.url}" class="btn btn-outline" style="padding: 0.6rem 1.2rem; font-size: 0.8rem;">Continuer</a>
+                            </div>`;
+                    }
+                });
+            } else {
+                emptyState.style.display = 'block';
+            }
+
+            // Stats update
+            document.getElementById('stat-active-courses').textContent = currentUser.enrolledCourses.length;
+            
+            let avgProgress = 0;
+            if (currentUser.enrolledCourses.length > 0) {
+                avgProgress = Math.round(totalProgressSum / currentUser.enrolledCourses.length);
+            }
+            document.getElementById('stat-avg-progress').textContent = avgProgress + '%';
+        });
+
+        // Photo Upload Logic
+        document.getElementById('avatar-upload').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file || !currentUser) return;
+
+            const avatarContainer = document.getElementById('user-avatar-container');
+            const originalAvatar = avatarContainer.innerHTML;
+            avatarContainer.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 1.5rem;">⏳</div>`;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const photoData = event.target.result;
+
+                const users = AuthCore.getUsers();
+                const userIndex = users.findIndex(u => u.email === currentUser.email);
+                
+                if (userIndex !== -1) {
+                    users[userIndex].photo = photoData;
+                    localStorage.setItem('dma_users_db', JSON.stringify(users));
+                    
+                    currentUser.photo = photoData;
+                    localStorage.setItem('dma_current_session', JSON.stringify(currentUser));
+                    
+                    avatarContainer.innerHTML = `<img src="${photoData}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    const headerAvatar = document.getElementById('dash-post-avatar');
+                    if (headerAvatar) headerAvatar.innerHTML = `<img src="${photoData}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                }
+            };
+            reader.onerror = function() {
+                alert("Erreur lors de la mise à jour de la photo.");
+                avatarContainer.innerHTML = originalAvatar;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            AuthCore.logout();
+        });
+
+        // Tab Navigation Logic
+        const dashContent = document.getElementById('dashboard-content');
+        const toolsContent = document.getElementById('tools-content');
+        const communityContent = document.getElementById('community-content');
+
+        function switchView(view) {
+            if (dashContent) dashContent.style.display = 'none';
+            if (toolsContent) toolsContent.style.display = 'none';
+            if (communityContent) communityContent.style.display = 'none';
+
+            if (view === 'dashboard' && dashContent) {
+                dashContent.style.display = 'block';
+            }
+            else if (view === 'tools' && toolsContent) {
+                toolsContent.style.display = 'block';
+            }
+            else if (view === 'community' && communityContent) {
+                communityContent.style.display = 'block';
+                loadDashMiniCommunity();
+            }
+
+            // Sync Desktop Sidebar Links
+            document.querySelectorAll('#dash-sidebar-nav a[data-view]').forEach(link => {
+                link.classList.toggle('active', link.dataset.view === view);
+            });
+
+            // Sync Mobile Bottom Nav Links
+            document.querySelectorAll('.mobile-bottom-nav a[data-view]').forEach(link => {
+                link.classList.toggle('active', link.dataset.view === view);
+            });
+        }
+
+        // Register Desktop Tab Nav Click
+        document.querySelectorAll('#dash-sidebar-nav a[data-view]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchView(link.dataset.view);
+            });
+        });
+
+        // Register Mobile Bottom Nav Click
+        document.querySelectorAll('.mobile-bottom-nav a[data-view]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchView(link.dataset.view);
+            });
+        });
+
+        // Register Mobile Top Avatar Click to navigate to Settings
+        const mobileAvatar = document.getElementById('mobile-avatar-display');
+        if (mobileAvatar) {
+            mobileAvatar.addEventListener('click', () => {
+                window.location.href = 'settings.html';
+            });
+        }
+
+        // Check URL search parameters on load
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialView = urlParams.get('view');
+        if (initialView && ['dashboard', 'community', 'tools'].includes(initialView)) {
+            switchView(initialView);
+        } else {
+            switchView('dashboard');
+        }
+
+        // Load mini community feed
+        function loadDashMiniCommunity() {
+            const COMMUNITY_DB_KEY = 'dma_community_posts';
+            const feed = document.getElementById('dash-mini-feed');
+            if (!feed) return;
+            const posts = JSON.parse(localStorage.getItem(COMMUNITY_DB_KEY)) || [];
+            const recent = posts.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 4);
+
+            const dashAvatar = document.getElementById('dash-post-avatar');
+            if (currentUser.photo) {
+                dashAvatar.innerHTML = `<img src="${currentUser.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            } else {
+                dashAvatar.textContent = currentUser.name.substring(0,2).toUpperCase();
+            }
+
+            if (recent.length === 0) {
+                feed.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">Aucune publication pour le moment. Soyez le premier à partager !</p>';
+                return;
+            }
+
+            const categoryIcon = { partage:'🔥', aide:'🆘', materiel:'⚙️', offtopic:'☕' };
+            feed.innerHTML = recent.map(p => {
+                const allUsers = AuthCore.getUsers();
+                const author = allUsers.find(u => u.name === p.userName) || {};
+                const avatar = author.photo ? `<img src="${author.photo}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-primary);">` : `<div style="width:38px;height:38px;border-radius:50%;background:var(--gold-gradient);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--bg-main);font-size:0.75rem;">${(p.userName||'?').substring(0,2).toUpperCase()}</div>`;
+                const timeAgo = (() => { const d = (Date.now()-new Date(p.timestamp))/1000; if(d<60) return "À l'instant"; if(d<3600) return `Il y a ${Math.floor(d/60)}min`; if(d<86400) return `Il y a ${Math.floor(d/3600)}h`; return new Date(p.timestamp).toLocaleDateString('fr-FR'); })();
+                const snippet = (p.text||'').length > 120 ? (p.text||'').substring(0,120)+'...' : (p.text||'');
+                return `
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                ${avatar}
+                                <div>
+                                    <span style="font-weight: 700; font-size: 0.9rem;">${p.userName}</span>
+                                    <span style="display: block; font-size: 0.75rem; color: var(--text-muted);">${timeAgo}</span>
+                                </div>
+                            </div>
+                            <span style="font-size: 0.7rem; background: rgba(214,163,47,0.12); color: var(--gold-primary); padding: 0.3rem 0.7rem; border-radius: 20px; font-weight: 700;">${categoryIcon[p.category] || '📌'} ${(p.category||'').toUpperCase()}</span>
+                        </div>
+                        ${snippet ? `<p style="color: #ddd; font-size: 0.9rem; line-height: 1.5; margin: 0 0 0.8rem 0;">${snippet}</p>` : ''}
+                        <div style="display: flex; gap: 1.5rem; font-size: 0.8rem; color: var(--text-muted);">
+                            <span>❤️ ${(p.reactions&&p.reactions.like)||0}</span>
+                            <span>💬 ${(p.comments&&p.comments.length)||0}</span>
+                            <a href="community.html" style="color: var(--gold-primary); margin-left: auto; text-decoration: none; font-weight: 600;">Voir →</a>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        // Quick publish from dashboard
+        let dashPendingMedia = null;
+        const dashMediaInput = document.getElementById('dash-media-input');
+        const dashPreviewContainer = document.getElementById('dash-media-preview-container');
+        const dashPreviewContent = document.getElementById('dash-media-preview-content');
+        const dashRemoveMediaBtn = document.getElementById('dash-remove-media');
+
+        if (dashMediaInput) {
+            dashMediaInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                dashPendingMedia = { file: file, type: file.type };
+                dashPreviewContainer.style.display = 'block';
+                const objectURL = URL.createObjectURL(file);
+                if (file.type.startsWith('image')) {
+                    dashPreviewContent.innerHTML = `<img src="${objectURL}" style="width: 100%; height: 150px; object-fit: cover;">`;
+                } else {
+                    dashPreviewContent.innerHTML = `<video src="${objectURL}" style="width: 100%; height: 150px; object-fit: cover;" muted></video>`;
+                }
+            };
+            dashRemoveMediaBtn.onclick = () => {
+                dashPendingMedia = null;
+                dashPreviewContainer.style.display = 'none';
+                dashMediaInput.value = '';
+            };
+        }
+
+        const dashPublishBtn = document.getElementById('dash-publish-btn');
+        if (dashPublishBtn) {
+            dashPublishBtn.onclick = () => {
+                const text = document.getElementById('dash-post-text').value.trim();
+                const category = document.getElementById('dash-post-category').value;
+                if (!text) { document.getElementById('dash-post-text').focus(); return; }
+
+                const COMMUNITY_DB_KEY = 'dma_community_posts';
+                const posts = JSON.parse(localStorage.getItem(COMMUNITY_DB_KEY)) || [];
+                posts.unshift({
+                    id: 'post_' + Date.now(),
+                    userName: currentUser.name,
+                    text: text,
+                    category: category,
+                    timestamp: new Date().toISOString(),
+                    media: null,
+                    comments: [],
+                    reactions: { like: 0, clap: 0, fire: 0, rocket: 0 },
+                    userReactions: {}
+                });
+                localStorage.setItem(COMMUNITY_DB_KEY, JSON.stringify(posts));
+                document.getElementById('dash-post-text').value = '';
+                dashPublishBtn.textContent = '✅ Publié !';
+                dashPublishBtn.style.background = '#22c55e';
+                setTimeout(() => {
+                    dashPublishBtn.textContent = 'Publier 🚀';
+                    dashPublishBtn.style.background = '';
+                    loadDashMiniCommunity();
+                }, 1500);
+            };
+        }
+
+        // --- TOAST SYSTEM ---
+        function showToast(message, icon = '✨', isSuccess = true) {
+            const toast = document.getElementById('toast-notif');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastMsg = document.getElementById('toast-message');
+
+            toastIcon.textContent = icon;
+            toastMsg.textContent = message;
+            toast.style.borderColor = isSuccess ? 'var(--gold-primary)' : '#ff4444';
+            
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+
+
+    </script>
+</body>
+</html>

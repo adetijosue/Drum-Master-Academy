@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spécial Drum Master Academy | DMA</title>
+    <meta name="description" content="La formation ultime pour débuter et atteindre un niveau intermédiaire à la batterie. Méthode DMA exclusive.">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root { --sidebar-width: 300px; }
+        .course-layout { display: flex; min-height: 100vh; padding-top: 80px; }
+        .course-sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--glass-border); padding: 2rem; position: fixed; height: calc(100vh - 80px); overflow-y: auto; z-index: 10; }
+        .course-content-area { flex: 1; margin-left: var(--sidebar-width); padding: 3rem 5rem; max-width: 1200px; }
+        .module-nav { list-style: none; padding: 0; }
+        .module-nav a { display: block; padding: 1rem; color: var(--text-secondary); text-decoration: none; border-radius: 8px; transition: var(--transition-fast); font-size: 0.9rem; font-weight: 500; }
+        .module-nav a:hover, .module-nav a.active { background: rgba(214, 163, 47, 0.1); color: var(--gold-primary); }
+        .module-section { margin-bottom: 6rem; scroll-margin-top: 120px; }
+        .module-tag { background: var(--gold-primary); color: var(--bg-main); padding: 0.3rem 1rem; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; display: inline-block; }
+        .curriculum-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 2rem 0; }
+        .curriculum-card { background: var(--bg-tertiary); padding: 2rem; border-radius: 12px; border: 1px solid var(--glass-border); transition: var(--transition-smooth); }
+        .curriculum-card:hover { border-color: var(--gold-primary); transform: translateY(-5px); }
+        .pedagogy-alert { border-left: 4px solid var(--gold-primary); padding: 1.5rem 2rem; background: rgba(214, 163, 47, 0.05); border-radius: 0 8px 8px 0; margin: 2rem 0; }
+        @media (max-width: 1024px) { .course-sidebar { display: none; } .course-content-area { margin-left: 0; padding: 3rem 2rem; } }
+    </style>
+</head>
+<body>
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+    <header id="main-header"></header>
+
+    <div class="course-layout">
+        <aside class="course-sidebar">
+            <h4 style="margin-bottom: 2rem; color: var(--gold-primary);">DMA Special Plan</h4>
+            <ul class="module-nav">
+                <li><a href="#intro" class="active">Point de Départ</a></li>
+                <li><a href="#module1">Module 1 : Les Fondations</a></li>
+                <li><a href="#module2">Module 2 : Premiers Grooves</a></li>
+                <li><a href="#module3">Module 3 : Technique de Pieds</a></li>
+                <li><a href="#module4">Module 4 : Rudiments & Toms</a></li>
+                <li><a href="#module5">Module 5 : Nuances & Latins</a></li>
+                <li><a href="#module6">Module 6 : Créativité</a></li>
+                <li><a href="#method">Notre Méthode</a></li>
+            </ul>
+        </aside>
+
+        <main class="course-content-area">
+            <!-- Dynamic Hero Header -->
+            <section class="course-hero-dynamic reveal" style="background-image: url('assets/images/josue_1.jpg'); margin-bottom: 4rem;">
+                <div class="hero-content">
+                    <h2>Spécial</h2>
+                    <div class="main-title">DMA Academy</div>
+                    <div class="keywords">DÉBUTANT <span>•</span> INTERMÉDIAIRE <span>•</span> BASES <span>•</span> MAÎTRISE</div>
+                </div>
+            </section>
+
+            <section id="intro" class="module-section">
+                <span class="module-tag">Le Programme Ultime</span>
+                <h1>Formation <span class="text-gold">Zéro à Héros</span></h1>
+                <p style="font-size: 1.2rem;">Conçu pour les passionnés qui souhaitent une base solide. Ce programme vous accompagne de votre première prise de baguette jusqu'à la maîtrise des rythmes intermédiaires.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>🎓 Progression</h4><p>Un cheminement logique et structuré pour éviter les mauvaises habitudes.</p></div>
+                    <div class="curriculum-card"><h4>🥁 Polyvalence</h4><p>Apprenez à jouer du Rock, de la Pop, du Funk et plus encore.</p></div>
+                </div>
+            </section>
+
+            <section id="module1" class="module-section">
+                <span class="module-tag">Module 1</span>
+                <h2>Fondations : Posture & Tenue</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Le Match Grip</h4><p>Maîtriser la tenue moderne des baguettes pour un maximum de contrôle.</p></div>
+                    <div class="curriculum-card"><h4>L'Ergonomie du Kit</h4><p>Comment installer sa batterie pour jouer sans douleur et avec fluidité.</p></div>
+                </div>
+                <div class="pedagogy-alert"><strong>Note :</strong> 80% des progrès dépendent d'une bonne posture initiale.</div>
+            </section>
+
+            <section id="module2" class="module-section">
+                <span class="module-tag">Module 2</span>
+                <h2>Tes Premiers Grooves (4/4)</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>La Pulsation</h4><p>Comprendre le débit de croches et le placement de la caisse claire sur le 2 et le 4.</p></div>
+                    <div class="curriculum-card"><h4>Variations Grosse Caisse</h4><p>Développer l'indépendance du pied droit par rapport aux mains.</p></div>
+                </div>
+            </section>
+
+            <section id="module3" class="module-section">
+                <span class="module-tag">Module 3</span>
+                <h2>Puissance & Précision des Pieds</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Heel Up vs Heel Down</h4><p>Quand utiliser chaque technique pour varier la dynamique.</p></div>
+                    <div class="curriculum-card"><h4>Le Hi-Hat (Pied Gauche)</h4><p>Apprendre à marquer le temps avec le pied gauche pendant que vous jouez.</p></div>
+                </div>
+            </section>
+
+            <section id="module4" class="module-section">
+                <span class="module-tag">Module 4</span>
+                <h2>Rudiments & Déplacements</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Le Paradiddle Magique</h4><p>Comment ce simple rudiment débloque tout le kit.</p></div>
+                    <div class="curriculum-card"><h4>Circulation sur les Toms</h4><p>Travailler la fluidité pour passer d'un fût à l'autre sans casser le rythme.</p></div>
+                </div>
+            </section>
+
+            <section id="module5" class="module-section">
+                <span class="module-tag">Module 5</span>
+                <h2>Intermédiaire : Nuances & Ghost Notes</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>L'Art de la Ghost Note</h4><p>Ajouter de la saveur à vos grooves avec des coups subtils.</p></div>
+                    <div class="curriculum-card"><h4>Introduction aux Rythmes Latins</h4><p>Découvrir la Bossa Nova et les bases de la coordination asymétrique.</p></div>
+                </div>
+            </section>
+
+            <section id="module6" class="module-section">
+                <span class="module-tag">Module 6</span>
+                <h2>Lire, Écouter & Créer</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Solfège Rythmique</h4><p>Apprendre à lire une partition de batterie simple pour être autonome.</p></div>
+                    <div class="curriculum-card"><h4>Développement du Style</h4><p>Comment créer vos propres fills et grooves personnalisés.</p></div>
+                </div>
+            </section>
+
+            <section id="method" class="module-section">
+                <h2>La Méthode DMA</h2>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px solid var(--glass-border);">Écoute</div>
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px solid var(--glass-border);">Structure</div>
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px solid var(--glass-border);">Variation</div>
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px solid var(--gold-primary);">Play-Along</div>
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px solid var(--glass-border);">Liberté</div>
+                </div>
+            </section>
+
+            <section style="text-align: center; padding: 4rem; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--gold-primary);">
+                <h2>Prêt à transformer votre jeu ?</h2>
+                <p>Rejoignez la communauté des étudiants DMA et commencez votre voyage aujourd'hui.</p>
+                <div style="margin-top: 3rem; text-align: center;">
+                    <a href="#" class="btn btn-primary btn-enroll-action" data-course-id="dma-special" style="padding: 1.2rem 3rem; font-size: 1.1rem;">S'inscrire à cette formation</a>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth-core.js"></script>
+    <script src="assets/js/auth-checker.js"></script>
+    <script src="assets/js/enrollment.js"></script>
+    <script src="assets/js/course-videos.js"></script>
+    <script src="assets/js/components.js" defer></script>
+</body>
+</html>

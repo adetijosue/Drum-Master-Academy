@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | DRUM MASTER ACADEMY</title>
+    <meta name="description" content="Contactez la Drum Master Academy. Nous sommes à votre écoute pour toute question concernant nos cours de batterie en ligne.">
+    
+    <!-- Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="image" href="assets/images/josue_3.jpg" fetchpriority="high">
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Premium Utilities -->
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+    <div id="scroll-progress"></div>
+
+    <!-- Navigation -->
+    <header id="main-header"></header>
+
+    <!-- Contact Hero -->
+    <section class="contact-hero">
+        <div class="container">
+            <span class="hero-subtitle">Une question ?</span>
+            <h1 style="margin-bottom: 0;">Contactez-<span class="text-gold">Nous</span>.</h1>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section style="padding: 6rem 0;">
+        <div class="container">
+            <div class="contact-grid">
+
+                <!-- Contact Information -->
+                <div class="contact-info reveal">
+                    <h3 style="margin-bottom: 2rem;">Nos Coordonnées</h3>
+
+                    <div class="info-item">
+                        <h4>📱 WhatsApp / Téléphone</h4>
+                        <p>
+                            <a href="tel:+22897068056">+228 97 06 80 56</a><br>
+                            <a href="tel:+22897353506">+228 97 35 35 06</a>
+                        </p>
+                    </div>
+
+                    <div class="info-item">
+                        <h4>✉️ Email</h4>
+                        <p><a href="mailto:contactdrummasteracademy@gmail.com">contactdrummasteracademy@gmail.com</a></p>
+                    </div>
+
+                    <div class="info-item">
+                        <h4>📍 Adresse</h4>
+                        <p>23 Avenue Nicolas Grunitsky<br>Lomé, Togo</p>
+                    </div>
+
+                    <div class="info-item" style="margin-top: 2.5rem;">
+                        <h4>Réseaux Sociaux</h4>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                            <a href="#" class="btn btn-outline" style="padding: 0.5rem 1.2rem; font-size: 0.85rem;">YouTube</a>
+                            <a href="#" class="btn btn-outline" style="padding: 0.5rem 1.2rem; font-size: 0.85rem;">Instagram</a>
+                            <a href="#" class="btn btn-outline" style="padding: 0.5rem 1.2rem; font-size: 0.85rem;">Facebook</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="contact-form reveal" style="transition-delay: 0.2s;">
+                    <h3 style="margin-bottom: 2rem;">Envoyez un <span class="text-gold">Message</span></h3>
+                    <form action="#" method="POST">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div class="form-group">
+                                <label for="name">Nom complet</label>
+                                <input type="text" id="name" class="form-control" placeholder="Votre nom" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Adresse email</label>
+                                <input type="email" id="email" class="form-control" placeholder="Votre email" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Sujet</label>
+                            <input type="text" id="subject" class="form-control" placeholder="Sujet de votre message" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" class="form-control" placeholder="Comment pouvons-nous vous aider ?" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; border: none;">Envoyer le message</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="main-footer"></footer>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/auth-checker.js"></script>
+    <script src="assets/js/email-service.js"></script>
+    <script>
+        // Initialize EmailJS
+        (function() {
+            if (EmailService.CONFIG.PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
+                emailjs.init(EmailService.CONFIG.PUBLIC_KEY);
+            }
+        })();
+
+        const contactForm = document.querySelector('.contact-form form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                
+                submitBtn.textContent = "Envoi en cours...";
+                submitBtn.disabled = true;
+
+                const formData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    subject: document.getElementById('subject').value,
+                    message: document.getElementById('message').value
+                };
+
+                const result = await EmailService.sendContactEmail(formData);
+
+                if (result.success) {
+                    alert("Merci ! Votre message a été envoyé avec succès.");
+                    this.reset();
+                } else {
+                    alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
+                }
+
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

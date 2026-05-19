@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue chez Drum Master Academy</title>
+    <style>
+        /* Reset & Base Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050505;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+        }
+        table {
+            border-spacing: 0;
+            width: 100%;
+        }
+        td {
+            padding: 0;
+        }
+        img {
+            border: 0;
+        }
+
+        /* Container */
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #050505;
+            padding-bottom: 40px;
+        }
+        .main {
+            background-color: #0a0a0a;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            border-spacing: 0;
+            font-family: sans-serif;
+            color: #d1d1d1;
+        }
+
+        /* Brand Colors */
+        .gold { color: #d6a32f; }
+        .bg-gold { background-color: #d6a32f; }
+
+        /* Header */
+        .header {
+            padding: 40px 0;
+            text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?auto=format&fit=crop&q=80&w=600') center/cover;
+            border-bottom: 3px solid #d6a32f;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px 30px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #ffffff;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Button */
+        .button-wrapper {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .btn {
+            background-color: #d6a32f;
+            color: #050505;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 16px;
+            display: inline-block;
+        }
+
+        /* Features */
+        .features {
+            background-color: #111111;
+            padding: 30px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        .feature-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666666;
+            border-top: 1px solid #222;
+        }
+        .social-links {
+            margin-bottom: 15px;
+        }
+        .social-links a {
+            color: #d6a32f;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <center class="wrapper">
+        <table class="main" width="100%">
+            <!-- Header -->
+            <tr>
+                <td class="header">
+                    <img src="https://adetijosue.github.io/dma/assets/images/logo.jpg" alt="DMA Logo" width="100" style="border-radius: 50%; border: 2px solid #d6a32f;">
+                    <h2 style="color: #d6a32f; margin-top: 15px; letter-spacing: 2px;">DRUM MASTER ACADEMY</h2>
+                </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+                <td class="content">
+                    <h1>Bienvenue parmi nous, <span class="gold">[Prénom]</span> !</h1>
+                    <p>Félicitations ! Votre inscription à la <strong>Drum Master Academy</strong> a été validée avec succès. Nous sommes ravis de vous accompagner dans votre voyage vers l'excellence rythmique.</p>
+                    
+                    <p>Josué ADETI et toute l'équipe de DMA mettent à votre disposition les meilleurs outils pour transformer votre jeu et faire de vous un batteur d'exception.</p>
+
+                    <div class="features">
+                        <h4 style="color: #ffffff; margin-top: 0;">Ce qui vous attend :</h4>
+                        <table width="100%">
+                            <tr>
+                                <td style="padding: 10px 0;">✨ <strong>Formations d'Élite :</strong> Accès illimité à vos cours souscrits.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 0;">🤝 <strong>Communauté Privée :</strong> Échangez avec d'autres passionnés.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 0;">📽️ <strong>Contenus HD :</strong> Vidéos et ressources pédagogiques premium.</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="button-wrapper">
+                        <a href="https://adetijosue.github.io/dma/dashboard.html" class="btn">ACCÉDER À MON ESPACE</a>
+                    </div>
+
+                    <p style="font-size: 14px; margin-top: 30px;">Si vous avez des questions, n'hésitez pas à répondre à cet email ou à nous contacter via l'espace support.</p>
+                    
+                    <p>Prêt à faire vibrer les fûts ?</p>
+                    <p>Musicalement,<br><strong>L'équipe Drum Master Academy</strong></p>
+                </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+                <td class="footer">
+                    <div class="social-links">
+                        <a href="#">Instagram</a> | <a href="#">YouTube</a> | <a href="#">Facebook</a>
+                    </div>
+                    <p>&copy; 2026 Drum Master Academy. Tous droits réservés.<br>
+                    Lomé, Togo - Centre d'Excellence Rythmique.</p>
+                    <p>Vous recevez cet email car vous vous êtes inscrit sur drummasteracademy.com</p>
+                </td>
+            </tr>
+        </table>
+    </center>
+</body>
+</html>

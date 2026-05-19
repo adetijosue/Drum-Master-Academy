@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spécialisation Afro Fusion | DRUM MASTER ACADEMY</title>
+    <meta name="description" content="Formation d'élite sur les rythmes Afro : Polyrythmies, Afrobeat, Highlife et Fusion Moderne.">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root { --sidebar-width: 300px; }
+        .course-layout { display: flex; min-height: 100vh; padding-top: 80px; }
+        .course-sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--glass-border); padding: 2rem; position: fixed; height: calc(100vh - 80px); overflow-y: auto; z-index: 10; }
+        .course-content-area { flex: 1; margin-left: var(--sidebar-width); padding: 3rem 5rem; max-width: 1200px; }
+        .module-nav { list-style: none; padding: 0; }
+        .module-nav a { display: block; padding: 1rem; color: var(--text-secondary); text-decoration: none; border-radius: 8px; transition: var(--transition-fast); font-size: 0.9rem; font-weight: 500; }
+        .module-nav a:hover, .module-nav a.active { background: rgba(214, 163, 47, 0.1); color: var(--gold-primary); }
+        .module-section { margin-bottom: 6rem; scroll-margin-top: 120px; }
+        .module-tag { background: var(--gold-primary); color: var(--bg-main); padding: 0.3rem 1rem; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; display: inline-block; }
+        .curriculum-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 2rem 0; }
+        .curriculum-card { background: var(--bg-tertiary); padding: 2rem; border-radius: 12px; border: 1px solid var(--glass-border); }
+        .pedagogy-alert { border-left: 4px solid var(--gold-primary); padding: 1.5rem 2rem; background: rgba(214, 163, 47, 0.05); border-radius: 0 8px 8px 0; margin: 2rem 0; }
+        @media (max-width: 1024px) { .course-sidebar { display: none; } .course-content-area { margin-left: 0; padding: 3rem 2rem; } }
+    </style>
+</head>
+<body>
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+    <header id="main-header"></header>
+
+    <div class="course-layout">
+        <aside class="course-sidebar">
+            <h4 style="margin-bottom: 2rem; color: var(--gold-primary);">Afro Fusion Plan</h4>
+            <ul class="module-nav">
+                <li><a href="#intro" class="active">Vue d'ensemble</a></li>
+                <li><a href="#module1">Module 1 : Racines & 6/8</a></li>
+                <li><a href="#module2">Module 2 : Afrobeat Master</a></li>
+                <li><a href="#module3">Module 3 : Highlife & Soukous</a></li>
+                <li><a href="#module4">Module 4 : Rythmes du Terroir</a></li>
+                <li><a href="#module5">Module 5 : Modern Fusion</a></li>
+                <li><a href="#module6">Module 6 : Le "Rolling" Feel</a></li>
+            </ul>
+        </aside>
+
+        <main class="course-content-area">
+            <section id="intro" class="module-section">
+                <span class="module-tag">Spécialisation</span>
+                <h1>Afro Fusion <span class="text-gold">Expert</span></h1>
+                <p style="font-size: 1.2rem;">Maîtrisez les richesses rythmiques de l'Afrique et apprenez à les fusionner avec les styles modernes pour créer un son unique et puissant.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>🥁 Polyrythmie</h4><p>L'indépendance totale des membres sur des cycles complexes.</p></div>
+                    <div class="curriculum-card"><h4>🌍 Culture</h4><p>Comprendre l'âme de chaque rythme pour le jouer avec respect.</p></div>
+                </div>
+            </section>
+
+            <section id="module1" class="module-section">
+                <span class="module-tag">Module 1</span>
+                <h2>Racines & Polyrythmies 6/8</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Le Ternaire Fondamental</h4><p>Maîtriser le 6/8 et le 12/8, la base de la plupart des rythmes traditionnels.</p></div>
+                    <div class="curriculum-card"><h4>Claves Africaines</h4><p>Comprendre le rôle de la cloche (Bell pattern) et comment le transposer à la batterie.</p></div>
+                </div>
+            </section>
+
+            <section id="module2" class="module-section">
+                <span class="module-tag">Module 2</span>
+                <h2>Afrobeat Master (Tony Allen Style)</h2>
+                <p>Étude approfondie du style qui a révolutionné la batterie africaine.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>L'Indépendance des 4 membres</h4><p>Maintenir un ostinato de charleston pendant que les 3 autres membres conversent.</p></div>
+                    <div class="curriculum-card"><h4>Ghost Notes Afro</h4><p>L'art de remplir l'espace avec subtilité.</p></div>
+                </div>
+                <div class="pedagogy-alert"><strong>Astuce :</strong> Imaginez que chaque membre est une percussion différente (Shekere, Cowbell, Conga).</div>
+            </section>
+
+            <section id="module3" class="module-section">
+                <span class="module-tag">Module 3</span>
+                <h2>Highlife & Soukous</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Le Highlife du Ghana</h4><p>Un groove léger, aérien et extrêmement précis sur les cymbales.</p></div>
+                    <div class="curriculum-card"><h4>L'Énergie du Soukous</h4><p>Gestion du tempo et de l'énergie pour des moments de danse intenses.</p></div>
+                </div>
+            </section>
+
+            <section id="module4" class="module-section">
+                <span class="module-tag">Module 4</span>
+                <h2>Rythmes du Terroir (Togo & Bénin)</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Agbadja & Akpessé</h4><p>Adapter les tambours traditionnels Ewe à la batterie moderne.</p></div>
+                    <div class="curriculum-card"><h4>Le Feeling "Vodoun"</h4><p>Rythmes complexes et rituels appliqués au kit.</p></div>
+                </div>
+            </section>
+
+            <section id="module5" class="module-section">
+                <span class="module-tag">Module 5</span>
+                <h2>Modern Fusion & Amapiano</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Afro-Jazz & Afro-Rock</h4><p>Fusionner les grooves africains avec l'harmonie jazz et la puissance rock.</p></div>
+                    <div class="curriculum-card"><h4>Log Drum & Amapiano</h4><p>Imiter les textures électroniques sud-africaines sur un kit acoustique.</p></div>
+                </div>
+            </section>
+
+            <section id="module6" class="module-section" style="background: var(--bg-tertiary); padding: 3rem; border-radius: 12px; border: 1px solid var(--gold-primary);">
+                <span class="module-tag">Module 6</span>
+                <h2>Le "Rolling" Feel</h2>
+                <p>La vérité finale sur le groove africain : il ne doit jamais être rigide.</p>
+                <div style="margin-top: 3rem; text-align: center;">
+                    <a href="#" class="btn btn-primary btn-enroll-action" data-course-id="afro" style="padding: 1.2rem 3rem; font-size: 1.1rem;">S'inscrire à cette formation</a>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth-core.js"></script>
+    <script src="assets/js/auth-checker.js"></script>
+    <script src="assets/js/enrollment.js"></script>
+    <script src="assets/js/course-videos.js"></script>
+    <script src="assets/js/components.js" defer></script>
+</body>
+</html>

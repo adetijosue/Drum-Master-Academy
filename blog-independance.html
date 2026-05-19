@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Indépendance | Blog DMA</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .post-hero {
+            height: 60vh;
+            background: linear-gradient(rgba(0,0,0,0.6), var(--bg-main)), url('assets/images/josue_2.jpg') center/cover;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 5rem;
+        }
+
+        .post-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .post-content {
+            padding: 5rem 0;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .post-content h2 {
+            color: var(--text-primary);
+            margin: 3rem 0 1.5rem;
+            font-size: 2.2rem;
+        }
+
+        .exercise-box {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--gold-primary);
+            padding: 2rem;
+            margin: 2.5rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .exercise-box h4 {
+            color: var(--gold-primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .notation {
+            font-family: 'Courier New', Courier, monospace;
+            background: #000;
+            color: var(--gold-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            display: block;
+            margin: 1rem 0;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="scroll-progress"></div>
+
+    <header id="main-header"></header>
+
+    <header class="post-hero">
+        <div class="post-container">
+            <span class="category-tag" style="background: var(--gold-primary); color: var(--bg-main); font-weight: 800; padding: 0.4rem 1rem; border-radius: 4px; font-size: 0.8rem; text-transform: uppercase;">Pédagogie & Travail</span>
+            <h1 style="font-size: 3.5rem; margin-top: 1rem; line-height: 1.1;">L'Indépendance : <span class="text-gold">Libérer</span> son cerveau.</h1>
+            <div style="display: flex; gap: 2rem; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+                <span>Par Josué ADETI</span>
+                <span>02 Mai 2026</span>
+                <span>6 min de lecture</span>
+            </div>
+        </div>
+    </header>
+
+    <article class="post-content">
+        <div class="post-container">
+            <p class="reveal">L'indépendance est sans doute le plus grand défi de tout batteur. C'est cette capacité à faire faire à chaque membre quelque chose de différent tout en restant parfaitement synchronisé. Mais en réalité, le terme est mal choisi. On devrait parler d'<strong>interdépendance</strong>.</p>
+
+            <h2 class="reveal">Le blocage psychologique</h2>
+            <p class="reveal">Le cerveau humain n'est pas conçu pour gérer quatre tâches rythmiques indépendantes par défaut. Il cherche à regrouper les mouvements. Pour briser ce blocage, il ne faut pas travailler plus dur, il faut travailler plus intelligemment.</p>
+            
+            <div class="exercise-box reveal">
+                <h4>Exercice 1 : Le Ostinato de Pied</h4>
+                <p>Gardez une grosse caisse simple sur tous les temps (1, 2, 3, 4) et essayez de jouer des paradiddles sur votre caisse claire.</p>
+                <code class="notation">GC: X - X - X - X<br>CC: R L R R L R L L</code>
+            </div>
+
+            <h2 class="reveal">La méthode de la "Lenteur Absolue"</h2>
+            <p class="reveal">Si vous ne pouvez pas jouer un motif à 40 BPM, vous ne le maîtrisez pas. La lenteur vous oblige à analyser chaque interaction entre vos membres. C'est dans cette zone que les nouvelles connexions neuronales se créent.</p>
+            
+            <img src="assets/images/josue_2.jpg" alt="Démonstration technique" class="reveal">
+
+            <div class="exercise-box reveal">
+                <h4>Exercice 2 : Indépendance Jazz (Ride/Hi-hat)</h4>
+                <p>Jouez le swing pattern classique à la ride, le charley au pied sur 2 et 4, et insérez des coups de caisse claire sur les "et" (syncopes).</p>
+            </div>
+
+            <h2 class="reveal">Libérez votre créativité</h2>
+            <p class="reveal">Une fois que l'indépendance devient automatique, vous n'avez plus à penser à "comment" bouger. Vous commencez à penser à "quoi" jouer. C'est là que la véritable musique commence.</p>
+
+            <div class="author-box reveal">
+                <img src="assets/images/logo.jpg" alt="Josué" class="author-img">
+                <div>
+                    <h4 style="margin: 0; color: var(--gold-primary);">Josué ADETI</h4>
+                    <p style="margin: 0.3rem 0 0 0; font-size: 0.9rem;">Formateur spécialisé dans le développement technique et l'indépendance polyrythmique.</p>
+                </div>
+            </div>
+
+            <div class="post-nav">
+                <a href="blog-survie-studio.html" style="color: var(--gold-primary); text-decoration: none; font-weight: 700;">← Précédent : Guide Studio</a>
+                <a href="blog.html" style="color: var(--text-muted); text-decoration: none;">Voir tous les articles →</a>
+            </div>
+        </div>
+    </article>
+
+    <footer id="main-footer"></footer>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/components.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suppression de Compte | Drum Master Academy</title>
+    <meta name="description" content="Processus de suppression définitive de compte étudiant Drum Master Academy.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at center, #151515 0%, #0a0a0a 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .h-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 68, 68, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .step-progress-bar {
+            height: 4px;
+            background: #222;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .step-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ff6b6b);
+            width: 33.33%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step-container {
+            display: none;
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .step-container.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .checkbox-custom {
+            appearance: none;
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            padding: 9px;
+            border-radius: 4px;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checkbox-custom:checked {
+            background-color: #ff4444;
+            border-color: #ff4444;
+        }
+
+        .checkbox-custom:checked::after {
+            content: '✓';
+            font-size: 12px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 800;
+        }
+
+        .custom-radio {
+            appearance: none;
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            padding: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .custom-radio:checked {
+            border-color: #ff4444;
+            background-color: rgba(255, 68, 68, 0.1);
+        }
+
+        .custom-radio:checked::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: #ff4444;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .reason-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--glass-border);
+            transition: all var(--transition-fast);
+        }
+
+        .reason-card:hover {
+            border-color: rgba(255, 68, 68, 0.2);
+            background: rgba(255, 68, 68, 0.02);
+        }
+
+        .reason-card.selected {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.05);
+        }
+
+        .btn-danger-premium {
+            background: linear-gradient(135deg, #ff4444 0%, #cc1111 100%);
+            box-shadow: 0 4px 20px rgba(255, 68, 68, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-danger-premium:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 68, 68, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-danger-premium:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-danger-premium:disabled {
+            background: #222;
+            box-shadow: none;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        .toast-delete {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #151515;
+            border: 1px solid #ff4444;
+            padding: 1rem 1.8rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(255, 68, 68, 0.15);
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast-delete.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    
+    <header class="py-6 border-b border-[rgba(255,255,255,0.05)] bg-[rgba(10,10,10,0.5)] backdrop-blur-md">
+        <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+            <a href="dashboard.html" class="flex items-center gap-3">
+                <img src="assets/images/logo.jpg" alt="DMA Logo" class="w-10 h-10 rounded-full border border-gold-primary">
+                <span class="logo-text h-heading text-xl font-bold">DMA<span class="text-gold">.</span></span>
+            </a>
+            <a href="dashboard.html" class="btn btn-outline text-sm" style="padding: 0.5rem 1.2rem;">
+                ← Annuler et Retourner
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center py-12 px-6">
+        <div class="w-full max-w-2xl glass-panel rounded-2xl p-8 md:p-12 relative overflow-hidden">
+            
+            <!-- Step Indicators -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-3 text-xs uppercase tracking-wider text-gray-500 h-heading">
+                    <span id="step-label">Étape 1 sur 3 : Raison du départ</span>
+                    <span id="step-percent">33% complété</span>
+                </div>
+                <div class="step-progress-bar">
+                    <div id="step-progress-fill" class="step-progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Survey Form -->
+            <div id="step-1" class="step-container active">
+                <h2 class="h-heading text-2xl md:text-3xl font-extrabold text-white mb-3">Pourquoi souhaitez-vous nous quitter ? 🥁</h2>
+                <p class="text-gray-400 text-sm mb-6">Vos remarques nous sont précieuses. Aidez-nous à améliorer la Drum Master Academy en nous expliquant votre choix.</p>
+                
+                <div class="space-y-3 mb-6">
+                    <label class="reason-card flex items-center gap-4 p-4 rounded-xl border border-gray-800 cursor-pointer" data-id="time">
+                        <input type="radio" name="delete_reason" value="time" class="custom-radio">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white text-sm">Je manque de temps pour pratiquer</h4>
+                            <p class="text-gray-500 text-xs mt-0.5">L'apprentissage de la batterie demande un investissement que je ne peux plus fournir.</p>
+                        </div>
+                    </label>
+
+                    <label class="reason-card flex items-center gap-4 p-4 rounded-xl border border-gray-800 cursor-pointer" data-id="budget">
+                        <input type="radio" name="delete_reason" value="budget" class="custom-radio">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white text-sm">Les tarifs ne correspondent pas à mon budget</h4>
+                            <p class="text-gray-500 text-xs mt-0.5">Je recherche une alternative gratuite ou plus abordable.</p>
+                        </div>
+                    </label>
+
+                    <label class="reason-card flex items-center gap-4 p-4 rounded-xl border border-gray-800 cursor-pointer" data-id="difficulty">
+                        <input type="radio" name="delete_reason" value="difficulty" class="custom-radio">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white text-sm">Les cours sont trop difficiles / pas assez guidés</h4>
+                            <p class="text-gray-500 text-xs mt-0.5">J'ai du mal à progresser sans accompagnement physique plus présent.</p>
+                        </div>
+                    </label>
+
+                    <label class="reason-card flex items-center gap-4 p-4 rounded-xl border border-gray-800 cursor-pointer" data-id="other">
+                        <input type="radio" name="delete_reason" value="other" class="custom-radio">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white text-sm">Autre raison</h4>
+                            <p class="text-gray-500 text-xs mt-0.5">Mon motif n'est pas listé dans les choix précédents.</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="mb-8" id="other-reason-container" style="display: none;">
+                    <label class="block text-gray-400 text-sm mb-2 font-medium">Pouvez-vous nous en dire plus ? (Facultatif)</label>
+                    <textarea id="other-reason-text" class="form-control w-full p-4 rounded-xl" rows="3" placeholder="Saisissez vos explications ici..." style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.05); color: white; resize: none; font-size: 0.9rem;"></textarea>
+                </div>
+
+                <div class="flex justify-end">
+                    <button id="next-1" class="btn btn-primary" style="padding: 0.8rem 2.5rem;" disabled>
+                        Continuer
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Loss Visualizer -->
+            <div id="step-2" class="step-container">
+                <h2 class="h-heading text-2xl md:text-3xl font-extrabold text-[#ff4444] mb-3">Attention aux données perdues ! ⚠️</h2>
+                <p class="text-gray-400 text-sm mb-6">Si vous supprimez votre compte aujourd'hui, vous perdrez instantanément et définitivement l'ensemble de vos acquis.</p>
+                
+                <div class="bg-[rgba(255,68,68,0.02)] border border-[rgba(255,68,68,0.15)] rounded-2xl p-6 mb-8">
+                    <div class="flex items-center gap-4 mb-6 pb-4 border-b border-[rgba(255,255,255,0.05)]">
+                        <div id="user-avatar" class="w-12 h-12 rounded-full bg-gold-gradient text-bg-main flex items-center justify-center font-extrabold text-lg">
+                            JS
+                        </div>
+                        <div>
+                            <h3 id="user-name" class="font-bold text-white text-base">Utilisateur DMA</h3>
+                            <p id="user-email" class="text-gray-500 text-xs">email@exemple.com</p>
+                        </div>
+                    </div>
+
+                    <h4 class="h-heading font-semibold text-white text-xs uppercase tracking-wider mb-4">Votre Bilan d'apprentissage à sauver :</h4>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-[rgba(255,255,255,0.01)] border border-gray-800 rounded-xl p-4 text-center">
+                            <span class="text-2xl block mb-1">🥁</span>
+                            <span id="loss-courses-count" class="text-lg font-bold text-white block">0 Cours</span>
+                            <span class="text-gray-500 text-xxs uppercase tracking-wider">Inscriptions actives</span>
+                        </div>
+                        <div class="bg-[rgba(255,255,255,0.01)] border border-gray-800 rounded-xl p-4 text-center">
+                            <span class="text-2xl block mb-1">📈</span>
+                            <span id="loss-progress-avg" class="text-lg font-bold text-white block">0%</span>
+                            <span class="text-gray-500 text-xxs uppercase tracking-wider">Progression moyenne</span>
+                        </div>
+                        <div class="bg-[rgba(255,255,255,0.01)] border border-gray-800 rounded-xl p-4 text-center col-span-2">
+                            <span class="text-2xl block mb-1">🏅</span>
+                            <span id="loss-lessons-count" class="text-lg font-bold text-white block">0 Modules</span>
+                            <span class="text-gray-500 text-xxs uppercase tracking-wider">Certifications et leçons validées</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center text-xs text-gray-500">
+                         ⚠️ Vos contributions au forum communautaire DMA seront également purgées.
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 mb-8">
+                    <input type="checkbox" id="accept-consequences" class="checkbox-custom mt-1">
+                    <label for="accept-consequences" class="text-gray-400 text-xs leading-relaxed cursor-pointer select-none">
+                        Je certifie avoir pris connaissance des conséquences irréversibles de cette suppression de compte et j'accepte de perdre définitivement toute ma progression et mes accès à la plateforme.
+                    </label>
+                </div>
+
+                <div class="flex justify-between">
+                    <button id="prev-2" class="btn btn-outline" style="padding: 0.8rem 2rem;">
+                        Retour
+                    </button>
+                    <button id="next-2" class="btn btn-primary" style="padding: 0.8rem 2.5rem;" disabled>
+                        Continuer
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Password Verification & Action -->
+            <div id="step-3" class="step-container">
+                <h2 class="h-heading text-2xl md:text-3xl font-extrabold text-white mb-3">Validation de Sécurité 🔒</h2>
+                <p class="text-gray-400 text-sm mb-6">Confirmez votre identité pour finaliser le processus et supprimer définitivement votre compte.</p>
+                
+                <div class="space-y-5 mb-8">
+                    <div class="form-group text-left">
+                        <label class="block text-gray-400 text-sm mb-2 font-medium">Saisissez votre mot de passe actuel :</label>
+                        <input type="password" id="delete-confirm-pass" class="form-control w-full p-4 rounded-xl" placeholder="••••••••" style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.05); color: white;">
+                    </div>
+
+                    <div class="form-group text-left">
+                        <label class="block text-gray-400 text-sm mb-2 font-medium">Pour confirmer la suppression irrévocable, recopiez le mot clé <span class="text-[#ff4444] font-bold">SUPPRIMER</span> :</label>
+                        <input type="text" id="delete-confirm-keyword" class="form-control w-full p-4 rounded-xl text-center font-bold tracking-widest text-[#ff4444]" placeholder="SUPPRIMER" style="background: rgba(0,0,0,0.2); border-color: rgba(255,68,68,0.2); text-transform: uppercase;">
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center gap-4">
+                    <button id="prev-3" class="btn btn-outline" style="padding: 0.8rem 2rem;">
+                        Retour
+                    </button>
+                    <button id="confirm-delete-btn" class="btn-danger-premium text-white font-bold py-3.5 px-8 rounded-xl flex-grow text-sm uppercase tracking-wider" disabled>
+                        Confirmer la suppression définitive
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Farewell Visuals -->
+            <div id="step-4" class="step-container text-center py-10">
+                <div class="inline-block animate-bounce mb-6" style="font-size: 5rem;">🥁</div>
+                <h2 class="h-heading text-3xl md:text-4xl font-extrabold text-[#d6a32f] mb-4">Adieu, Batteur !</h2>
+                <p class="text-gray-300 text-base max-w-md mx-auto leading-relaxed mb-6">
+                    Votre compte a été supprimé avec succès. Merci d'avoir partagé votre passion du groove avec la <strong>Drum Master Academy</strong>.
+                </p>
+                <div class="w-12 h-12 border-4 border-t-gold-primary border-gray-800 rounded-full animate-spin mx-auto mb-3"></div>
+                <p class="text-xs text-gray-500">Redirection vers l'accueil en cours...</p>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-6 border-t border-[rgba(255,255,255,0.05)] bg-[rgba(10,10,10,0.3)] mt-auto">
+        <div class="max-w-6xl mx-auto px-6 text-center text-xs text-gray-600">
+            &copy; 2026 Drum Master Academy. Tous droits réservés.
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div id="toast-notif" class="toast-delete text-white text-sm">
+        <span id="toast-icon" class="mr-2">⚠️</span>
+        <span id="toast-message">Veuillez remplir les champs obligatoires.</span>
+    </div>
+
+    <!-- DMA Auth core and scripts -->
+    <script src="assets/js/auth-core.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = AuthCore.getCurrentUser();
+            if (!user) {
+                // If not logged in, redirect to login page immediately
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // --- Multi-Step Engine ---
+            let currentStep = 1;
+            const step1 = document.getElementById('step-1');
+            const step2 = document.getElementById('step-2');
+            const step3 = document.getElementById('step-3');
+            const step4 = document.getElementById('step-4');
+
+            const next1 = document.getElementById('next-1');
+            const next2 = document.getElementById('next-2');
+            const prev2 = document.getElementById('prev-2');
+            const prev3 = document.getElementById('prev-3');
+
+            const stepLabel = document.getElementById('step-label');
+            const stepPercent = document.getElementById('step-percent');
+            const stepFill = document.getElementById('step-progress-fill');
+
+            function updateStepProgress(step) {
+                currentStep = step;
+                // Update active states
+                [step1, step2, step3, step4].forEach((el, index) => {
+                    if (index + 1 === step) {
+                        el.classList.add('active');
+                    } else {
+                        el.classList.remove('active');
+                    }
+                });
+
+                if (step === 4) {
+                    stepLabel.textContent = "Supprimé";
+                    stepPercent.textContent = "100% complété";
+                    stepFill.style.width = "100%";
+                    return;
+                }
+
+                stepLabel.textContent = `Étape ${step} sur 3 : ${step === 1 ? 'Raison' : step === 2 ? 'Impact' : 'Sécurité'}`;
+                const pct = step === 1 ? 33 : step === 2 ? 66 : 90;
+                stepPercent.textContent = `${pct}% complété`;
+                stepFill.style.width = `${pct}%`;
+            }
+
+            // Toast system
+            function showToast(message, icon = "⚠️") {
+                const toast = document.getElementById('toast-notif');
+                document.getElementById('toast-icon').textContent = icon;
+                document.getElementById('toast-message').textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // Step 1: Survey validation
+            const radioOptions = document.querySelectorAll('input[name="delete_reason"]');
+            const reasonCards = document.querySelectorAll('.reason-card');
+            const otherContainer = document.getElementById('other-reason-container');
+
+            reasonCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    reasonCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    const radio = card.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    next1.disabled = false;
+                    
+                    if (radio.value === 'other') {
+                        otherContainer.style.display = 'block';
+                    } else {
+                        otherContainer.style.display = 'none';
+                    }
+                });
+            });
+
+            next1.addEventListener('click', () => {
+                // Pre-populate Step 2 Data
+                document.getElementById('user-name').textContent = user.name || "Étudiant DMA";
+                document.getElementById('user-email').textContent = user.email;
+                document.getElementById('user-avatar').textContent = (user.name || "U").substring(0, 2).toUpperCase();
+
+                // Compute loss metrics
+                let activeCourses = 0;
+                let totalProgressSum = 0;
+                let totalLessonsCompleted = 0;
+
+                if (user.courseProgress) {
+                    const courses = Object.keys(user.courseProgress);
+                    activeCourses = courses.length;
+                    courses.forEach(cId => {
+                        const progress = user.courseProgress[cId];
+                        totalLessonsCompleted += (progress.completedLessons || []).length;
+                        // Estimate progress percent
+                        const totalLessonsForCourse = 6; // Real count
+                        const pct = Math.min(100, Math.round(((progress.completedLessons || []).length / totalLessonsForCourse) * 100));
+                        totalProgressSum += pct;
+                    });
+                }
+
+                const avgProgress = activeCourses > 0 ? Math.round(totalProgressSum / activeCourses) : 0;
+
+                document.getElementById('loss-courses-count').textContent = `${activeCourses} ${activeCourses > 1 ? 'Cours' : 'Cours'}`;
+                document.getElementById('loss-progress-avg').textContent = `${avgProgress}%`;
+                document.getElementById('loss-lessons-count').textContent = `${totalLessonsCompleted} ${totalLessonsCompleted > 1 ? 'Modules' : 'Module'}`;
+
+                updateStepProgress(2);
+            });
+
+            // Step 2: Checkbox validation
+            const checkbox = document.getElementById('accept-consequences');
+            checkbox.addEventListener('change', () => {
+                next2.disabled = !checkbox.checked;
+            });
+
+            prev2.addEventListener('click', () => {
+                updateStepProgress(1);
+            });
+
+            next2.addEventListener('click', () => {
+                updateStepProgress(3);
+            });
+
+            // Step 3: Security & Delete final Action
+            prev3.addEventListener('click', () => {
+                updateStepProgress(2);
+            });
+
+            const keywordInput = document.getElementById('delete-confirm-keyword');
+            const passwordInput = document.getElementById('delete-confirm-pass');
+            const confirmBtn = document.getElementById('confirm-delete-btn');
+
+            function checkStep3Validation() {
+                const keywordOk = keywordInput.value.trim().toUpperCase() === 'SUPPRIMER';
+                const passOk = passwordInput.value.length > 0;
+                confirmBtn.disabled = !(keywordOk && passOk);
+            }
+
+            keywordInput.addEventListener('input', checkStep3Validation);
+            passwordInput.addEventListener('input', checkStep3Validation);
+
+            confirmBtn.addEventListener('click', async () => {
+                const password = passwordInput.value;
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = "SUPPRESSION DU COMPTE... ⏳";
+
+                setTimeout(async () => {
+                    const result = await AuthCore.deleteAccount(password);
+                    if (result.success) {
+                        // Success farewell visual
+                        updateStepProgress(4);
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 4000);
+                    } else {
+                        showToast(result.message, "❌");
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = "Confirmer la suppression définitive";
+                    }
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>

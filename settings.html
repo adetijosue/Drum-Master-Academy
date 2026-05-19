@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres du Compte | DMA</title>
+    <meta name="description" content="Configurez votre profil d'apprentissage, gérez vos abonnements, ajustez votre sécurité et définissez vos objectifs de batterie.">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Paramètres de votre espace étudiant | DMA">
+    <meta property="og:description" content="Configurez votre profil d'apprentissage, gérez vos abonnements, ajustez votre sécurité et définissez vos objectifs de batterie.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <style>
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            background: var(--bg-main);
+        }
+
+        .sidebar-dashboard {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-profile {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--gold-gradient);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--bg-main);
+            font-weight: 800;
+        }
+
+        .dash-nav {
+            list-style: none;
+            flex: 1;
+        }
+
+        .dash-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .dash-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition-fast);
+        }
+
+        .dash-nav a:hover, .dash-nav a.active {
+            background: rgba(214, 163, 47, 0.1);
+            color: var(--gold-primary);
+        }
+
+        .main-dash {
+            padding: 3rem;
+            overflow-y: auto;
+        }
+
+        /* Settings Grid Layout */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 3rem;
+            margin-top: 1rem;
+        }
+
+        .settings-tabs-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border-right: 1px solid var(--glass-border);
+            padding-right: 1.5rem;
+        }
+
+        .settings-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 1rem 1.2rem;
+            text-align: left;
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            width: 100%;
+        }
+
+        .settings-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: white;
+        }
+
+        .settings-tab-btn.active {
+            background: rgba(214, 163, 47, 0.1);
+            color: var(--gold-primary);
+            box-shadow: inset 3px 0 0 var(--gold-primary);
+        }
+
+        .settings-pane {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .settings-pane.active {
+            display: block;
+        }
+
+        .settings-section-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2.2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-dark);
+        }
+
+        .settings-title {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.8rem;
+            color: white;
+            font-family: var(--font-heading);
+        }
+
+        .settings-level-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-level-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .settings-level-card:hover {
+            border-color: var(--gold-primary);
+            transform: translateY(-2px);
+        }
+
+        .settings-level-card.selected {
+            background: rgba(214, 163, 47, 0.12);
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 15px rgba(214, 163, 47, 0.15);
+        }
+
+        .settings-level-card h4 {
+            color: white;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .settings-level-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .settings-interests-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .settings-interest-chip {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .settings-interest-chip:hover {
+            border-color: var(--gold-primary);
+            color: white;
+        }
+
+        .settings-interest-chip.selected {
+            background: var(--gold-gradient);
+            color: var(--bg-main);
+            border-color: var(--gold-primary);
+            font-weight: 700;
+        }
+
+        /* Equipments selection grid */
+        .equip-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .equip-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .equip-card:hover {
+            border-color: var(--gold-primary);
+        }
+
+        .equip-card.selected {
+            background: rgba(214, 163, 47, 0.08);
+            border-color: var(--gold-primary);
+        }
+
+        .equip-icon {
+            font-size: 1.6rem;
+        }
+
+        .equip-details h4 {
+            color: white;
+            font-weight: 600;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .equip-details p {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin: 0;
+        }
+
+        /* Billing table styling */
+        .billing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .billing-table th, .billing-table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.9rem;
+        }
+
+        .billing-table th {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .billing-table td {
+            color: white;
+        }
+
+        .badge-success-glow {
+            background: rgba(34, 197, 94, 0.12);
+            color: #22c55e;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            display: inline-block;
+        }
+
+        /* Styling sliders */
+        input[type="range"]::-webkit-slider-thumb {
+            background: var(--gold-primary);
+            border: 2px solid var(--bg-main);
+            box-shadow: 0 0 10px rgba(214, 163, 47, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .sidebar-dashboard { display: none; }
+            .settings-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .settings-tabs-menu {
+                flex-direction: row;
+                overflow-x: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--glass-border);
+                padding-right: 0;
+                padding-bottom: 1rem;
+            }
+            .settings-tab-btn {
+                white-space: nowrap;
+                width: auto;
+            }
+        }
+
+        /* Toast notifications system */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid var(--gold-primary);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(150px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10000;
+        }
+
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Top Navigation Header -->
+    <header class="mobile-dash-header flex justify-between items-center px-6 py-4 md:hidden">
+        <a href="index.html" class="flex items-center gap-2">
+            <span class="font-family: var(--font-heading); font-weight: 800; color: white; font-size: 1.15rem; letter-spacing: 1px;">DMA<span style="color: var(--gold-primary);">.</span></span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div id="mobile-avatar-display" class="user-avatar" style="width: 38px; height: 38px; font-size: 0.95rem; margin: 0; cursor: pointer; border: 1px solid var(--gold-primary);">JS</div>
+        </div>
+    </header>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation Dashboard -->
+        <aside class="sidebar-dashboard">
+            <div class="user-profile">
+                <div style="position: relative; width: 80px; margin: 0 auto 1rem;">
+                    <div class="user-avatar" id="user-avatar-container">JS</div>
+                    <label for="avatar-upload" style="position: absolute; bottom: 0; right: 0; background: var(--bg-tertiary); border: 1px solid var(--gold-primary); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; box-shadow: var(--shadow-dark);">
+                        📷
+                    </label>
+                    <input type="file" id="avatar-upload" style="display: none;" accept="image/*">
+                </div>
+                <h4 id="user-name-sidebar">Étudiant DMA</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Membre Premium</p>
+            </div>
+            <ul class="dash-nav" id="dash-sidebar-nav">
+                <li><a href="dashboard.html"><span>🏠</span> Tableau de bord</a></li>
+                <li><a href="courses.html"><span>📚</span> Mes Formations</a></li>
+                <li><a href="dashboard.html?view=community"><span>🤝</span> Communauté</a></li>
+                <li><a href="dashboard.html?view=tools"><span>⏱️</span> Outils</a></li>
+                <li><a href="settings.html" class="active"><span>⚙️</span> Paramètres</a></li>
+            </ul>
+            <a href="#" id="logout-btn" style="margin-top: 2rem; color: #ff4444; text-decoration: none; font-size: 0.9rem; padding: 1rem; border-top: 1px solid var(--glass-border); display: block;">🚪 Déconnexion</a>
+            <a href="delete-account.html" style="margin-top: 1rem; color: #ff6b6b; text-decoration: none; font-size: 0.85rem; padding: 0.8rem 1rem; border: 1px dashed rgba(255, 107, 107, 0.3); border-radius: 8px; display: block; text-align: center; transition: all 0.3s; font-weight: 600;" onmouseover="this.style.background='rgba(255,68,68,0.1)'" onmouseout="this.style.background='transparent'">🗑️ Supprimer mon compte</a>
+        </aside>
+
+        <main class="main-dash">
+            <!-- Welcome settings header -->
+            <div style="margin-bottom: 2.5rem;">
+                <h1 style="font-size: 2.2rem; font-weight: 800; color: white; margin: 0; font-family: var(--font-heading);">Paramètres de votre espace</h1>
+                <p style="color: var(--text-secondary); margin: 0.3rem 0 0 0;">Personnalisez votre expérience d'apprentissage, gérez votre abonnement et sécurisez votre compte.</p>
+            </div>
+
+            <div class="settings-grid">
+                <!-- Left Sidebar Settings Submenu -->
+                <div class="settings-tabs-menu">
+                    <button class="settings-tab-btn active" data-pane="profile">
+                        <span>👤</span> Profil & Identité
+                    </button>
+                    <button class="settings-tab-btn" data-pane="training">
+                        <span>🥁</span> Préférences d'Entraînement
+                    </button>
+                    <button class="settings-tab-btn" data-pane="security">
+                        <span>🔒</span> Sécurité & Accès
+                    </button>
+                    <button class="settings-tab-btn" data-pane="billing">
+                        <span>💳</span> Abonnement & Factures
+                    </button>
+                    <button class="settings-tab-btn" data-pane="danger" style="color: #ff5555;">
+                        <span>⚠️</span> Danger Zone & Admin
+                    </button>
+                </div>
+
+                <!-- Right Configuration Panel -->
+                <div class="settings-panes-container">
+                    
+                    <!-- PANE: Profil & Identité -->
+                    <div class="settings-pane active" id="pane-profile">
+                        <div class="settings-section-card">
+                            <h3 class="settings-title">Informations Personnelles</h3>
+                            
+                            <div style="display: flex; gap: 2rem; align-items: center; margin-bottom: 2.5rem; flex-wrap: wrap;">
+                                <div style="position: relative; width: 100px; height: 100px;">
+                                    <div class="user-avatar" id="settings-avatar-container" style="width: 100px; height: 100px; font-size: 2.5rem; margin: 0;">JS</div>
+                                    <label for="settings-avatar-upload" style="position: absolute; bottom: 0; right: 0; background: var(--gold-gradient); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.95rem; box-shadow: var(--shadow-dark); border: 2px solid var(--bg-secondary);">
+                                        📷
+                                    </label>
+                                    <input type="file" id="settings-avatar-upload" style="display: none;" accept="image/*">
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0 0 0.3rem 0; color: white; font-weight: 600;">Photo de profil</h4>
+                                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Format JPG, PNG ou WebP. Dimension carrée recommandée.</p>
+                                    <button class="btn btn-outline" id="remove-avatar-btn" style="padding: 0.4rem 1rem; font-size: 0.75rem; border-color: rgba(255, 68, 68, 0.3); color: #ff4444; margin-top: 0.6rem; display: none;">Supprimer la photo</button>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                                <div class="form-group">
+                                    <label style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Nom complet</label>
+                                    <input type="text" id="settings-user-name" class="form-control" placeholder="Josué ADETI" style="background: var(--bg-tertiary); width: 100%; border: 1px solid var(--glass-border); color: white; padding: 0.8rem 1rem; border-radius: 8px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Adresse E-mail</label>
+                                    <input type="email" id="settings-user-email" class="form-control" style="background: var(--bg-tertiary); width: 100%; border: 1px solid var(--glass-border); color: white; padding: 0.8rem 1rem; border-radius: 8px; opacity: 0.5; cursor: not-allowed;" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Biographie / Expérience de Batteur</label>
+                                <textarea id="settings-user-bio" placeholder="Parlez-nous de votre parcours musical, vos batteries de rêve, ou vos objectifs..." style="background: var(--bg-tertiary); width: 100%; border: 1px solid var(--glass-border); color: white; padding: 0.8rem 1rem; border-radius: 8px; min-height: 100px; resize: none; font-family: inherit; font-size: 0.95rem;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="settings-section-card">
+                            <h3 class="settings-title">Évaluation de Niveau & Formation</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Votre niveau actuel nous aide à configurer vos cours recommandés.</p>
+                            
+                            <div class="settings-level-grid">
+                                <div class="settings-level-card" data-level="beginner">
+                                    <h4>Débutant</h4>
+                                    <p>Apprentissage des bases, rudiments essentiels et tenue des baguettes</p>
+                                </div>
+                                <div class="settings-level-card" data-level="intermediate">
+                                    <h4>Intermédiaire</h4>
+                                    <p>Indépendance, grooves syncopés et fills créatifs en groupe</p>
+                                </div>
+                                <div class="settings-level-card" data-level="advanced">
+                                    <h4>Avancé</h4>
+                                    <p>Polyrythmies complexes, improvisation et masterclasses de haut niveau</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section-card">
+                            <h3 class="settings-title">Styles Musicaux de Prédilection</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.2rem;">Sélectionnez vos genres préférés pour personnaliser vos formations d'excellence.</p>
+                            
+                            <div class="settings-interests-flex">
+                                <span class="settings-interest-chip" data-interest="Gospel">Gospel 🎺</span>
+                                <span class="settings-interest-chip" data-interest="Jazz">Jazz 🎷</span>
+                                <span class="settings-interest-chip" data-interest="Afro">Afro-beat 🥁</span>
+                                <span class="settings-interest-chip" data-interest="Funk">Funk 🎸</span>
+                                <span class="settings-interest-chip" data-interest="Rock">Rock ⚡</span>
+                                <span class="settings-interest-chip" data-interest="Fusion">Fusion 🌌</span>
+                                <span class="settings-interest-chip" data-interest="Latin">Latin 💃</span>
+                            </div>
+                        </div>
+
+                        <div style="text-align: right;">
+                            <button class="btn btn-primary" id="save-profile-btn" style="padding: 0.8rem 2.5rem; font-weight: 700;">Sauvegarder le Profil 💾</button>
+                        </div>
+                    </div>
+
+                    <!-- PANE: Préférences d'Entraînement -->
+                    <div class="settings-pane" id="pane-training">
+                        <div class="settings-section-card">
+                            <h3 class="settings-title">Votre Équipement</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                                Dites-nous quel instrument vous utilisez principalement pour vos entraînements afin que Josué adapte ses conseils dans le Widget Coach.
+                            </p>
+                            
+                            <div class="equip-grid">
+                                <div class="equip-card" data-equip="electronic">
+                                    <span class="equip-icon">🔌</span>
+                                    <div class="equip-details">
+                                        <h4>Batterie Électronique</h4>
+                                        <p>Silencieuse, idéale pour s'entraîner en appartement (ex: Roland, Yamaha)</p>
+                                    </div>
+                                </div>
+                                <div class="equip-card" data-equip="acoustic">
+                                    <span class="equip-icon">🪵</span>
+                                    <div class="equip-details">
+                                        <h4>Batterie Acoustique</h4>
+                                        <p>Sensation de jeu authentique et puissance sonore (ex: Pearl, Sonor, Tama)</p>
+                                    </div>
+                                </div>
+                                <div class="equip-card" data-equip="pad">
+                                    <span class="equip-icon">🎯</span>
+                                    <div class="equip-details">
+                                        <h4>Practice Pad uniquement</h4>
+                                        <p>Pour parfaire la technique, le poignet et le rebond en déplacement</p>
+                                    </div>
+                                </div>
+                                <div class="equip-card" data-equip="hybrid">
+                                    <span class="equip-icon">⚡</span>
+                                    <div class="equip-details">
+                                        <h4>Batterie Hybride / Trigger</h4>
+                                        <p>Mélange de fûts acoustiques et de triggers électroniques professionnels</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section-card">
+                            <h3 class="settings-title">Objectif d'Étude Hebdomadaire</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem;">
+                                Définissez un temps de pratique hebdomadaire. Suivez vos efforts sur le tableau de bord pour maintenir la régularité essentielle en batterie.
+                            </p>
+
+                            <div style="background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 2rem; text-align: center;">
+                                <div style="font-size: 3rem; font-weight: 800; color: white;" id="weekly-goal-display">120</div>
+                                <span style="text-transform: uppercase; color: var(--gold-primary); font-size: 0.8rem; font-weight: 700; letter-spacing: 2px;">Minutes par semaine</span>
+                                
+                                <input type="range" id="weekly-goal-slider" min="30" max="600" step="15" value="120" style="width: 100%; margin: 2rem 0; cursor: pointer; accent-color: var(--gold-primary);">
+                                
+                                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;" id="goal-motivation-text">2 heures par semaine — Un rythme excellent pour progresser solidement sans pression.</p>
+                            </div>
+                        </div>
+
+                        <div style="text-align: right;">
+                            <button class="btn btn-primary" id="save-training-btn" style="padding: 0.8rem 2.5rem; font-weight: 700;">Sauvegarder les objectifs 🥁</button>
+                        </div>
+                    </div>
+
+                    <!-- PANE: Sécurité & Accès -->
+                    <div class="settings-pane" id="pane-security">
+                        <div class="settings-section-card">
+                            <h3 class="settings-title">Changer le mot de passe</h3>
+                            
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Mot de passe actuel</label>
+                                <input type="password" id="pass-current" class="form-control" placeholder="••••••••" style="background: var(--bg-tertiary); max-width: 450px; border: 1px solid var(--glass-border); color: white; padding: 0.8rem 1rem; border-radius: 8px; width: 100%;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Nouveau mot de passe</label>
+                                <input type="password" id="pass-new" class="form-control" placeholder="••••••••" style="background: var(--bg-tertiary); max-width: 450px; border: 1px solid var(--glass-border); color: white; padding: 0.8rem 1rem; border-radius: 8px; width: 100%;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 2rem;">
+                                <label style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Confirmer le nouveau mot de passe</label>
+                                <input type="password" id="pass-confirm" class="form-control" placeholder="••••••••" style="background: var(--bg-tertiary); max-width: 450px; border: 1px solid var(--glass-border); color: white; padding: 0.8rem 1rem; border-radius: 8px; width: 100%;">
+                            </div>
+
+                            <div style="text-align: right;">
+                                <button class="btn btn-primary" id="save-password-btn" style="padding: 0.8rem 2.5rem; font-weight: 700;">Modifier le mot de passe 🔒</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANE: Abonnement & Facturation -->
+                    <div class="settings-pane" id="pane-billing">
+                        <div class="settings-section-card">
+                            <h3 class="settings-title">Statut de l'Abonnement</h3>
+                            
+                            <div style="background: var(--bg-tertiary); border: 1px solid var(--gold-primary); border-radius: 16px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                        <h4 style="margin: 0; color: white; font-size: 1.3rem; font-weight: 800;">DMA Premium Annuel</h4>
+                                        <span class="badge-success-glow">Actif</span>
+                                    </div>
+                                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                                        Accès illimité aux 6 formations majeures, métronome pédago, et communauté DMA.
+                                    </p>
+                                    <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                                        Prochaine facture le <strong>12 décembre 2026</strong> (299,00 €/an).
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="font-size: 2.2rem; font-weight: 900; color: white; display: block; font-family: var(--font-heading);">299€ <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">/ an</span></span>
+                                    <span style="font-size: 0.75rem; color: var(--gold-primary); text-transform: uppercase; font-weight: 800;">Membre d'excellence 🌟</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section-card">
+                            <h3 class="settings-title">Historique des Factures</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Consultez et téléchargez vos justificatifs et factures d'achat fictifs de votre espace étudiant.</p>
+                            
+                            <div style="overflow-x: auto;">
+                                <table class="billing-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Numéro</th>
+                                            <th>Date</th>
+                                            <th>Montant</th>
+                                            <th>Statut</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>#DMA-2025-002</strong></td>
+                                            <td>12 déc. 2025</td>
+                                            <td>299,00 €</td>
+                                            <td><span class="badge-success-glow">Payé</span></td>
+                                            <td><a href="#" class="text-gold" onclick="alert('Téléchargement fictif de la facture #DMA-2025-002 réussi !'); return false;" style="font-weight: 600; text-decoration: none;">📥 Reçu PDF</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>#DMA-2024-001</strong></td>
+                                            <td>12 déc. 2024</td>
+                                            <td>299,00 €</td>
+                                            <td><span class="badge-success-glow">Payé</span></td>
+                                            <td><a href="#" class="text-gold" onclick="alert('Téléchargement fictif de la facture #DMA-2024-001 réussi !'); return false;" style="font-weight: 600; text-decoration: none;">📥 Reçu PDF</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>#DMA-WELCOME-FREE</strong></td>
+                                            <td>10 déc. 2024</td>
+                                            <td>Gratuit</td>
+                                            <td><span class="badge-success-glow">Payé</span></td>
+                                            <td><a href="#" class="text-gold" onclick="alert('Téléchargement fictif du pack rudiments de bienvenue réussi !'); return false;" style="font-weight: 600; text-decoration: none;">📥 Justificatif</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANE: Danger Zone & Admin -->
+                    <div class="settings-pane" id="pane-danger">
+                        <!-- Admin Specific Account Deletion Tool -->
+                        <div class="settings-section-card" id="admin-tools-card" style="border-color: rgba(214, 163, 47, 0.35);">
+                            <h3 class="settings-title" style="color: var(--gold-primary);">Outils de Démo & d'Administration</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                                Utilisez ces fonctionnalités pour gérer votre stockage de démonstration locale et tester le site dans différents cas d'usage.
+                            </p>
+                            
+                            <div style="margin-bottom: 2rem;">
+                                <h4 style="color: white; margin-bottom: 0.5rem; font-size: 1rem; font-weight: 600;">Purge Globale de la Base de Données</h4>
+                                <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1rem;">
+                                    Permet de réinitialiser complètement le `localStorage` de ce navigateur, purgeant toutes les progressions, tous les comptes et les posts de la communauté.
+                                </p>
+                                <button class="btn btn-outline" id="purge-all-btn" style="border-color: var(--gold-primary); color: var(--gold-primary); padding: 0.6rem 1.5rem;">
+                                    Réinitialisation globale (Purger LocalStorage) 🧹
+                                </button>
+                            </div>
+
+                            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
+                                <h4 style="color: white; margin-bottom: 0.5rem; font-size: 1rem; font-weight: 600;">Supprimer un compte étudiant spécifique</h4>
+                                <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1rem;">
+                                    Saisissez l'adresse e-mail d'un étudiant pour détruire définitivement son compte et toutes ses données locales de ce navigateur.
+                                </p>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap; max-width: 500px;">
+                                    <input type="email" id="admin-delete-email" placeholder="etudiant@gmail.com" style="background: var(--bg-tertiary); flex: 1; border: 1px solid var(--glass-border); border-radius: 8px; color: white; padding: 0.6rem 1rem; font-size: 0.9rem;">
+                                    <button class="btn btn-outline" id="admin-delete-btn" style="border-color: #ff4444; color: #ff4444; background: rgba(255,68,68,0.05); font-weight: 600;">
+                                        Supprimer 🗑️
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- General Student Account Self-Deletion -->
+                        <div class="settings-section-card" style="border-color: rgba(255, 68, 68, 0.4);">
+                            <h3 class="settings-title" style="color: #ff4444;">Zone de Danger Critique</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                                La suppression de votre compte étudiant DMA est <strong>permanente</strong> et <strong>définitive</strong>.
+                            </p>
+                            
+                            <div style="background: rgba(255, 68, 68, 0.05); border: 1px solid rgba(255, 68, 68, 0.15); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0;">
+                                <h4 style="color: #ff4444; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 700;">Conséquences directes :</h4>
+                                <ul style="color: var(--text-secondary); font-size: 0.85rem; padding-left: 1.2rem; line-height: 1.6; list-style-type: disc;">
+                                    <li>Perte irrévocable de vos accès aux formations premium d'excellence.</li>
+                                    <li>Suppression de votre biographie de batteur, de votre niveau et de votre temps de pratique.</li>
+                                    <li>Destruction complète de votre historique d'apprentissage et de vos quiz réussis.</li>
+                                    <li>Purge de vos publications et réactions au sein du hub communautaire.</li>
+                                </ul>
+                            </div>
+
+                            <div style="margin-top: 1.5rem; text-align: left;">
+                                <a href="delete-account.html" class="btn" style="background: #ff4444; color: white; font-weight: 700; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; display: inline-block; transition: background 0.2s;" onmouseover="this.style.background='#ff2222'" onmouseout="this.style.background='#ff4444'">
+                                    Supprimer mon compte définitivement 🗑️
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification System HTML -->
+    <div id="toast-notif" class="toast-notification">
+        <span id="toast-icon">✨</span>
+        <span id="toast-message">Modifications enregistrées !</span>
+    </div>
+
+    <!-- Mobile Premium Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="dashboard.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon">🏠</span>
+            <span class="mobile-nav-label">Tableau</span>
+        </a>
+        <a href="courses.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon">📚</span>
+            <span class="mobile-nav-label">Formations</span>
+        </a>
+        <a href="dashboard.html?view=community" class="mobile-nav-item">
+            <span class="mobile-nav-icon">🤝</span>
+            <span class="mobile-nav-label">Membres</span>
+        </a>
+        <a href="dashboard.html?view=tools" class="mobile-nav-item">
+            <span class="mobile-nav-icon">⏱️</span>
+            <span class="mobile-nav-label">Outils</span>
+        </a>
+        <a href="settings.html" class="mobile-nav-item active">
+            <span class="mobile-nav-icon">⚙️</span>
+            <span class="mobile-nav-label">Réglages</span>
+        </a>
+    </nav>    
+
+    <!-- Core Scripts -->
+    <script src="assets/js/auth-core.js"></script>
+    
+    <script>
+        // Security Check - Session Immediate
+        const currentUser = AuthCore.getCurrentUser();
+        if (!currentUser) {
+            window.location.href = 'login.html';
+            throw new Error("Session absente, redirection vers login...");
+        }
+
+        // Selected attributes
+        let settingsSelectedLevel = currentUser.level || 'beginner';
+        let settingsSelectedInterests = currentUser.interests || [];
+        let settingsAvatarBase64 = currentUser.photo || null;
+        let settingsSelectedEquip = currentUser.equipment || 'electronic';
+        let settingsWeeklyGoal = currentUser.weeklyGoal || 120;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update initial UI states
+            updateSidebarUI();
+            initSettingsFields();
+
+            // Restriction d'accès aux outils d'administration
+            const isAdmin = currentUser && (['adetijosue@gmail.com', 'admin@dma.com', 'demo@dma.com'].includes(currentUser.email.toLowerCase()) || currentUser.role === 'admin' || currentUser.isAdmin === true);
+            const dangerTabBtn = document.querySelector('.settings-tab-btn[data-pane="danger"]');
+            const adminToolsCard = document.getElementById('admin-tools-card');
+            
+            if (!isAdmin) {
+                if (dangerTabBtn) {
+                    dangerTabBtn.innerHTML = '<span>⚠️</span> Zone de Danger';
+                }
+                if (adminToolsCard) {
+                    adminToolsCard.style.display = 'none';
+                }
+            }
+            
+            // Register Tab buttons click
+            const tabButtons = document.querySelectorAll('.settings-tab-btn');
+            const panes = document.querySelectorAll('.settings-pane');
+            
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    panes.forEach(p => p.classList.remove('active'));
+                    
+                    btn.classList.add('active');
+                    const paneId = `pane-${btn.dataset.pane}`;
+                    const targetPane = document.getElementById(paneId);
+                    if (targetPane) targetPane.classList.add('active');
+                });
+            });
+
+            // Level selection
+            document.querySelectorAll('.settings-level-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.settings-level-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    settingsSelectedLevel = card.dataset.level;
+                });
+            });
+
+            // Interests selection
+            document.querySelectorAll('.settings-interest-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    chip.classList.toggle('selected');
+                    const interest = chip.dataset.interest;
+                    if (settingsSelectedInterests.includes(interest)) {
+                        settingsSelectedInterests = settingsSelectedInterests.filter(i => i !== interest);
+                    } else {
+                        settingsSelectedInterests.push(interest);
+                    }
+                });
+            });
+
+            // Equipment selection
+            document.querySelectorAll('.equip-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.equip-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    settingsSelectedEquip = card.dataset.equip;
+                });
+            });
+
+            // Weekly goal slider change
+            const goalSlider = document.getElementById('weekly-goal-slider');
+            const goalDisplay = document.getElementById('weekly-goal-display');
+            const motivationText = document.getElementById('goal-motivation-text');
+
+            if (goalSlider) {
+                goalSlider.addEventListener('input', (e) => {
+                    const val = e.target.value;
+                    goalDisplay.textContent = val;
+                    settingsWeeklyGoal = parseInt(val);
+                    
+                    // Motivation feedback
+                    if (val < 60) {
+                        motivationText.textContent = "30-45 minutes — Parfait pour débuter calmement ou entretenir ses poignets.";
+                    } else if (val <= 120) {
+                        motivationText.textContent = "1h30 à 2h — Progression stable garantie. Un rythme solide pour maîtriser vos rudiments.";
+                    } else if (val <= 240) {
+                        motivationText.textContent = "3h à 4h — Rythme de batteur sérieux. Idéal pour développer la vitesse et l'indépendance.";
+                    } else {
+                        motivationText.textContent = "Batteur passionné / Pro ! Une pratique intense pour acquérir des compétences hors normes.";
+                    }
+                });
+            }
+
+            // Save Profile Action
+            document.getElementById('save-profile-btn').addEventListener('click', () => {
+                const newName = document.getElementById('settings-user-name').value.trim();
+                const bio = document.getElementById('settings-user-bio').value.trim();
+                
+                if (!newName) {
+                    showToast("Le nom ne peut pas être vide.", "❌", false);
+                    return;
+                }
+
+                const saveBtn = document.getElementById('save-profile-btn');
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = 'Enregistrement... ⏳';
+
+                setTimeout(() => {
+                    // Save standard properties in AuthCore
+                    const result = AuthCore.updateProfile(newName, settingsSelectedLevel, settingsSelectedInterests);
+                    
+                    if (result.success) {
+                        currentUser.name = result.user.name;
+                        currentUser.level = result.user.level;
+                        currentUser.interests = result.user.interests;
+                        currentUser.bio = bio; // Add biography fictively
+                        
+                        // Persist custom settings fields back to session and DB
+                        localStorage.setItem('dma_current_session', JSON.stringify(currentUser));
+                        const users = AuthCore.getUsers();
+                        const userIndex = users.findIndex(u => u.email === currentUser.email);
+                        if (userIndex !== -1) {
+                            users[userIndex].bio = bio;
+                            localStorage.setItem('dma_users_db', JSON.stringify(users));
+                        }
+
+                        updateSidebarUI();
+                        showToast("Profil mis à jour avec succès !", "✅", true);
+                    } else {
+                        showToast("Erreur lors de la sauvegarde.", "❌", false);
+                    }
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = 'Sauvegarder le Profil 💾';
+                }, 700);
+            });
+
+            // Save Training Goals Action
+            document.getElementById('save-training-btn').addEventListener('click', () => {
+                const saveBtn = document.getElementById('save-training-btn');
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = 'Sauvegarde... ⏳';
+
+                setTimeout(() => {
+                    currentUser.equipment = settingsSelectedEquip;
+                    currentUser.weeklyGoal = settingsWeeklyGoal;
+                    
+                    localStorage.setItem('dma_current_session', JSON.stringify(currentUser));
+                    
+                    const users = AuthCore.getUsers();
+                    const userIndex = users.findIndex(u => u.email === currentUser.email);
+                    if (userIndex !== -1) {
+                        users[userIndex].equipment = settingsSelectedEquip;
+                        users[userIndex].weeklyGoal = settingsWeeklyGoal;
+                        localStorage.setItem('dma_users_db', JSON.stringify(users));
+                    }
+
+                    showToast("Objectifs d'entraînement sauvegardés !", "🥁", true);
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = 'Sauvegarder les objectifs 🥁';
+                }, 600);
+            });
+
+            // Change Password Action
+            document.getElementById('save-password-btn').addEventListener('click', async () => {
+                const currentPass = document.getElementById('pass-current').value;
+                const newPass = document.getElementById('pass-new').value;
+                const confirmPass = document.getElementById('pass-confirm').value;
+
+                if (!currentPass || !newPass || !confirmPass) {
+                    showToast("Veuillez renseigner tous les champs.", "⚠️", false);
+                    return;
+                }
+
+                if (newPass !== confirmPass) {
+                    showToast("Les nouveaux mots de passe ne correspondent pas.", "❌", false);
+                    return;
+                }
+
+                if (newPass.length < 6) {
+                    showToast("Le mot de passe doit faire au moins 6 caractères.", "⚠️", false);
+                    return;
+                }
+
+                const pswBtn = document.getElementById('save-password-btn');
+                pswBtn.disabled = true;
+                pswBtn.innerHTML = 'Mise à jour... ⏳';
+
+                setTimeout(async () => {
+                    const result = await AuthCore.changePassword(currentPass, newPass);
+                    if (result.success) {
+                        showToast("Mot de passe mis à jour avec succès !", "🔒", true);
+                        document.getElementById('pass-current').value = '';
+                        document.getElementById('pass-new').value = '';
+                        document.getElementById('pass-confirm').value = '';
+                    } else {
+                        showToast(result.message, "❌", false);
+                    }
+                    pswBtn.disabled = false;
+                    pswBtn.innerHTML = 'Modifier le mot de passe 🔒';
+                }, 800);
+            });
+
+            // Global Purge Action
+            document.getElementById('purge-all-btn').addEventListener('click', () => {
+                if (confirm("ATTENTION : Cette action supprimera TOUS les comptes étudiants, progressions et posts communauté de ce navigateur. Confirmer ?")) {
+                    AuthCore.purgeAllData();
+                    alert("Base de données locale purgée. Redirection...");
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Admin Specific Delete Action
+            document.getElementById('admin-delete-btn').addEventListener('click', () => {
+                const emailInput = document.getElementById('admin-delete-email');
+                const email = emailInput.value.trim().toLowerCase();
+                
+                if (!email) {
+                    showToast("Veuillez saisir un e-mail valide.", "❌", false);
+                    return;
+                }
+
+                if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement le compte ${email} ?`)) {
+                    const users = AuthCore.getUsers();
+                    const userIndex = users.findIndex(u => u.email.toLowerCase() === email);
+
+                    if (userIndex === -1) {
+                        showToast("Aucun compte trouvé avec cet e-mail.", "❌", false);
+                        return;
+                    }
+
+                    const updatedUsers = users.filter(u => u.email.toLowerCase() !== email);
+                    localStorage.setItem('dma_users_db', JSON.stringify(updatedUsers));
+
+                    if (currentUser.email.toLowerCase() === email) {
+                        AuthCore.logout();
+                    } else {
+                        showToast(`Compte ${email} supprimé définitivement.`, "🗑️", true);
+                        emailInput.value = '';
+                    }
+                }
+            });
+
+            // Direct avatar upload within settings page
+            document.getElementById('settings-avatar-upload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const MAX_SIZE = 200;
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        if (width > height) {
+                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                        } else {
+                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        settingsAvatarBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        // Update UI
+                        document.getElementById('settings-avatar-container').innerHTML = `<img src="${settingsAvatarBase64}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                        document.getElementById('remove-avatar-btn').style.display = 'inline-block';
+                        
+                        // Save photo in Auth
+                        currentUser.photo = settingsAvatarBase64;
+                        localStorage.setItem('dma_current_session', JSON.stringify(currentUser));
+                        const users = AuthCore.getUsers();
+                        const userIndex = users.findIndex(u => u.email === currentUser.email);
+                        if (userIndex !== -1) {
+                            users[userIndex].photo = settingsAvatarBase64;
+                            localStorage.setItem('dma_users_db', JSON.stringify(users));
+                        }
+
+                        updateSidebarUI();
+                        showToast("Photo de profil mise à jour !", "📷", true);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Sidebar Avatar Upload Sync
+            document.getElementById('avatar-upload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    settingsAvatarBase64 = event.target.result;
+                    // Update both
+                    document.getElementById('settings-avatar-container').innerHTML = `<img src="${settingsAvatarBase64}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    document.getElementById('remove-avatar-btn').style.display = 'inline-block';
+                    
+                    currentUser.photo = settingsAvatarBase64;
+                    localStorage.setItem('dma_current_session', JSON.stringify(currentUser));
+                    const users = AuthCore.getUsers();
+                    const userIndex = users.findIndex(u => u.email === currentUser.email);
+                    if (userIndex !== -1) {
+                        users[userIndex].photo = settingsAvatarBase64;
+                        localStorage.setItem('dma_users_db', JSON.stringify(users));
+                    }
+                    updateSidebarUI();
+                    showToast("Photo de profil mise à jour !", "📷", true);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Remove photo action
+            document.getElementById('remove-avatar-btn').addEventListener('click', () => {
+                settingsAvatarBase64 = null;
+                currentUser.photo = null;
+                localStorage.setItem('dma_current_session', JSON.stringify(currentUser));
+                const users = AuthCore.getUsers();
+                const userIndex = users.findIndex(u => u.email === currentUser.email);
+                if (userIndex !== -1) {
+                    users[userIndex].photo = null;
+                    localStorage.setItem('dma_users_db', JSON.stringify(users));
+                }
+
+                initSettingsFields();
+                updateSidebarUI();
+                showToast("Photo de profil supprimée.", "🗑️", true);
+            });
+
+            // Logout Action
+            document.getElementById('logout-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                AuthCore.logout();
+            });
+        });
+
+        // Initialize state on DOM
+        function initSettingsFields() {
+            if (!currentUser) return;
+
+            document.getElementById('settings-user-name').value = currentUser.name || '';
+            document.getElementById('settings-user-email').value = currentUser.email || '';
+            document.getElementById('settings-user-bio').value = currentUser.bio || '';
+
+            // Avatar setup
+            const avatarContainer = document.getElementById('settings-avatar-container');
+            const removeAvatarBtn = document.getElementById('remove-avatar-btn');
+
+            if (settingsAvatarBase64) {
+                avatarContainer.innerHTML = `<img src="${settingsAvatarBase64}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                removeAvatarBtn.style.display = 'inline-block';
+            } else {
+                avatarContainer.textContent = (currentUser.name || '?').substring(0, 2).toUpperCase();
+                avatarContainer.style.background = 'var(--gold-gradient)';
+                removeAvatarBtn.style.display = 'none';
+            }
+
+            // Level selection
+            document.querySelectorAll('.settings-level-card').forEach(card => {
+                card.classList.toggle('selected', card.dataset.level === settingsSelectedLevel);
+            });
+
+            // Interests chips
+            document.querySelectorAll('.settings-interest-chip').forEach(chip => {
+                chip.classList.toggle('selected', settingsSelectedInterests.includes(chip.dataset.interest));
+            });
+
+            // Equipment selection
+            document.querySelectorAll('.equip-card').forEach(card => {
+                card.classList.toggle('selected', card.dataset.equip === settingsSelectedEquip);
+            });
+
+            // Goal setup
+            const goalSlider = document.getElementById('weekly-goal-slider');
+            const goalDisplay = document.getElementById('weekly-goal-display');
+            if (goalSlider && goalDisplay) {
+                goalSlider.value = settingsWeeklyGoal;
+                goalDisplay.textContent = settingsWeeklyGoal;
+            }
+        }
+
+        function updateSidebarUI() {
+            const avatarContainer = document.getElementById('user-avatar-container');
+            const mobileAvatarContainer = document.getElementById('mobile-avatar-display');
+            document.getElementById('user-name-sidebar').textContent = currentUser.name;
+
+            if (currentUser.photo) {
+                avatarContainer.innerHTML = `<img src="${currentUser.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                if (mobileAvatarContainer) mobileAvatarContainer.innerHTML = `<img src="${currentUser.photo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            } else {
+                const initials = currentUser.name.substring(0, 2).toUpperCase();
+                avatarContainer.textContent = initials;
+                if (mobileAvatarContainer) mobileAvatarContainer.textContent = initials;
+            }
+        }
+
+        // Toast Helper
+        function showToast(message, icon = '✨', isSuccess = true) {
+            const toast = document.getElementById('toast-notif');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastMsg = document.getElementById('toast-message');
+
+            toastIcon.textContent = icon;
+            toastMsg.textContent = message;
+            toast.style.borderColor = isSuccess ? 'var(--gold-primary)' : '#ff4444';
+            
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

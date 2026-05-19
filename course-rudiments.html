@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>40 Drum Basic Rudiments | DRUM MASTER ACADEMY</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root { --sidebar-width: 300px; }
+        .course-layout { display: flex; min-height: 100vh; padding-top: 80px; }
+        .course-sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--glass-border); padding: 2rem; position: fixed; height: calc(100vh - 80px); overflow-y: auto; z-index: 10; }
+        .course-content-area { flex: 1; margin-left: var(--sidebar-width); padding: 3rem 5rem; max-width: 1200px; }
+        .module-nav { list-style: none; padding: 0; }
+        .module-nav a { display: block; padding: 1rem; color: var(--text-secondary); text-decoration: none; border-radius: 8px; transition: var(--transition-fast); font-size: 0.9rem; font-weight: 500; }
+        .module-nav a:hover, .module-nav a.active { background: rgba(214, 163, 47, 0.1); color: var(--gold-primary); }
+        .module-section { margin-bottom: 6rem; scroll-margin-top: 120px; }
+        .module-tag { background: var(--gold-primary); color: var(--bg-main); padding: 0.3rem 1rem; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; display: inline-block; }
+        .curriculum-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 2rem 0; }
+        .curriculum-card { background: var(--bg-tertiary); padding: 2rem; border-radius: 12px; border: 1px solid var(--glass-border); }
+        .pedagogy-alert { border-left: 4px solid var(--gold-primary); padding: 1.5rem 2rem; background: rgba(214, 163, 47, 0.05); border-radius: 0 8px 8px 0; margin: 2rem 0; }
+        @media (max-width: 1024px) { .course-sidebar { display: none; } .course-content-area { margin-left: 0; padding: 3rem 2rem; } }
+    </style>
+</head>
+<body>
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+    <header id="main-header"></header>
+    <div class="course-layout">
+        <aside class="course-sidebar">
+            <h4 style="margin-bottom: 2rem; color: var(--gold-primary);">Rudiments Plan</h4>
+            <ul class="module-nav">
+                <li><a href="#intro" class="active">Vue d'ensemble</a></li>
+                <li><a href="#module1">Module 1 : Single & Double Strokes</a></li>
+                <li><a href="#module2">Module 2 : Paradiddles Master</a></li>
+                <li><a href="#module3">Module 3 : Flams & Drags</a></li>
+                <li><a href="#module4">Module 4 : Rolls & Endurance</a></li>
+                <li><a href="#module5">Module 5 : Application au Kit</a></li>
+                <li><a href="#module6">Module 6 : Routine Quotidienne</a></li>
+            </ul>
+        </aside>
+        <main class="course-content-area">
+            <!-- Course Hero Dynamic (Gospel Inspired) -->
+            <section class="course-hero-dynamic reveal" style="background-image: url('assets/images/rudiments-pro-thumbnail.png'); background-position: center 20%; margin-bottom: 4rem;">
+                <div class="hero-content">
+                    <h2>40 Drum Basic</h2>
+                    <div class="main-title">Rudiments</div>
+                    <div class="keywords">TECHNIQUE <span>•</span> VITESSE <span>•</span> PRÉCISION <span>•</span> CONTRÔLE</div>
+                </div>
+            </section>
+
+            <section id="intro" class="module-section">
+                <div style="margin-bottom: 3rem;">
+                    <span class="module-tag">Fondamentaux</span>
+                    <h2>La Grammaire du Batteur</h2>
+                    <p style="font-size: 1.2rem;">Maîtrisez les 40 rudiments officiels pour débloquer une liberté technique totale et une créativité sans limites.</p>
+                </div>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>🧠 Mémoire Musculaire</h4><p>Développer des réflexes sains pour jouer sans effort, même à haute vitesse.</p></div>
+                    <div class="curriculum-card"><h4>🚀 Mobilité</h4><p>Transformer des exercices de pad en phrases musicales fluides sur toute la batterie.</p></div>
+                </div>
+
+                <div style="margin-top: 4rem; text-align: center;">
+                    <div style="margin-bottom: 2rem;">
+                        <span class="module-tag">Visual Map</span>
+                        <h3>Table des Matières du Cursus</h3>
+                    </div>
+                    <div class="toc-image-container reveal" style="max-width: 800px; margin: 0 auto; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-dark); border: 1px solid var(--glass-border); background: var(--bg-secondary);">
+                        <img src="assets/images/rudiments-pro-thumbnail.png" alt="Table des matières des 40 rudiments" style="width: 100%; display: block; transition: transform 0.5s ease; cursor: pointer;" onclick="this.style.transform = this.style.transform === 'scale(1.1)' ? 'scale(1)' : 'scale(1.1)'">
+                    </div>
+                    <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">Cliquez sur l'image pour l'agrandir</p>
+                </div>
+            </section>
+            <section id="module1" class="module-section">
+                <span class="module-tag">Module 1</span>
+                <h2>Single & Double Stroke Rolls</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Frisés & Roulés</h4><p>Travailler l'égalité parfaite entre la main droite et la main gauche.</p></div>
+                    <div class="curriculum-card"><h4>Contrôle du Rebond</h4><p>Utiliser la physique de la baguette pour gagner en vitesse sans fatigue.</p></div>
+                </div>
+            </section>
+            <section id="module2" class="module-section">
+                <span class="module-tag">Module 2</span>
+                <h2>Paradiddles Master</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Single, Double, Triple</h4><p>Maîtriser toutes les formes de paradiddles et leurs inversions.</p></div>
+                    <div class="curriculum-card"><h4>Paradiddle-diddle</h4><p>L'arme secrète pour les fills fluides et rapides.</p></div>
+                </div>
+                <div class="pedagogy-alert"><strong>Conseil :</strong> Chantez les patterns (RLRR LRLL) pour mieux les mémoriser.</div>
+            </section>
+            <section id="module3" class="module-section">
+                <span class="module-tag">Module 3</span>
+                <h2>Flams & Drags (Ornementations)</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Le Flam (Appogiature)</h4><p>Donner de l'épaisseur à vos coups de caisse claire.</p></div>
+                    <div class="curriculum-card"><h4>Drag & Ratamacue</h4><p>Ajouter de la texture et de la sophistication à vos rudiments de base.</p></div>
+                </div>
+            </section>
+            <section id="module4" class="module-section">
+                <span class="module-tag">Module 4</span>
+                <h2>Rolls (5, 7, 9, 13, 17)</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>La Continuité du Son</h4><p>Apprendre à faire des roulés pressés ou ouverts pour un rendu symphonique.</p></div>
+                    <div class="curriculum-card"><h4>Endurance</h4><p>Maintenir des roulements longs avec une dynamique constante.</p></div>
+                </div>
+            </section>
+            <section id="module5" class="module-section">
+                <span class="module-tag">Module 5</span>
+                <h2>Application Musicale au Kit</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Rudiment-Grooves</h4><p>Transformer un paradiddle en un beat funk ou un groove latin.</p></div>
+                    <div class="curriculum-card"><h4>Rudiment-Fills</h4><p>Orchestrer vos rudiments sur les toms pour créer des solos impressionnants.</p></div>
+                </div>
+            </section>
+            <section id="module6" class="module-section" style="background: var(--bg-tertiary); padding: 3rem; border-radius: 12px; border: 1px solid var(--gold-primary);">
+                <span class="module-tag">Module 6</span>
+                <h2>La Routine Quotidienne d'Élite</h2>
+                <div class="pedagogy-alert" style="background: transparent;">
+                    <blockquote>"Un rudiment par jour éloigne le blocage technique pour toujours."</blockquote>
+                </div>
+                <div style="margin-top: 3rem; text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="assets/documents/pdf/40%20Drum%20Basic%20Rudiments.pdf" target="_blank" download="40_Drum_Basic_Rudiments.pdf" class="btn btn-outline" id="btn-download-pdf" style="display: none; padding: 1.2rem 3rem; font-size: 1.1rem; border-color: var(--gold-primary); color: var(--gold-primary);">⬇️ Télécharger / Lire le PDF</a>
+                    <a href="#" class="btn btn-primary btn-enroll-action" data-course-id="rudiments" style="padding: 1.2rem 3rem; font-size: 1.1rem;">S'inscrire à cette formation</a>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth-core.js"></script>
+    <script src="assets/js/auth-checker.js"></script>
+    <script src="assets/js/enrollment.js"></script>
+    <script src="assets/js/course-videos.js"></script>
+    <script src="assets/js/components.js" defer></script>
+</body>
+</html>

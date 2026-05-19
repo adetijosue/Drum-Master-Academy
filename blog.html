@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog & Ressources | DRUM MASTER ACADEMY</title>
+    <meta name="description" content="Découvrez nos articles, conseils techniques et actualités pour batteurs et percussionnistes. L'expertise de Josué ADETI au service de votre progression.">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .blog-hero {
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('assets/images/josue_3.jpg') center/cover;
+            padding-top: 100px;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 3rem;
+            padding: 5rem 0;
+        }
+
+        .blog-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--gold-primary);
+            box-shadow: var(--shadow-gold);
+        }
+
+        .blog-card-img {
+            height: 240px;
+            width: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .blog-card:hover .blog-card-img {
+            transform: scale(1.05);
+        }
+
+        .blog-card-content {
+            padding: 2.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--gold-primary);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .blog-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.3;
+        }
+
+        .blog-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            flex: 1;
+        }
+
+        .read-more {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition-fast);
+        }
+
+        .read-more:hover {
+            color: var(--gold-primary);
+            gap: 1rem;
+        }
+
+        .category-tag {
+            background: rgba(214, 163, 47, 0.1);
+            color: var(--gold-primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+
+        @media (max-width: 768px) {
+            .blog-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+    <div id="scroll-progress"></div>
+
+    <!-- Navigation -->
+    <header id="main-header"></header>
+
+    <!-- Blog Hero -->
+    <header class="blog-hero">
+        <div class="container reveal">
+            <span class="hero-subtitle">Le Savoir Partagé</span>
+            <h1>L'Écho du <span class="text-gold">Rythme</span>.</h1>
+            <p style="max-width: 700px; margin: 1.5rem auto 0 auto; color: var(--text-secondary);">Découvrez des articles exclusifs, des analyses techniques et des réflexions sur la vie de musicien professionnel.</p>
+        </div>
+    </header>
+
+    <!-- Blog Grid -->
+    <section>
+        <div class="container">
+            <div class="blog-grid">
+                <!-- Article 1 -->
+                <article class="blog-card reveal">
+                    <img src="assets/images/josue_4.jpg" alt="Le secret du Groove" class="blog-card-img">
+                    <div class="blog-card-content">
+                        <div class="blog-meta">
+                            <span class="category-tag">Technique</span>
+                            <span>15 Mai 2026</span>
+                            <span>• 5 min read</span>
+                        </div>
+                        <h3>Le Secret du Groove : Pourquoi le temps est plus important que la vitesse.</h3>
+                        <p>Beaucoup de batteurs se concentrent sur la rapidité des mains, mais le vrai secret des pros réside dans le placement du temps et la régularité du débit rythmique.</p>
+                        <a href="blog-groove-vs-vitesse.html" class="read-more">Lire l'article <span>→</span></a>
+                    </div>
+                </article>
+
+                <!-- Article 2 -->
+                <article class="blog-card reveal" style="transition-delay: 0.2s;">
+                    <img src="assets/images/josue_3.jpg" alt="Enregistrement Studio" class="blog-card-img">
+                    <div class="blog-card-content">
+                        <div class="blog-meta">
+                            <span class="category-tag">Studio</span>
+                            <span>10 Mai 2026</span>
+                            <span>• 8 min read</span>
+                        </div>
+                        <h3>Guide de Survie en Studio : Préparer son kit pour l'excellence.</h3>
+                        <p>L'enregistrement est une épreuve de vérité. Découvrez comment accorder vos fûts et choisir vos cymbales pour obtenir un son professionnel dès la prise.</p>
+                        <a href="blog-survie-studio.html" class="read-more">Lire l'article <span>→</span></a>
+                    </div>
+                </article>
+
+                <!-- Article 3 -->
+                <article class="blog-card reveal" style="transition-delay: 0.4s;">
+                    <img src="assets/images/josue_2.jpg" alt="Indépendance Batterie" class="blog-card-img">
+                    <div class="blog-card-content">
+                        <div class="blog-meta">
+                            <span class="category-tag">Pédagogie</span>
+                            <span>02 Mai 2026</span>
+                            <span>• 6 min read</span>
+                        </div>
+                        <h3>L'Indépendance à la Batterie : Libérer son cerveau et ses membres.</h3>
+                        <p>Travailler l'indépendance peut être frustrant. Je vous partage 3 exercices fondamentaux pour dissocier vos membres et gagner en liberté créative.</p>
+                        <a href="blog-independance.html" class="read-more">Lire l'article <span>→</span></a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="main-footer"></footer>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth-checker.js"></script>
+    <script src="assets/js/components.js" defer></script>
+</body>
+</html>

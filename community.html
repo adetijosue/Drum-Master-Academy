@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communauté DMA | Social Hub</title>
+    <meta name="description" content="Rejoignez la communauté Drum Master Academy. Échangez, partagez vos progrès et connectez-vous avec des batteurs passionnés.">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Communauté DMA | Social Hub">
+    <meta property="og:description" content="Rejoignez la communauté Drum Master Academy. Échangez, partagez vos progrès et connectez-vous avec des batteurs passionnés.">
+    
+    <!-- Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" as="style">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <script src="assets/js/auth-core.js"></script>
+    <script>
+        const user = AuthCore.getCurrentUser();
+        if (!user) window.location.href = 'login.html';
+    </script>
+    <style>
+        :root {
+            --social-bg: #050505;
+            --social-card: #0e0e0e;
+            --social-border: rgba(255,255,255,0.08);
+            --social-accent: #d6a32f;
+        }
+
+        body { 
+            background: var(--social-bg);
+            color: #fff;
+        }
+
+        .social-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 100px auto 50px;
+            padding: 0 2rem;
+        }
+
+        /* Left Sidebar - Navigation */
+        .social-nav-card {
+            background: var(--social-card);
+            border: 1px solid var(--social-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: sticky;
+            top: 100px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(214, 163, 47, 0.1);
+            color: var(--social-accent);
+            transform: translateX(5px);
+        }
+
+        /* Feed Center */
+        .search-container {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: var(--social-card);
+            border: 1px solid var(--social-border);
+            padding: 1rem 1rem 1rem 3rem;
+            border-radius: 50px;
+            color: white;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--social-accent);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* Create Post */
+        .create-box {
+            background: var(--social-card);
+            border: 1px solid var(--social-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .create-header {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--social-accent);
+        }
+
+        .create-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            padding: 0.8rem 0;
+            resize: none;
+            min-height: 60px;
+        }
+
+        .create-input:focus { outline: none; }
+
+        .create-tools {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--social-border);
+        }
+
+        .tool-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .tool-btn:hover { background: rgba(255,255,255,0.1); }
+
+        /* Post Cards */
+        .social-card {
+            background: var(--social-card);
+            border: 1px solid var(--social-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+
+        .user-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .post-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .category-pill {
+            font-size: 0.7rem;
+            color: var(--social-accent);
+            background: rgba(214, 163, 47, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .post-body {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #ddd;
+            margin-bottom: 1.5rem;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 2rem;
+            padding: 1rem 0;
+            border-top: 1px solid var(--social-border);
+            border-bottom: 1px solid var(--social-border);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .stat-item:hover { color: var(--social-accent); }
+        .stat-item.liked { color: #ff4444; }
+
+        /* Right Sidebar */
+        .widget-card {
+            background: var(--social-card);
+            border: 1px solid var(--social-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .widget-title {
+            color: var(--social-accent);
+            font-size: 0.9rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .trending-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--social-border);
+        }
+
+        .trending-topic {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .trending-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .social-layout { grid-template-columns: 80px 1fr 300px; }
+            .nav-item span:not(.icon) { display: none; }
+        }
+
+        @media (max-width: 900px) {
+            .social-layout { grid-template-columns: 1fr; }
+            .social-nav-card, .right-sidebar { display: none; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Enhanced post card on hover */
+        .social-card {
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .social-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(214, 163, 47, 0.3);
+        }
+
+        /* Character counter */
+        .char-counter {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 0.3rem;
+            transition: color 0.3s;
+        }
+        .char-counter.warn { color: #f59e0b; }
+        .char-counter.danger { color: #ef4444; }
+
+        /* Category pills in form */
+        .cat-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .cat-pill {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cat-pill:hover, .cat-pill.active {
+            background: rgba(214, 163, 47, 0.15);
+            border-color: var(--gold-primary);
+            color: var(--gold-primary);
+        }
+    </style>
+</head>
+<body>
+    <header id="main-header"></header>
+
+    <div class="social-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="left-sidebar">
+            <div class="social-nav-card">
+                <a href="#" class="nav-item active" data-filter="all"><span class="icon">🏠</span> <span>Fil d'actualité</span></a>
+                <a href="#" class="nav-item" data-filter="aide"><span class="icon">🆘</span> <span>Aide & Support</span></a>
+                <a href="#" class="nav-item" data-filter="partage"><span class="icon">🔥</span> <span>Progrès & Vidéos</span></a>
+                <a href="#" class="nav-item" data-filter="materiel"><span class="icon">⚙️</span> <span>Matériel</span></a>
+                <a href="#" class="nav-item" data-filter="offtopic"><span class="icon">☕</span> <span>Lounge</span></a>
+                <hr style="border: none; border-top: 1px solid var(--social-border); margin: 1.5rem 0;">
+                <a href="dashboard.html" class="nav-item"><span class="icon">👤</span> <span>Mon Profil</span></a>
+                <a href="courses.html" class="nav-item"><span class="icon">📚</span> <span>Mes Cours</span></a>
+            </div>
+        </aside>
+
+        <!-- Main Feed -->
+        <main class="feed-center">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-posts" class="search-bar" placeholder="Rechercher une discussion, un étudiant...">
+            </div>
+
+            <div class="create-box">
+                <div class="create-header">
+                    <img src="assets/images/default-avatar.png" id="form-avatar" class="user-circle">
+                    <textarea id="post-text" class="create-input" maxlength="1000" placeholder="Partagez votre progression, posez une question, inspirez vos camarades... (Ctrl+Entrée pour publier)"></textarea>
+                </div>
+                <div class="char-counter" id="char-counter">0 / 1000</div>
+                
+                <!-- Media Preview Zone -->
+                <div id="media-preview-container" style="display: none; position: relative; margin-bottom: 1rem;">
+                    <div id="media-preview-content" style="border-radius: 12px; overflow: hidden; max-height: 300px; border: 1px solid var(--social-border);"></div>
+                    <button id="remove-media" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer;">✕</button>
+                </div>
+
+                <div class="create-tools">
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
+                        <!-- Category pills -->
+                        <div class="cat-pills" id="cat-pills-container">
+                            <button class="cat-pill active" data-value="partage">🔥 Progression</button>
+                            <button class="cat-pill" data-value="aide">🆘 Aide</button>
+                            <button class="cat-pill" data-value="materiel">⚙️ Matériel</button>
+                            <button class="cat-pill" data-value="offtopic">☕ Lounge</button>
+                        </div>
+                        <input type="hidden" id="post-category" value="partage">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                            <button class="tool-btn" onclick="document.getElementById('media-input').click()">🖼️ Photo / Vidéo</button>
+                            <input type="file" id="media-input" style="display: none;" accept="image/*,video/*">
+                            <button class="btn btn-primary" id="publish-btn" style="padding: 0.6rem 2rem;">Publier 🚀</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="posts-feed">
+                <!-- Posts dynamic -->
+            </div>
+        </main>
+
+        <!-- Right Widgets -->
+        <aside class="right-sidebar">
+            <div class="widget-card">
+                <h3 class="widget-title">Sujets Tendances</h3>
+                <div class="trending-item">
+                    <span class="trending-topic">#GospelDrumming</span>
+                    <span class="trending-count">24 publications cette semaine</span>
+                </div>
+                <div class="trending-item">
+                    <span class="trending-topic">#ParadiddlesChallenge</span>
+                    <span class="trending-count">15 batteurs participent</span>
+                </div>
+                <div class="trending-item">
+                    <span class="trending-topic">#StudioSetup</span>
+                    <span class="trending-count">8 nouveaux setups</span>
+                </div>
+            </div>
+
+            <div class="widget-card">
+                <h3 class="widget-title">Membres Actifs</h3>
+                <div id="active-members" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Simulating active members -->
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #222; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; border: 1px solid var(--social-accent);">JA</div>
+                        <div>
+                            <span style="font-weight: 700; font-size: 0.9rem; display: block;">Josué ADETI</span>
+                            <span style="font-size: 0.7rem; color: #44bb44;">● En ligne</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.75rem;">
+                &copy; 2026 Drum Master Academy Community<br>
+                <a href="#" style="color: inherit; margin-right: 10px;">Légal</a>
+                <a href="#" style="color: inherit;">Confidentialité</a>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Community Logic -->
+    <script src="assets/js/community.js"></script>
+    <script src="assets/js/gemini-coach.js" defer></script>
+    <script src="assets/js/josue-widget.js" defer></script>
+    <script src="assets/js/components.js" defer></script>
+</body>
+</html>

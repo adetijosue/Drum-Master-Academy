@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etude des Rythmes | DRUM MASTER ACADEMY</title>
+    <meta name="description" content="Formation intensive sur les différents rythmes mondiaux : Rock, Afro, Gospel, Latin, Jazz et Rythmes Modernes.">
+    
+    <!-- Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root {
+            --sidebar-width: 300px;
+        }
+
+        .course-layout {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 80px; /* Navbar space */
+        }
+
+        .course-sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+            position: fixed;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .course-content-area {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 3rem 5rem;
+            max-width: 1200px;
+        }
+
+        .module-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .module-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .module-nav a {
+            display: block;
+            padding: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition-fast);
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+
+        .module-nav a:hover, .module-nav a.active {
+            background: rgba(214, 163, 47, 0.1);
+            color: var(--gold-primary);
+            border-color: rgba(214, 163, 47, 0.2);
+        }
+
+        .module-section {
+            margin-bottom: 6rem;
+            scroll-margin-top: 120px;
+        }
+
+        .module-header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 2rem;
+        }
+
+        .module-tag {
+            background: var(--gold-primary);
+            color: var(--bg-main);
+            padding: 0.3rem 1rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .style-card {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            transition: var(--transition-smooth);
+        }
+
+        .style-card:hover {
+            border-color: var(--gold-primary);
+            transform: translateY(-5px);
+        }
+
+        .style-card h4 {
+            color: var(--gold-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .style-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .style-card li {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .style-card li::before {
+            content: '•';
+            color: var(--gold-primary);
+        }
+
+        .pedagogy-box {
+            background: rgba(214, 163, 47, 0.05);
+            border-left: 4px solid var(--gold-primary);
+            padding: 2rem;
+            border-radius: 0 12px 12px 0;
+            margin: 2rem 0;
+            font-style: italic;
+        }
+
+        .pedagogy-box blockquote {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .image-collage {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2.5rem 0;
+        }
+
+        .image-collage img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .method-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step-item {
+            text-align: center;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--gold-gradient);
+            color: var(--bg-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin: 0 auto 1.5rem auto;
+            box-shadow: var(--shadow-gold);
+        }
+
+        @media (max-width: 1024px) {
+            .course-sidebar {
+                display: none;
+            }
+            .course-content-area {
+                margin-left: 0;
+                padding: 3rem 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .image-collage {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Premium Utilities -->
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+    <div id="scroll-progress"></div>
+
+    <!-- Navigation -->
+    <header id="main-header"></header>
+
+    <div class="course-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="course-sidebar">
+            <h4 style="margin-bottom: 2rem; color: var(--gold-primary);">Plan du Cursus</h4>
+            <ul class="module-nav">
+                <li><a href="#intro" class="active">Introduction</a></li>
+                <li><a href="#module1">Module 1 : Occidentaux</a></li>
+                <li><a href="#module2">Module 2 : Africains</a></li>
+                <li><a href="#module3">Module 3 : Gospel & Worship</a></li>
+                <li><a href="#module4">Module 4 : Latin & Caribbean</a></li>
+                <li><a href="#module5">Module 5 : Jazz & Fusion</a></li>
+                <li><a href="#module6">Module 6 : Modernes & Hybrides</a></li>
+                <li><a href="#methodology">Méthode DMA</a></li>
+                <li><a href="#final">Objectif Final</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="course-content-area">
+            <!-- Course Hero Dynamic (Rhythms) -->
+            <section class="course-hero-dynamic reveal" style="background-image: url('assets/images/etudes_rythmes.jpg'); background-position: center 30%; margin-bottom: 4rem;">
+                <div class="hero-content">
+                    <h2>Encyclopédie</h2>
+                    <div class="main-title">Rythmes</div>
+                    <div class="keywords">THÉORIE <span>•</span> FEELING <span>•</span> CLAVE <span>•</span> CULTURE</div>
+                    <div style="margin-top: 2rem;">
+                        <a href="#" class="btn btn-primary btn-enroll-action" data-course-id="rythmes" style="padding: 1rem 2.5rem; font-size: 1rem;">S'inscrire à cette formation</a>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="intro" class="module-section">
+                <div class="module-header">
+                    <span class="module-tag">Théorie & Feeling</span>
+                    <h1>L'Architecture du <span class="text-gold">Groove</span></h1>
+                    <p style="font-size: 1.2rem;">Comprendre le rythme, c'est comprendre le langage universel de la musique. Ce cursus n'est pas un catalogue, mais une étude comparative des mécaniques qui font danser le monde.</p>
+                </div>
+                <h3>Les Piliers de la Rythmique</h3>
+                <p>Nous analysons ici les concepts transversaux qui s'appliquent à tous les styles :</p>
+                <div class="style-grid">
+                    <div class="style-card"><h4>📐 Subdivision</h4><p>Maîtriser le binaire vs le ternaire (le "swing" universel).</p></div>
+                    <div class="style-card"><h4>🔗 La Clave</h4><p>L'ancre rythmique qui définit l'ordre des notes.</p></div>
+                    <div class="style-card"><h4>🔄 Cycles</h4><p>Comprendre la répétition et la transe rythmique.</p></div>
+                    <div class="style-card"><h4>🧠 Poly-métrie</h4><p>Superposer plusieurs mesures avec aisance.</p></div>
+                </div>
+            </section>
+
+            <!-- Module 1 -->
+            <section id="module1" class="module-section">
+                <span class="module-tag">Module 1</span>
+                <h2>Rythmes Fondamentaux Occidentaux</h2>
+                <p>La base de la musique moderne. Apprendre le contrôle, la puissance et la constance.</p>
+                
+                <div class="image-collage">
+                    <img src="https://images.openai.com/static-rsc-4/sG1LZ0tzYSpDt72zGhm4HLQosX4vu6ZZatzPcVgx8mkLyC-gdeLgIysXMK_zlPKm1TfZtxRFxlz6NvJj1LJvX8arm-hAPnZ8pC5ri7gj6VsCJUcWhM4jBUY0FMSOajltThxZLUJec9L4OFKCSmaNlBcfmWQzI4ZyCJ81551RzC0IvKGGmTp2DB7rQC7f8opC?purpose=fullsize" alt="Drumming 1">
+                    <img src="https://images.openai.com/static-rsc-4/XoIsldsMLNgjQ65N8AtP767fja3hy7Gy8JkpK1n2jLY5GcfUpFa4LQfMxZkLfyi9ojNh6i-b350tRRvgrO-U3cuFwSO1LO_rWGXJ5UgGJIulaycLXvg5NM8AU6mnvWVHTO12d6ZD3dIz49TTVR3JvOz1-qlygzkcZ1gjn0FbDDWAW02i8Kqp810n-_bbNglO?purpose=fullsize" alt="Drumming 2">
+                    <img src="https://images.openai.com/static-rsc-4/DDfDsViMylDm92KxPNHpxYNNaj_UhWwYmtbKyikh_5Cr0WnsG5Tsg_9mcwqcQGoWfVU_ft5ajxnSZt5msEivKJGT0IdhaLPld3SrT2Li7y3p5aKKSSVQr_PUU9t9Qf47ubm3mmHDDzGLoVb8nFjBwe7u6IIGfOfPan2b6ssDg8YUnSDdMsxGAHJ8itrJyX9s?purpose=fullsize" alt="Drumming 3">
+                </div>
+
+                <div class="style-grid">
+                    <div class="style-card"><h4>Rock & Pop</h4><ul><li>Stabilité rythmique</li><li>Puissance contrôlée</li></ul></div>
+                    <div class="style-card"><h4>Funk</h4><ul><li>Syncopes & Ghost notes</li><li>Le Pocket</li></ul></div>
+                    <div class="style-card"><h4>Blues & Shuffle</h4><ul><li>Swing feel</li><li>Rebond naturel</li></ul></div>
+                </div>
+                <div class="pedagogy-box">
+                    <strong>Objectifs :</strong> Maîtriser le Backbeat, le Pocket, la Constance et la Dynamique.
+                </div>
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button class="btn btn-outline" onclick="CourseQuiz.init('rythmes', 'module1')" style="font-size: 0.8rem; border-color: var(--gold-primary); color: var(--gold-primary);">📝 Évaluer ma maîtrise (Module 1)</button>
+                </div>
+            </section>
+
+            <!-- Module 2 -->
+            <section id="module2" class="module-section">
+                <span class="module-tag">Module 2</span>
+                <h2>Rythmes Africains & Afro Modernes</h2>
+                <p>Découvrez la richesse polyrythmique du berceau du rythme. Un voyage entre tradition et modernité.</p>
+                
+                <div class="image-collage">
+                    <img src="https://images.openai.com/static-rsc-4/aVQ34t_mNgImiRZFW6KPXFg9dZQQzuKrHRtm5G19MBghGGnDFMjfGJXLeQJjLN_3B0xXOWWVZQDF0q1Fggn8gJvceYbS4QGU-9RHTF3GZsa6bjY2lM5dVQSS3WtEDp0VkbIpBd0-_g0TJ3VlqrY9jQLGly_EvcNiSM4Z7O6_V6UmOGghD6oOzFwXA1hA6tiA?purpose=fullsize" alt="Afro 1">
+                    <img src="https://images.openai.com/static-rsc-4/b-0dKxKxHuM2uWg6ZVA1_nHjjMpCWs0YQJHeLiO8Il69jIJiwyhcJ6vkz-wPK0RxsaaofnjxMnIpoJlIJdWEQe5KL-iTTkaVFfpA0FpG9uxCmCH_B_iLKqCiAoWhfRPeuYTDi-TG-TfeE_8Jxbu_mxfT2JP0XzZ8ECpKKkU838ei53Q_thXDvSTEn4N7jiDc?purpose=fullsize" alt="Afro 2">
+                    <img src="https://images.openai.com/static-rsc-4/0XB19rea4R-q4K1P8UECrKz1jKOhD3WbW-MTK8dlvx6lntfL_v_eSHE6y9ce74S3coI5LEFJHl2CBoEvCsLgWzpAPJprxzQ5ceASl2_baoTKqR5DlPw8HLjjIL5jgckthCDcbn9llt_rsSbN5anVCJ90ZUoYEG7gLtNQf82vJWXWYkYLfPpJ2uVY_S5qQGUz?purpose=fullsize" alt="Afro 3">
+                </div>
+
+                <div class="style-grid">
+                    <div class="style-card"><h4>Highlife & Makossa</h4><ul><li>Indépendance</li><li>Grooves dansants</li></ul></div>
+                    <div class="style-card"><h4>Afrobeat & Soukous</h4><ul><li>Cycles hypnotiques</li><li>Relation Basse/Batterie</li></ul></div>
+                    <div class="style-card"><h4>Amapiano & Fusion</h4><ul><li>Électro-traditionnel</li><li>Subtilité du Shaker</li></ul></div>
+                </div>
+
+                <div class="pedagogy-box">
+                    <blockquote>"Le groove africain ne pousse pas. Il roule."</blockquote>
+                    <strong>Focus :</strong> Cycles répétitifs hypnotiques et danse du groove.
+                </div>
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button class="btn btn-outline" onclick="CourseQuiz.init('rythmes', 'module2')" style="font-size: 0.8rem; border-color: var(--gold-primary); color: var(--gold-primary);">📝 Évaluer ma maîtrise (Module 2)</button>
+                </div>
+            </section>
+
+            <!-- Module 3 -->
+            <section id="module3" class="module-section">
+                <span class="module-tag">Module 3</span>
+                <h2>Gospel & Worship</h2>
+                <p>L'art de l'expression émotionnelle et spirituelle à travers la batterie.</p>
+                
+                <div class="image-collage">
+                    <img src="https://images.openai.com/static-rsc-4/YFGmp-XHJBXNZGaOQyfQ3-A-D0GIPdybNWJvN5vPnTaQxmPvON8gGY-PxAJzWhlehvH4NVypWN5ilZZ_EsDL7iO--3zHctAqcYP6_FtadZ0c1U2OrR20gzgnW59vGzvcpb_VziaddcEXNauIkXDLChsQ5wfaYeGMkbQLsBlJ5UfOhGEVOlQ6cdKtd4nXOwbY?purpose=fullsize" alt="Gospel 1">
+                    <img src="https://images.openai.com/static-rsc-4/xIrak0rArFDxGpu77u9UDwh27PvpHhUWqgCJDOBwU4_dmpZFXogtym7QsbuBUCieM2zmiL6tKEbZogvmQwBzOwIT2NGT3js0r30n6w_2pbH968thytzS3qqNW7KU0I5wtO_b_3dDsg1D3FkOlan7DAXLSwUmw36KIo2Sxq6Dt4aiLbqd-8pJDtkjicY00Czc?purpose=fullsize" alt="Gospel 2">
+                    <img src="https://images.openai.com/static-rsc-4/KVWZeb1nMsLdTVOV_cm-Glp2MRyTnPoifQXot5zw5ydMcY3tb_GEvNewwj-hP_51ZVN-G7LsJKrUPHx2LyHyAOo3m187FJTFvs3gCwVaC7rgc9-t609EwE5RAOV6nmYTVhlKYckop4MxJ1AS6PK05fWj4S2wOYOWQc9Lyx4Y9lyxvaMn5G94lyboTJMEveaV?purpose=fullsize" alt="Gospel 3">
+                </div>
+
+                <div class="style-grid">
+                    <div class="style-card"><h4>Praise & Worship</h4><ul><li>Gestion des montées</li><li>Sensibilité musicale</li></ul></div>
+                    <div class="style-card"><h4>Traditional Gospel</h4><ul><li>Shout Music</li><li>Praise Break</li></ul></div>
+                    <div class="style-card"><h4>Compétence Clé</h4><ul><li>Anticiper les changements</li><li>Transitions Live</li></ul></div>
+                </div>
+
+                <div class="pedagogy-box">
+                    <strong>Note Pédagogique :</strong> En Gospel, le morceau peut changer à tout moment. La réactivité est votre arme numéro 1.
+                </div>
+            </section>
+
+            <!-- Module 4 -->
+            <section id="module4" class="module-section">
+                <span class="module-tag">Module 4</span>
+                <h2>Latin & Caribbean Grooves</h2>
+                <p>Coordination avancée et indépendance totale au service du soleil.</p>
+                
+                <div class="image-collage">
+                    <img src="https://images.openai.com/static-rsc-4/rXPrn3ojDt_KBtmqI-j-oRXfvpCnrmFcjz8lxA0itoRThLWGzgRv_TiRPS645GMP2P1_dYpDPs7PY8MwUI-94TsDM1G-yAxIgdLW-odb55vZ0TpExklmfK08vQAUOzSvuFtnoDisQrzSoWX9YMRY2GHqNhdCMyFra_mLh-jdqb-2oJHE92mWhdnx9eM70NBX?purpose=fullsize" alt="Latin 1">
+                    <img src="https://images.openai.com/static-rsc-4/8O-gP9LxI9R23OsAyVDvyFKqfyTZimqvJFJFjIZFmIpV8e_6YnURGzhi4292HFuTR8ROFjWm7rF3Z33l0H-nc-BvSafTyPi1YC7yxJzr5z90401Hp9EH_zmdclGqY0kzwuSV_FQjoBk63h1AZHTIhzaFGJpf5Qns_-0r1j8f0-MamqpSgzRoWqQuYYLxIG9a?purpose=fullsize" alt="Latin 2">
+                    <img src="https://images.openai.com/static-rsc-4/A90aRhArPv6ZJSxYrvAvcHFZax0W9E5owh9r_oZUZF_qO7ev7ExfP5gNtvllLm5NFdcrrdhDRb8mysz62H4X4I4kSHlOxIuxgMjjQErEKGdVWWcksMxezKZgV4rmkuGSn5tvedwC2QExpVuPXU8gFpjAtPiCYa0U6Og_JYSKn0Kol2DFhFKORVce1yE2Cp7?purpose=fullsize" alt="Latin 3">
+                </div>
+
+                <div class="style-grid">
+                    <div class="style-card"><h4>Salsa & Samba</h4><ul><li>Coordination avancée</li><li>Indépendance pieds/mains</li></ul></div>
+                    <div class="style-card"><h4>Reggae & Zouk</h4><ul><li>One Drop feel</li><li>Subtilité rythmique</li></ul></div>
+                    <div class="style-card"><h4>Difficulté : La Clave</h4><ul><li>Comprendre le cycle</li><li>Le jouer avec authenticité</li></ul></div>
+                </div>
+            </section>
+
+            <!-- Module 5 -->
+            <section id="module5" class="module-section">
+                <span class="module-tag">Module 5</span>
+                <h2>Jazz & Fusion</h2>
+                <p>L'excellence du toucher et l'art de l'écoute extrême.</p>
+                
+                <div class="image-collage">
+                    <img src="https://images.openai.com/static-rsc-4/gom2Wp2sJ4i7s6Kh2v9uKl7ZpYgz-Y68HoMu_DwweyoKHDckaDnxV8YxVPuyX3iCNIznbVktw_YpzvVgQqEv-Pkncf7BO0Y5tj9Gcmm9zpR-WXl4QnNtgEC0-acKVi2iXtTrGcBi-aot3gqybtPmOnpevxlwh6CWtka419Su3t3q8wIQf3WlbgsevW8NTN_W?purpose=fullsize" alt="Jazz 1">
+                    <img src="https://images.openai.com/static-rsc-4/8vLP9QWoqQZY17Nt8HecptNQ0upGEnTkZrdPnxqfVGGlJi4oFt6lAc9Evlfz8Q5zsnsXeeQz5ARNJhk09x0cs5XMVeNP5CPPEf8cpBZ39_Htt1j65m0QBZwMMUaooCl4IBUdM_OxYizY1WCRcNvulJpiXG1ktCW0UJZ_9NbCB64UZzEAd-X-mS18im_42UOl?purpose=fullsize" alt="Jazz 2">
+                    <img src="https://images.openai.com/static-rsc-4/yJGgX0zEh7Fr1hvw72wYS6ktXFxrQfI0hRo2Jr3DdgbRhsqvZ6ImkxV6Wbb0k0LvK-u08Arr3N0Wvh5eUUztgy1YApz25q8wbgPvSAMjPyRu0TY-e-FCRZIWhS-veiGYTMoQe-3dQ1n9qFUwTxGwNZRz84ebzTnbmlIZlPmeWVQDhTU4RhBPKio_Zn72dCFR?purpose=fullsize" alt="Jazz 3">
+                </div>
+
+                <div class="style-grid">
+                    <div class="style-card"><h4>Swing & Bebop</h4><ul><li>Liberté contrôlée</li><li>Interaction constante</li></ul></div>
+                    <div class="style-card"><h4>Jazz Fusion</h4><ul><li>Sophistication du toucher</li><li>Écoute extrême</li></ul></div>
+                    <div class="style-card"><h4>Neo Soul</h4><ul><li>Dilla Feel</li><li>L'art du retard</li></ul></div>
+                </div>
+
+                <div class="pedagogy-box">
+                    <blockquote>"Le Jazz apprend à écouter avant de jouer."</blockquote>
+                </div>
+            </section>
+
+            <!-- Module 6 -->
+            <section id="module6" class="module-section">
+                <span class="module-tag">Module 6</span>
+                <h2>Rythmes Modernes & Hybrides</h2>
+                <p>Le futur de la batterie. Précision métronomique et textures électroniques.</p>
+                
+                <div class="image-collage">
+                    <img src="https://images.openai.com/static-rsc-4/YJ1Mb2jwODL16iuwQlcVBwEDeT-COu5K2SfGXsoBXSjmXtwe2PEjHoaBoJzhBJGQnkidV-EcASUeuz7pqhzEM9fFQMuofAhU4A0AKzXsN78ROwS_jpQrORrxdOIVB0IRomOhbyqZxy9cjkFk8zAXnzH3-udl_NDiGbTjMhqakPcZB7Lt5a3X7Uk3OVqs3mYz?purpose=fullsize" alt="Modern 1">
+                    <img src="https://images.openai.com/static-rsc-4/-jtaX_PX2wgQd50IJx_aAu8aw9lxqoU_NsnpZRIdHrWRvjcx3bEOom7S8NFxtPL3Z59aKz7lpqcRtPgd9wiWHGd4Kj_njKOMlupfdqfyPwJ4if2eolUyGOr2_n5gaguC-U1GHfsOR_t_2CMeaqnGuFb8f1dVj9N-RH7wkIqCBdqfgoQvbnf6U8QfLfptOrWR?purpose=fullsize" alt="Modern 2">
+                    <img src="https://images.openai.com/static-rsc-4/69MBg36JAicFUOwNAd_RfgihneyzX2JCKivtHJFNU6xN0EoS7cS_b9KxK2bdh0OsbVct1IKKiVp3LHGMdnXjlP8g9up3zbrZGUlqWZBblEYqaAbh5o_IO8yoZU0Xvd3ikXk8ZIdJE94f87HzUFKF9SfK5y-dZx9zg_AodxwUG2uZUx4qiWsTu_6LCyHxnzYR?purpose=fullsize" alt="Modern 3">
+                </div>
+
+                <div class="style-grid">
+                    <div class="style-card"><h4>Trap & Drill</h4><ul><li>Précision chirurgicale</li><li>Rolls de Charleston</li></ul></div>
+                    <div class="style-card"><h4>Hybrid Drumming</h4><ul><li>Acoustique + SPD-SX</li><li>Textures modernes</li></ul></div>
+                    <div class="style-card"><h4>Electronic Worship</h4><ul><li>Looping integration</li><li>Stabilité absolue</li></ul></div>
+                </div>
+            </section>
+
+            <!-- Methodology -->
+            <section id="methodology" class="module-section">
+                <div class="module-header">
+                    <h2>La Méthode d’Enseignement <span class="text-gold">DMA</span></h2>
+                    <p>Chaque rythme est étudié selon un processus rigoureux en 5 étapes.</p>
+                </div>
+                
+                <div class="method-steps">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <h4>Écoute</h4>
+                        <p>Analyser la basse, les percussions et la sensation globale avant de toucher les baguettes.</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <h4>Pattern de base</h4>
+                        <p>Maîtriser le groove fondamental jusqu'à ce qu'il devienne une seconde nature.</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <h4>Variations</h4>
+                        <p>Ajouter des ghost notes, des ouvertures de cymbales et des fills personnalisés.</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <h4>Application</h4>
+                        <p>Jouer le rythme sur un vrai morceau musical pour comprendre son interaction.</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">5</div>
+                        <h4>Improvisation</h4>
+                        <p>Créer sa propre interprétation et forger son identité artistique.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Final Objective & Exam -->
+            <section id="final" class="module-section" style="text-align: center; background: var(--bg-tertiary); padding: 4rem; border-radius: 12px; border: 1px solid var(--gold-primary);">
+                <span class="module-tag" style="background: #ff4444; color: white;">Certification</span>
+                <h2>Objectif Final : Devenir un <span class="text-gold">Musicien Complet</span></h2>
+                <p style="max-width: 800px; margin: 1.5rem auto;">Au terme de cette phase, vous serez capable de jouer plusieurs styles avec authenticité, de comprendre le langage rythmique mondial et de construire une identité musicale riche.</p>
+                
+                <div style="background: rgba(0,0,0,0.3); padding: 2rem; border-radius: 12px; margin: 2rem 0; border: 1px dashed var(--glass-border);">
+                    <h3 style="margin-bottom: 1rem;">🎓 Grand Examen Final</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">Validez l'ensemble de vos acquis pour obtenir votre mention de maîtrise sur ce cours.</p>
+                    <button class="btn btn-primary" onclick="CourseQuiz.init('rythmes', 'final')" style="padding: 1rem 2rem;">Lancer l'Examen Final</button>
+                </div>
+
+                <div class="pedagogy-box" style="border: none; background: transparent;">
+                    <blockquote>"Un grand batteur ne joue pas tous les styles pareil. Il respecte la langue de chaque rythme."</blockquote>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer id="main-footer"></footer>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth-core.js"></script>
+    <script src="assets/js/auth-checker.js"></script>
+    <script src="assets/js/enrollment.js"></script>
+    <script src="assets/js/course-quiz.js"></script>
+    <script src="assets/js/course-videos.js"></script>
+    <script>
+        // Module Navigation active state
+        window.addEventListener('scroll', () => {
+            let current = "";
+            const sections = document.querySelectorAll('.module-section');
+            const navLinks = document.querySelectorAll('.module-nav a');
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href').includes(current)) {
+                    a.classList.add('active');
+                }
+            });
+        });
+    </script>
+    <script src="assets/js/components.js" defer></script>
+</body>
+</html>

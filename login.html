@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Étudiant | DRUM MASTER ACADEMY</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #141414 0%, #050505 100%);
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: var(--shadow-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gold-gradient);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-logo {
+            width: 80px;
+            margin-bottom: 1.5rem;
+            border-radius: 50%;
+            border: 2px solid var(--gold-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            transition: var(--transition-fast);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 10px rgba(214, 163, 47, 0.2);
+        }
+
+        .auth-btn {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 1rem;
+            font-size: 1rem;
+        }
+
+        .auth-footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .auth-footer a {
+            color: var(--gold-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            border: 1px solid rgba(255, 68, 68, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="assets/images/logo.jpg" alt="DMA Logo" class="auth-logo">
+                <h2>Connexion <span class="text-gold">Étudiant</span></h2>
+                <p>Accédez à vos formations d'élite</p>
+            </div>
+
+            <div id="error-box" class="error-message">Identifiants incorrects. Veuillez réessayer.</div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Adresse Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="votre@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">
+                        <input type="checkbox"> Se souvenir de moi
+                    </label>
+                    <a href="forgot-password.html" style="font-size: 0.85rem; color: var(--gold-primary); text-decoration: none;">Oublié ?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary auth-btn">Se connecter</button>
+                <button type="button" id="demo-login-btn" class="btn btn-outline auth-btn" style="border-color: var(--gold-primary); color: var(--gold-primary); margin-top: 0.8rem; background: rgba(214, 163, 47, 0.05); font-weight: 600;">⚡ Connexion Rapide Démo</button>
+            </form>
+
+            <div class="auth-footer">
+                Pas encore étudiant ? <a href="register.html">Rejoindre l'Académie</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/auth-core.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorBox = document.getElementById('error-box');
+
+            const result = await AuthCore.login(email, password);
+            if (result.success) {
+                window.location.href = 'dashboard.html';
+            } else {
+                errorBox.textContent = result.message;
+                errorBox.style.display = 'block';
+            }
+        });
+
+        // Logique de connexion rapide démo pour les tests et la validation
+        document.getElementById('demo-login-btn').addEventListener('click', async function() {
+            const demoEmail = 'demo@dma.com';
+            const demoPass = 'password123';
+            
+            // Si l'utilisateur de démo n'existe pas, on l'inscrit automatiquement
+            const users = AuthCore.getUsers();
+            const demoExists = users.some(u => u.email === demoEmail);
+            
+            if (!demoExists) {
+                await AuthCore.register({
+                    name: 'Batteur Passionné',
+                    email: demoEmail,
+                    password: demoPass,
+                    enrolledCourses: ['gospel', 'rythmes'],
+                    level: 'intermediate',
+                    interests: ['Gospel', 'Funk', 'Rock']
+                });
+                
+                // Mettre setupCompleted à true pour passer l'onboarding
+                const updatedUsers = AuthCore.getUsers();
+                const idx = updatedUsers.findIndex(u => u.email === demoEmail);
+                if (idx !== -1) {
+                    updatedUsers[idx].setupCompleted = true;
+                    localStorage.setItem('dma_users_db', JSON.stringify(updatedUsers));
+                }
+            }
+            
+            const result = await AuthCore.login(demoEmail, demoPass);
+            if (result.success) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masterclass Gospel | DRUM MASTER ACADEMY</title>
+    <meta name="description" content="Formation d'élite sur la batterie Gospel : Chops, Grooves Worship, Shout Music et Musicalité.">
+    
+    <!-- Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root {
+            --sidebar-width: 300px;
+        }
+
+        .course-layout {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .course-sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+            position: fixed;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .course-content-area {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 3rem 5rem;
+            max-width: 1200px;
+        }
+
+        .module-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .module-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .module-nav a {
+            display: block;
+            padding: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition-fast);
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+
+        .module-nav a:hover, .module-nav a.active {
+            background: rgba(214, 163, 47, 0.1);
+            color: var(--gold-primary);
+            border-color: rgba(214, 163, 47, 0.2);
+        }
+
+        .module-section {
+            margin-bottom: 6rem;
+            scroll-margin-top: 120px;
+        }
+
+        .module-header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 2rem;
+        }
+
+        .module-tag {
+            background: var(--gold-primary);
+            color: var(--bg-main);
+            padding: 0.3rem 1rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .curriculum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .curriculum-card {
+            background: var(--bg-tertiary);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            transition: var(--transition-smooth);
+        }
+
+        .curriculum-card:hover {
+            border-color: var(--gold-primary);
+            box-shadow: var(--shadow-gold);
+            transform: translateY(-5px);
+        }
+
+        .curriculum-card h4 {
+            color: var(--gold-primary);
+            margin-bottom: 1rem;
+        }
+
+        .pedagogy-alert {
+            background: linear-gradient(90deg, rgba(214, 163, 47, 0.1), transparent);
+            border-left: 4px solid var(--gold-primary);
+            padding: 1.5rem 2rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .step-visual {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .step-box {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+        }
+
+        .step-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .course-sidebar { display: none; }
+            .course-content-area { margin-left: 0; padding: 3rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+    <div id="scroll-progress"></div>
+
+    <header id="main-header"></header>
+
+    <div class="course-layout">
+        <aside class="course-sidebar">
+            <h4 style="margin-bottom: 2rem; color: var(--gold-primary);">Gospel Curriculum</h4>
+            <ul class="module-nav">
+                <li><a href="#intro" class="active">Vue d'ensemble</a></li>
+                <li><a href="#module1">Module 1 : Fondations</a></li>
+                <li><a href="#module2">Module 2 : Worship & Dynamics</a></li>
+                <li><a href="#module3">Module 3 : Linear Chops</a></li>
+                <li><a href="#module4">Module 4 : Shout & Praise</a></li>
+                <li><a href="#module5">Module 5 : Accompagnement</a></li>
+                <li><a href="#module6">Module 6 : Kit & Studio</a></li>
+                <li><a href="#method">La Méthode</a></li>
+            </ul>
+        </aside>
+
+        <main class="course-content-area">
+            <!-- Course Hero Dynamic (Gospel Pro Edition) -->
+            <section class="course-hero-dynamic reveal" style="background-image: url('assets/images/gospel-pro-thumbnail.png'); background-position: center 10%; margin-bottom: 4rem;">
+                <div class="hero-content">
+                    <h2>Masterclass</h2>
+                    <div class="main-title">Gospel</div>
+                    <div class="keywords">GROOVE <span>•</span> FEEL <span>•</span> ÉNERGIE <span>•</span> PASSION</div>
+                </div>
+            </section>
+
+            <section id="intro" class="module-section">
+                <div class="module-header">
+                    <span class="module-tag">Masterclass d'Élite</span>
+                    <h2>Vue d'Ensemble du Cursus</h2>
+                    <p style="font-size: 1.2rem;">Plongez dans l'univers de la batterie Gospel moderne. Une formation conçue pour transformer votre technique, votre vitesse et surtout votre musicalité au service de la louange.</p>
+                </div>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card">
+                        <h4>🎯 Vision</h4>
+                        <p>Ne plus simplement "jouer des fills", mais raconter une histoire à travers son instrument.</p>
+                    </div>
+                    <div class="curriculum-card">
+                        <h4>🔥 Intensité</h4>
+                        <p>Des exercices progressifs allant du contrôle subtil à l'énergie explosive du Shout Music.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="module1" class="module-section">
+                <span class="module-tag">Module 1</span>
+                <h2>Les Fondations du Gospel Drumming</h2>
+                <p>Avant la vitesse, il y a le son. Apprenez à faire sonner votre kit comme les plus grands batteurs Gospel mondiaux.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card">
+                        <h4>Toucher & Texture</h4>
+                        <p>Le secret du "Rimshot" parfait et du contrôle de la caisse claire pour un son clair et puissant.</p>
+                    </div>
+                    <div class="curriculum-card">
+                        <h4>Rudiments Appliqués</h4>
+                        <p>Comment transformer vos paradiddles et roulés en motifs mélodiques sur tout le kit.</p>
+                    </div>
+                </div>
+                <div class="pedagogy-alert">
+                    <strong>Note du Professeur :</strong> "Le Gospel commence par l'oreille. Si vous ne ressentez pas la chanson, vous ne pouvez pas la driver."
+                </div>
+            </section>
+
+            <section id="module2" class="module-section">
+                <span class="module-tag">Module 2</span>
+                <h2>Grooves & Worship Dynamics</h2>
+                <p>L'art de la patience. Apprenez à gérer les tempos lents et les montées en puissance vertigineuses.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card">
+                        <h4>Le Build-Up</h4>
+                        <p>Passer d'un murmure sur les cymbales à un mur de son épique sans perdre le tempo.</p>
+                    </div>
+                    <div class="curriculum-card">
+                        <h4>Jouer avec le Clic</h4>
+                        <p>Maîtriser l'interaction entre votre groove et les séquences (loops) électroniques.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="module3" class="module-section">
+                <span class="module-tag">Module 3</span>
+                <h2>Le Langage des "Chops"</h2>
+                <p>Le module le plus attendu. Maîtrisez les fills linéaires qui ont révolutionné la batterie moderne.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card">
+                        <h4>Phrasé Linéaire</h4>
+                        <p>Apprendre les motifs 6-strokes, sextuplets et les combinaisons mains/pieds ultra-rapides.</p>
+                    </div>
+                    <div class="curriculum-card">
+                        <h4>Fluidité & Ghost Notes</h4>
+                        <p>Ajouter de la texture entre vos coups principaux pour un rendu dense et organique.</p>
+                    </div>
+                </div>
+                <div class="pedagogy-alert" style="border-color: #ff4444; background: rgba(255, 68, 68, 0.05);">
+                    <strong>Avertissement :</strong> Un chop sans groove est une erreur. Nous apprendrons à placer ces fills de manière musicale.
+                </div>
+            </section>
+
+            <section id="module4" class="module-section">
+                <span class="module-tag">Module 4</span>
+                <h2>Shout & Praise Break</h2>
+                <p>L'adrénaline pure. Apprenez à maintenir une énergie haute sans vous épuiser physiquement.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card">
+                        <h4>Endurance & Vitesse</h4>
+                        <p>Techniques de pied pour une grosse caisse rapide et constante sur des tempos élevés.</p>
+                    </div>
+                    <div class="curriculum-card">
+                        <h4>Vocabulaire Shout</h4>
+                        <p>Les patterns classiques et modernes utilisés lors des moments de célébration intense.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="module5" class="module-section">
+                <span class="module-tag">Module 5</span>
+                <h2>Musicalité & Accompagnement</h2>
+                <p>Le batteur est le chef d'orchestre. Apprenez à diriger le groupe et à soutenir les chanteurs.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card">
+                        <h4>Anticiper le Leader</h4>
+                        <p>Apprendre les signaux (cues) visuels et auditifs pour des transitions parfaites.</p>
+                    </div>
+                    <div class="curriculum-card">
+                        <h4>Accompagner les Voix</h4>
+                        <p>L'art de laisser de l'espace quand il le faut et de souligner les moments clés.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="module6" class="module-section">
+                <span class="module-tag">Module 6</span>
+                <h2>Configuration & Studio</h2>
+                <p>Préparez votre matériel pour obtenir "ce" son Gospel recherché par tous les producteurs.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card">
+                        <h4>Accordage Gospel</h4>
+                        <p>Comment obtenir des toms profonds et une caisse claire qui "crack".</p>
+                    </div>
+                    <div class="curriculum-card">
+                        <h4>Cymbales & Stacks</h4>
+                        <p>Choisir ses cymbales pour un mélange parfait entre brillance et "trashiness".</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="method" class="module-section">
+                <div class="module-header">
+                    <h2>La Méthode d'Apprentissage</h2>
+                    <p>Une approche éprouvée pour une progression garantie.</p>
+                </div>
+                <div class="step-visual">
+                    <div class="step-box"><span class="step-icon">🎧</span><strong>Écoute</strong><p>Analyse des maîtres.</p></div>
+                    <div class="step-box"><span class="step-icon">🥁</span><strong>Structure</strong><p>Pattern de base.</p></div>
+                    <div class="step-box"><span class="step-icon">✨</span><strong>Variation</strong><p>Personnalisation.</p></div>
+                    <div class="step-box"><span class="step-icon">🎹</span><strong>Mix</strong><p>Jouer sur Play-along.</p></div>
+                    <div class="step-box"><span class="step-icon">🚀</span><strong>Free</strong><p>Improvisation libre.</p></div>
+                </div>
+            </section>
+
+            <section style="text-align: center; padding: 4rem; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--gold-primary);">
+                <h2>Devenez le batteur que vous <span class="text-gold">rêvez</span> d'être.</h2>
+                <p style="margin-bottom: 2rem;">La Masterclass Gospel est plus qu'un cours, c'est un investissement</p>                <div style="margin-top: 3rem; text-align: center;">
+                    <a href="#" class="btn btn-primary btn-enroll-action" data-course-id="gospel" style="padding: 1.2rem 3rem; font-size: 1.1rem;">S'inscrire à cette formation</a>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer id="main-footer"></footer>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth-core.js"></script>
+    <script src="assets/js/auth-checker.js"></script>
+    <script src="assets/js/enrollment.js"></script>
+    <script src="assets/js/course-videos.js"></script>
+    <script>
+        window.addEventListener('scroll', () => {
+            let current = "";
+            const sections = document.querySelectorAll('.module-section');
+            const navLinks = document.querySelectorAll('.module-nav a');
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href').includes(current)) {
+                    a.classList.add('active');
+                }
+            });
+        });
+    </script>
+    <script src="assets/js/components.js" defer></script>
+</body>
+</html>

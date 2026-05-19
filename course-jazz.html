@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jazz Moderne & Studio | DRUM MASTER ACADEMY</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root { --sidebar-width: 300px; }
+        .course-layout { display: flex; min-height: 100vh; padding-top: 80px; }
+        .course-sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--glass-border); padding: 2rem; position: fixed; height: calc(100vh - 80px); overflow-y: auto; z-index: 10; }
+        .course-content-area { flex: 1; margin-left: var(--sidebar-width); padding: 3rem 5rem; max-width: 1200px; }
+        .module-nav { list-style: none; padding: 0; }
+        .module-nav a { display: block; padding: 1rem; color: var(--text-secondary); text-decoration: none; border-radius: 8px; transition: var(--transition-fast); font-size: 0.9rem; font-weight: 500; }
+        .module-nav a:hover, .module-nav a.active { background: rgba(214, 163, 47, 0.1); color: var(--gold-primary); }
+        .module-section { margin-bottom: 6rem; scroll-margin-top: 120px; }
+        .module-tag { background: var(--gold-primary); color: var(--bg-main); padding: 0.3rem 1rem; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; display: inline-block; }
+        .curriculum-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 2rem 0; }
+        .curriculum-card { background: var(--bg-tertiary); padding: 2rem; border-radius: 12px; border: 1px solid var(--glass-border); }
+        .pedagogy-alert { border-left: 4px solid var(--gold-primary); padding: 1.5rem 2rem; background: rgba(214, 163, 47, 0.05); border-radius: 0 8px 8px 0; margin: 2rem 0; }
+        @media (max-width: 1024px) { .course-sidebar { display: none; } .course-content-area { margin-left: 0; padding: 3rem 2rem; } }
+    </style>
+</head>
+<body>
+    <div id="page-loader"><div class="loader-spinner"></div></div>
+    <header id="main-header"></header>
+    <div class="course-layout">
+        <aside class="course-sidebar">
+            <h4 style="margin-bottom: 2rem; color: var(--gold-primary);">Jazz & Studio Plan</h4>
+            <ul class="module-nav">
+                <li><a href="#intro" class="active">Vue d'ensemble</a></li>
+                <li><a href="#module1">Module 1 : Le Ride Pattern</a></li>
+                <li><a href="#module2">Module 2 : Comping & Libération</a></li>
+                <li><a href="#module3">Module 3 : Odd Time Fusion</a></li>
+                <li><a href="#module4">Module 4 : L'Art des Balais</a></li>
+                <li><a href="#module5">Module 5 : Studio Recording</a></li>
+                <li><a href="#module6">Module 6 : Neo Soul Jazz</a></li>
+            </ul>
+        </aside>
+        <main class="course-content-area">
+            <section id="intro" class="module-section">
+                <span class="module-tag">Elite Program</span>
+                <h1>Jazz Moderne & <span class="text-gold">Studio</span></h1>
+                <p style="font-size: 1.2rem;">Élevez votre niveau technique et musical en explorant le vocabulaire jazz et les exigences professionnelles du studio d'enregistrement.</p>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>🎻 Musicalité</h4><p>Développer une écoute extrême et une interaction directe avec les autres musiciens.</p></div>
+                    <div class="curriculum-card"><h4>🎙️ Pro Skills</h4><p>Apprendre à faire sonner son kit pour le micro et à jouer avec précision pour le mixage.</p></div>
+                </div>
+            </section>
+            <section id="module1" class="module-section">
+                <span class="module-tag">Module 1</span>
+                <h2>Le Ride Pattern & Le Swing</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Le "Ding-Ding-a-Ding"</h4><p>Maîtriser le balancement ternaire sur la ride, la colonne vertébrale du jazz.</p></div>
+                    <div class="curriculum-card"><h4>L'Indépendance du Hi-Hat</h4><p>Le pied gauche sur le 2 et le 4 : stabilité et pulsation.</p></div>
+                </div>
+            </section>
+            <section id="module2" class="module-section">
+                <span class="module-tag">Module 2</span>
+                <h2>Comping & Libération de la Caisse Claire</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Conversation Musicale</h4><p>Apprendre à "répondre" au soliste de manière organique et imprévisible.</p></div>
+                    <div class="curriculum-card"><h4>Indépendance Pied/Main</h4><p>Découpler la grosse caisse et la caisse claire du pattern de ride.</p></div>
+                </div>
+                <div class="pedagogy-alert"><strong>Vérité Jazz :</strong> "Le silence est aussi important que les notes que vous jouez."</div>
+            </section>
+            <section id="module3" class="module-section">
+                <span class="module-tag">Module 3</span>
+                <h2>Odd Time Signatures & Fusion</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Jouer en 5/4, 7/4, 11/8</h4><p>Rendre les mesures asymétriques naturelles et fluides.</p></div>
+                    <div class="curriculum-card"><h4>Techniques Fusion</h4><p>L'utilisation de la puissance rock dans un contexte d'improvisation jazz.</p></div>
+                </div>
+            </section>
+            <section id="module4" class="module-section">
+                <span class="module-tag">Module 4</span>
+                <h2>L'Art des Balais (Brushes)</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Le Legato des Balais</h4><p>Apprendre les mouvements circulaires pour créer un tapis sonore continu.</p></div>
+                    <div class="curriculum-card"><h4>Ballades & Nuances</h4><p>Jouer avec une dynamique ultra-basse sans perdre le drive.</p></div>
+                </div>
+            </section>
+            <section id="module5" class="module-section">
+                <span class="module-tag">Module 5</span>
+                <h2>Studio Recording Masterclass</h2>
+                <div class="curriculum-grid">
+                    <div class="curriculum-card"><h4>Accordage pour Micro</h4><p>Éliminer les harmoniques gênantes et obtenir un son contrôlé.</p></div>
+                    <div class="curriculum-card"><h4>Jouer avec le Clic</h4><p>Perfectionner la précision métronomique tout en restant "derrière le temps" (laid back).</p></div>
+                </div>
+            </section>
+            <section id="module6" class="module-section" style="background: var(--bg-tertiary); padding: 3rem; border-radius: 12px; border: 1px solid var(--gold-primary);">
+                <span class="module-tag">Module 6</span>
+                <h2>Neo Soul & Modern Jazz Feel</h2>
+                <div style="margin-top: 3rem; text-align: center;">
+                    <a href="#" class="btn btn-primary btn-enroll-action" data-course-id="jazz" style="padding: 1.2rem 3rem; font-size: 1.1rem;">S'inscrire à cette formation</a>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth-core.js"></script>
+    <script src="assets/js/auth-checker.js"></script>
+    <script src="assets/js/enrollment.js"></script>
+    <script src="assets/js/course-videos.js"></script>
+    <script src="assets/js/components.js" defer></script>
+</body>
+</html>
