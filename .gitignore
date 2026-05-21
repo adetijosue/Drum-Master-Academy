@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.local
+.gemini/
+scratch/
+.system_generated/
+assets/images/Drum Workshop 2026/
+assets/images/workshop_*.jpg
+*.log

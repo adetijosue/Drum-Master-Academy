@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Smooth scrolling globally */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-obsidian text-zinc-100 font-sans antialiased;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.03) 0px, transparent 50%),
+      radial-gradient(at 50% 0%, rgba(18, 18, 20, 0.98) 0px, transparent 80%);
+  }
+
+  /* Premium focus-visible ring for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-gold-500/50 ring-offset-2 ring-offset-obsidian;
+  }
+
+  /* Custom Premium Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #09090b;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.15);
+    border-radius: 4px;
+    border: 2px solid #09090b;
+    transition: background 0.3s ease;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.45);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.15) #09090b;
+  }
+
+  /* Selection styling */
+  ::selection {
+    @apply bg-gold-500/30 text-white;
+  }
+}
+
+@layer components {
+  /* Premium Glassmorphic Card */
+  .glass-card {
+    @apply bg-obsidian-card/60 backdrop-blur-md border border-white/10 rounded-xl shadow-glass-card;
+  }
+
+  /* Premium Gold Button */
+  .btn-gold {
+    @apply bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian font-bold py-3 px-6 rounded-lg shadow-gold-glow hover:shadow-gold-glow-intense hover:from-gold-500 hover:to-gold-300 active:scale-95 transition-all duration-300 ease-out;
+  }
+
+  .btn-gold-outline {
+    @apply bg-transparent border border-gold-500 text-gold-400 hover:bg-gold-500/10 active:scale-95 font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-out;
+  }
+
+  /* Glassmorphic Input */
+  .glass-input {
+    @apply w-full bg-obsidian-card/60 backdrop-blur-sm border border-white/10 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/20 transition-all text-sm py-3 px-4;
+  }
+
+  /* Testimonials Cinematic Marquee */
+  .cinematic-marquee {
+    display: flex;
+    overflow: hidden;
+    user-select: none;
+    mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+  }
+
+  .cinematic-marquee-track {
+    display: flex;
+    gap: 2rem;
+    animation: marquee 35s linear infinite;
+  }
+
+  .cinematic-marquee:hover .cinematic-marquee-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+@layer utilities {
+  /* Shimmer animation for skeletons */
+  .animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Gold pulse animation */
+  .animate-pulse-gold {
+    animation: pulse-gold 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-gold {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 15px 5px rgba(212, 175, 55, 0.15);
+    }
+  }
+
+  /* Float animation for decorative elements */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Hide scrollbar utility */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Accessibility: Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cinematic-marquee-track {
+    animation: none !important;
+  }
+}
