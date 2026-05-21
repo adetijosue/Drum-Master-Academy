@@ -80,7 +80,7 @@ const COURSES_DATA: Record<string, { title: string; img: string; link: string; t
 };
 
 export const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, supabaseConnected } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -450,7 +450,7 @@ export const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    if (useAuthContext().supabaseConnected) {
+    if (supabaseConnected) {
       fetchPostsFromSupabase();
       
       const channel = supabase
@@ -497,11 +497,7 @@ export const Dashboard: React.FC = () => {
       }
       return () => {};
     }
-  }, [useAuthContext().supabaseConnected]);
-
-  function useAuthContext() {
-    return useAuth();
-  }
+  }, [supabaseConnected]);
 
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -557,8 +553,7 @@ export const Dashboard: React.FC = () => {
     setNewPostMedia(null);
     showToast("Votre publication a été partagée ! 🚀", "success");
 
-    const authCtx = useAuthContext();
-    if (authCtx.supabaseConnected) {
+    if (supabaseConnected) {
       try {
         const { error } = await supabase
           .from('community_posts')
@@ -607,8 +602,7 @@ export const Dashboard: React.FC = () => {
     setPosts(updated);
     localStorage.setItem('dma_community_posts', JSON.stringify(updated));
 
-    const authCtx = useAuthContext();
-    if (authCtx.supabaseConnected) {
+    if (supabaseConnected) {
       try {
         const { error } = await supabase
           .from('community_posts')
@@ -652,8 +646,7 @@ export const Dashboard: React.FC = () => {
     setCommentInputs(prev => ({ ...prev, [postId]: '' }));
     localStorage.setItem('dma_community_posts', JSON.stringify(updated));
 
-    const authCtx = useAuthContext();
-    if (authCtx.supabaseConnected) {
+    if (supabaseConnected) {
       try {
         const { error } = await supabase
           .from('community_posts')
