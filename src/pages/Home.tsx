@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { Award, Star, Play, ArrowRight, Volume2, VolumeX, Music, Activity, Info, Sparkles, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { PageTransition } from '../components/ui/PageTransition';
@@ -18,7 +18,7 @@ const courses = [
     level: "DÉBUTANT À INTERMÉDIAIRE",
     badge: "Recommandé",
     desc: "Le programme idéal pour débuter. Apprenez les bases solides et progressez jusqu'au niveau intermédiaire.",
-    img: "assets/images/josue_1.jpg",
+    img: "/assets/images/josue_1.jpg",
     link: "/courses/dma-special",
     primary: true
   },
@@ -28,7 +28,7 @@ const courses = [
     category: "Gospel Chops & Grooves",
     level: "AVANCÉ",
     desc: "Maîtrisez les rudiments avancés, les fills linéaires et la dynamique émotionnelle propre au Gospel moderne.",
-    img: "assets/images/gospel-pro-thumbnail.png",
+    img: "/assets/images/gospel-pro-thumbnail.png",
     link: "/courses/gospel"
   },
   {
@@ -37,7 +37,7 @@ const courses = [
     category: "Rythmes du Monde",
     level: "INTERMÉDIAIRE À AVANCÉ",
     desc: "Intégrez les polyrythmies ouest-africaines et les grooves Afrobeats dans un contexte de batterie moderne.",
-    img: "assets/images/josue_2.jpg",
+    img: "/assets/images/josue_2.jpg",
     link: "/courses/afro"
   },
   {
@@ -46,7 +46,7 @@ const courses = [
     category: "Technique Pro",
     level: "AVANCÉ",
     desc: "Développez votre vocabulaire jazz, l'indépendance de vos membres et l'art d'enregistrer en studio professionnel.",
-    img: "assets/images/josue_3.jpg",
+    img: "/assets/images/josue_3.jpg",
     link: "/courses/jazz"
   },
   {
@@ -55,7 +55,7 @@ const courses = [
     category: "Rythmes & Technique",
     level: "TOUS NIVEAUX",
     desc: "Explorez les fondamentaux rythmiques à travers la Salsa, le Merengue, l'Afro-Cuban, le Jazz Swing et le Funk.",
-    img: "assets/images/etudes_rythmes.jpg",
+    img: "/assets/images/etudes_rythmes.jpg",
     link: "/courses/rythmes"
   },
   {
@@ -65,7 +65,7 @@ const courses = [
     level: "TOUS NIVEAUX",
     badge: "INDISPENSABLE",
     desc: "Maîtrisez le lexique international de la batterie. Un parcours structuré couvrant les 40 rudiments officiels (PAS).",
-    img: "assets/images/rudiments-pro-thumbnail.png",
+    img: "/assets/images/rudiments-pro-thumbnail.png",
     link: "/courses/rudiments",
     primary: true
   }
@@ -89,36 +89,66 @@ const testimonials = [
   }
 ];
 
-/* ─── Animated Counter Hook ─── */
-const useCountUp = (target: number, duration = 2000) => {
+/* ─── Scroll-Triggered Animated Counter Component ─── */
+const AnimatedCounter: React.FC<{ target: number; duration?: number; suffix?: string }> = ({ 
+  target, 
+  duration = 2000, 
+  suffix = "" 
+}) => {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
   const [count, setCount] = useState(0);
+
   useEffect(() => {
-    const steps = 50;
-    const stepTime = duration / steps;
-    let step = 0;
-    const timer = setInterval(() => {
-      step++;
-      setCount(Math.min(Math.round((target / steps) * step), target));
-      if (step >= steps) clearInterval(timer);
-    }, stepTime);
-    return () => clearInterval(timer);
-  }, [target, duration]);
-  return count;
+    if (!isInView) return;
+
+    let startTime: number | null = null;
+    let animationFrameId: number;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      
+      // Easing out quadratic
+      const easeProgress = progress * (2 - progress);
+      setCount(Math.round(easeProgress * target));
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isInView, target, duration]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
 };
 
 /* ─── Section Components ─── */
 
 const HeroSection: React.FC = () => (
-  <section className="relative min-h-[90vh] flex items-center justify-center bg-zinc-950 overflow-hidden py-20 px-4" aria-label="Accueil héros">
-    {/* Background Image */}
-    <div 
-      className="absolute inset-0 bg-cover bg-center opacity-40 scale-105" 
-      style={{ backgroundImage: `url('assets/images/josue_5.jpg')` }}
+  <section className="relative min-h-[90vh] flex items-center justify-center bg-zinc-950 overflow-hidden py-24 px-4 sm:px-6 lg:px-8" aria-label="Accueil héros">
+    {/* Cinematic Slow Ken Burns Background Image */}
+    <motion.div 
+      animate={{ 
+        scale: [1.02, 1.07, 1.02],
+        x: [0, 8, 0],
+        y: [0, -6, 0]
+      }}
+      transition={{ 
+        duration: 24, 
+        repeat: Infinity, 
+        ease: "linear" 
+      }}
+      className="absolute inset-0 bg-cover bg-center opacity-35 filter brightness-[0.7] contrast-[1.1]" 
+      style={{ backgroundImage: `url('/assets/images/josue_5.jpg')` }}
       aria-hidden="true"
     />
     <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/75 to-transparent z-[1]" aria-hidden="true" />
     
-    <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      {/* Left Column: Title and details */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -155,15 +185,111 @@ const HeroSection: React.FC = () => (
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Right Column: Cinematic Video Card (Ken Burns + REC elements + Waveform) */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 80, damping: 20, delay: 0.3 }}
+        className="lg:col-span-4 flex justify-center relative group"
+      >
+        {/* Glow behind card */}
+        <div className="absolute inset-0 bg-gradient-to-r from-gold-600 to-gold-400 rounded-2xl blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none" />
+        
+        {/* Main Cinematic Video Box */}
+        <div className="relative rounded-2xl border border-white/10 overflow-hidden shadow-2xl bg-zinc-950 aspect-[4/5] w-full max-w-[340px] group cursor-pointer">
+          {/* Background image slow Ken Burns */}
+          <motion.div
+            animate={{ 
+              scale: [1, 1.06, 1],
+              rotate: [0, 0.5, 0]
+            }}
+            transition={{ 
+              duration: 12, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+            className="w-full h-full bg-cover bg-center filter brightness-[0.85] contrast-[1.05]"
+            style={{ backgroundImage: `url('/assets/images/josue_5.jpg')` }}
+          />
+          
+          {/* Cinema Overlay Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/30" />
+          
+          {/* Camera Viewfinder Bracket Overlay */}
+          <div className="absolute top-4 left-4 border-l-2 border-t-2 border-white/20 w-3 h-3" />
+          <div className="absolute top-4 right-4 border-r-2 border-t-2 border-white/20 w-3 h-3" />
+          <div className="absolute bottom-4 left-4 border-l-2 border-b-2 border-white/20 w-3 h-3" />
+          <div className="absolute bottom-4 right-4 border-r-2 border-b-2 border-white/20 w-3 h-3" />
+          
+          {/* Live Recording Indicator */}
+          <div className="absolute top-5 left-5 flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded border border-white/5">
+            <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse" />
+            <span className="text-[9px] font-bold text-white tracking-widest uppercase">REC</span>
+          </div>
+
+          {/* Timecode */}
+          <div className="absolute top-5 right-5 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded border border-white/5">
+            <span className="text-[9px] font-mono text-zinc-300 tracking-wider">00:12:45:09</span>
+          </div>
+          
+          {/* Subtle Video CRT Filter Overlay */}
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+            style={{ 
+              background: 'repeating-linear-gradient(rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 2px, transparent 4px)' 
+            }}
+          />
+
+          {/* Floating Play Button with golden ripple rings */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative w-16 h-16 rounded-full bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian flex items-center justify-center shadow-gold-glow cursor-pointer group/btn"
+            >
+              {/* Pulsing ring */}
+              <div className="absolute inset-0 rounded-full border border-gold-400/40 animate-ping opacity-60 pointer-events-none" />
+              <Play className="w-6 h-6 fill-obsidian ml-1 group-hover/btn:scale-105 transition-transform" />
+            </motion.div>
+          </div>
+
+          {/* Text details & Waveform Visualizer */}
+          <div className="absolute bottom-0 inset-x-0 p-5 space-y-3">
+            <div>
+              <span className="text-[10px] text-gold-400 font-bold uppercase tracking-wider">Trailer Officiel</span>
+              <h3 className="text-base font-bold text-white group-hover:text-gold-300 transition-colors">Découvrez la DMA</h3>
+            </div>
+            
+            {/* Animated Audio Waveform Visualizer */}
+            <div className="flex items-end gap-1 h-4 opacity-75 group-hover:opacity-100 transition-opacity">
+              {Array.from({ length: 22 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  animate={{ 
+                    height: [
+                      "20%",
+                      `${15 + Math.random() * 85}%`,
+                      "20%"
+                    ]
+                  }}
+                  transition={{ 
+                    duration: 0.4 + Math.random() * 0.6, 
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  className="bg-gold-500/80 w-[2px] rounded-full"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </div>
   </section>
 );
 
 const AboutSection: React.FC = () => {
-  const years = useCountUp(10);
-  const scenes = useCountUp(100);
-  const languages = useCountUp(3);
-
   return (
     <section className="py-24 bg-obsidian relative" aria-label="À propos de l'instructeur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -188,18 +314,24 @@ const AboutSection: React.FC = () => {
               Son enseignement unique fusionne la rigueur de la technique de caisse claire internationale, la sensibilité créative du Gospel drumming et la richesse polyrythmique des traditions africaines.
             </p>
 
-            {/* Stats Counters */}
+            {/* Stats Counters with Intersection-Observer Scroll Trigger */}
             <div className="grid grid-cols-3 gap-6 pt-6 border-t border-white/5">
               <div className="space-y-1">
-                <span className="text-3xl sm:text-4xl font-extrabold text-gold-400">{years}+</span>
+                <span className="text-3xl sm:text-4xl font-extrabold text-gold-400">
+                  <AnimatedCounter target={10} suffix="+" />
+                </span>
                 <p className="text-xs sm:text-sm text-zinc-500 font-medium">Années d'Expérience</p>
               </div>
               <div className="space-y-1">
-                <span className="text-3xl sm:text-4xl font-extrabold text-gold-400">{scenes}+</span>
+                <span className="text-3xl sm:text-4xl font-extrabold text-gold-400">
+                  <AnimatedCounter target={100} suffix="+" />
+                </span>
                 <p className="text-xs sm:text-sm text-zinc-500 font-medium">Scènes &amp; Studios</p>
               </div>
               <div className="space-y-1">
-                <span className="text-3xl sm:text-4xl font-extrabold text-gold-400">{languages}</span>
+                <span className="text-3xl sm:text-4xl font-extrabold text-gold-400">
+                  <AnimatedCounter target={3} />
+                </span>
                 <p className="text-xs sm:text-sm text-zinc-500 font-medium">Langues Parlées</p>
               </div>
             </div>
@@ -217,7 +349,7 @@ const AboutSection: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-gold-600 to-gold-400 rounded-2xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity duration-500" aria-hidden="true" />
               <div className="relative rounded-2xl border border-white/10 overflow-hidden shadow-2xl bg-zinc-950">
                 <img 
-                  src="assets/images/josue_1.jpg" 
+                  src="/assets/images/josue_1.jpg" 
                   alt="Josué ADETI, fondateur et instructeur principal de la Drum Master Academy" 
                   className="w-full aspect-[4/5] object-cover filter grayscale hover:grayscale-0 transition-all duration-700 ease-out"
                   loading="lazy"

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart, Youtube, Instagram, Facebook } from 'lucide-react';
+import { Youtube, Instagram, Facebook } from 'lucide-react';
 import { staggerContainer, staggerChild, snappySpring } from '../lib/motion';
 
 const FooterLinkGroup: React.FC<{
@@ -124,14 +124,7 @@ export const Footer: React.FC = () => {
         >
           <p>© {currentYear} Drum Master Academy. Tous droits réservés.</p>
           <p className="flex items-center gap-1">
-            Conçu avec{' '}
-            <motion.span
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
-            >
-              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-            </motion.span>{' '}
-            pour les batteurs passionnés par le coach Josué.
+            Développé par <span className="text-gold-400 font-semibold">JABE PRODUCTION</span>
           </p>
         </motion.div>
       </div>
