@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  User, Image as ImageIcon, Shield, Target, Database, Save, 
-  Trash2, KeyRound 
+  User, Image as ImageIcon, Shield, Target, Save, 
+  KeyRound 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -12,13 +12,12 @@ import { springTransition } from '../lib/motion';
 
 export const Settings: React.FC = () => {
   const { 
-    user, updateProfile, updateAvatar, changePassword, 
-    supabaseConnected, purgeAllData 
+    user, updateProfile, updateAvatar, changePassword 
   } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'avatar' | 'goals' | 'security' | 'database'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'avatar' | 'goals' | 'security'>('profile');
 
   // Profile Form States
   const [name, setName] = useState(user?.name || '');
@@ -44,20 +43,6 @@ export const Settings: React.FC = () => {
   const [savingAvatar, setSavingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  // Database / Connection Stats
-  const [simulatedMode, setSimulatedMode] = useState(!supabaseConnected);
-  const [dbStats, setDbStats] = useState({ users: 0, posts: 0 });
-
-  useEffect(() => {
-    // Load statistics from localStorage
-    const localUsers = localStorage.getItem('dma_users_db');
-    const localPosts = localStorage.getItem('dma_community_posts');
-    setDbStats({
-      users: localUsers ? JSON.parse(localUsers).length : 0,
-      posts: localPosts ? JSON.parse(localPosts).length : 0
-    });
-  }, []);
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,14 +188,6 @@ export const Settings: React.FC = () => {
     }
   };
 
-  const handlePurge = () => {
-    if (window.confirm("Êtes-vous absolument sûr ? Cette action réinitialisera toute votre progression locale, vos posts et vos identifiants.")) {
-      purgeAllData();
-      showToast("Cache vidé et base de données purgée !", "info");
-      window.location.reload();
-    }
-  };
-
   return (
     <PageTransition>
     <div className="min-h-screen text-zinc-100 font-sans pb-24">
@@ -273,17 +250,7 @@ export const Settings: React.FC = () => {
               <span>Sécurité & Accès</span>
             </button>
 
-            <button
-              onClick={() => setActiveTab('database')}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
-                activeTab === 'database'
-                  ? 'bg-gold-500/10 border-l-2 border-gold-500 text-gold-400 font-bold'
-                  : 'text-zinc-400 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              <Database className="w-4 h-4 shrink-0" />
-              <span>Resilience & Dev Console</span>
-            </button>
+
 
             <div className="pt-6 mt-4 border-t border-white/5 text-center">
               <button 
@@ -618,91 +585,7 @@ export const Settings: React.FC = () => {
                 </motion.form>
               )}
 
-              {activeTab === 'database' && (
-                <motion.div
-                  key="database"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  className="glass-card border border-white/5 bg-zinc-900/30 p-6 sm:p-8 space-y-6"
-                >
-                  <div className="border-b border-white/5 pb-4">
-                    <h2 className="text-lg font-bold text-white">Console Resilience & Diagnostics</h2>
-                    <p className="text-xs text-zinc-400">Vérifiez les paramètres réseau, la base de données et purgez le cache local.</p>
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Mode card */}
-                    <div className="p-4 rounded-xl border border-white/5 bg-zinc-950/40 space-y-2">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Statut de Connexion</h4>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full ${supabaseConnected ? 'bg-green-500' : 'bg-orange-500'} animate-pulse`} />
-                        <span className="text-sm font-bold text-white">
-                          {supabaseConnected ? 'ONLINE (Supabase)' : 'OFFLINE (Simulé)'}
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-zinc-500 leading-normal">
-                        Si Supabase est connecté, vos données sont synchronisées dans le cloud. Sinon, le site utilise une base de données cryptée locale résiliente.
-                      </p>
-                    </div>
-
-                    {/* Table statistics */}
-                    <div className="p-4 rounded-xl border border-white/5 bg-zinc-950/40 space-y-2">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Statistiques LocalStorage</h4>
-                      <div className="text-xs text-zinc-300 space-y-1">
-                        <div>👥 Comptes étudiants stockés : <strong className="text-white">{dbStats.users}</strong></div>
-                        <div>💬 Publications communauté : <strong className="text-white">{dbStats.posts}</strong></div>
-                      </div>
-                      <p className="text-[10px] text-zinc-500 leading-normal">
-                        Fichiers et données sauvegardés localement pour permettre un chargement instantané.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Force toggle simulated mode */}
-                  <div className="p-4 bg-zinc-950/80 border border-white/5 rounded-xl flex items-center justify-between gap-4 flex-wrap">
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-white">Tester le mode Hors-Connexion</h4>
-                      <p className="text-[10px] text-zinc-500">Basculez manuellement en mode simulation locale pour tester l'absence de réseau.</p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSimulatedMode(!simulatedMode);
-                        showToast(`Mode ${!simulatedMode ? 'hors-ligne' : 'en-ligne'} forcé avec succès !`, 'info');
-                      }}
-                      className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                        simulatedMode
-                          ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-                          : 'bg-green-500/20 text-green-400 border border-green-500/30'
-                      }`}
-                    >
-                      {simulatedMode ? 'Activer le mode cloud' : 'Forcer le hors-connexion 🔌'}
-                    </button>
-                  </div>
-
-                  {/* Purge Cache Card */}
-                  <div className="p-6 border border-red-500/20 bg-red-500/5 rounded-2xl space-y-4">
-                    <div className="flex gap-3">
-                      <Trash2 className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="text-xs font-bold text-red-400 uppercase tracking-wider">Réinitialisation d'Urgence</h4>
-                        <p className="text-xs text-zinc-400 mt-1 leading-normal">
-                          Supprimez toutes les données d'exercice, profils, cours rejoints et historique du navigateur. Utile pour repartir à zéro.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex justify-end">
-                      <button
-                        onClick={handlePurge}
-                        className="px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Purger toutes les données locales</span>
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
             </AnimatePresence>
           </div>
         </div>

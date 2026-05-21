@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { supabase } from '../services/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../components/ui/PageTransition';
 import { springTransition, snappySpring } from '../lib/motion';
@@ -18,7 +19,11 @@ import {
   Send,
   ShieldAlert,
   Play,
-  Square
+  Square,
+  VolumeX,
+  Music,
+  Image as ImageIcon,
+  TrendingUp
 } from 'lucide-react';
 
 interface Post {
@@ -96,16 +101,54 @@ export const Dashboard: React.FC = () => {
     }
   }, [location.pathname]);
 
-  // Metronome state
+  // Metronome State & Ref Matrix
   const [bpm, setBpm] = useState(120);
   const [metronomePlaying, setMetronomePlaying] = useState(false);
+  const [beatsPerMeasure, setBeatsPerMeasure] = useState(4);
+  const [subdivision, setSubdivision] = useState(1);
+  const [soundStyle, setSoundStyle] = useState<'digital' | 'woodblock' | 'stick' | 'cowbell'>('woodblock');
+  const [accentFirstBeat, setAccentFirstBeat] = useState(true);
+  
+  // Speed Trainer
+  const [speedTrainer, setSpeedTrainer] = useState(false);
+  const [speedTrainerStep, setSpeedTrainerStep] = useState(2);
+  const [speedTrainerInterval, setSpeedTrainerInterval] = useState(4); // every 4 measures
+  const [measuresCount, setMeasuresCount] = useState(0);
+
+  // Gap Click (Mute Coach)
+  const [gapClick, setGapClick] = useState(false);
+  const [gapClickPlay, setGapClickPlay] = useState(3);
+  const [gapClickMute, setGapClickMute] = useState(1);
+  const [isMutedMeasure, setIsMutedMeasure] = useState(false);
+
+  // Visuals
+  const [activeBeatVisual, setActiveBeatVisual] = useState(-1);
+  const [activeSubdivisionVisual, setActiveSubdivisionVisual] = useState(-1);
+
   const audioContextRef = useRef<AudioContext | null>(null);
   const timerIDRef = useRef<number | null>(null);
   const nextNoteTimeRef = useRef(0.0);
   const currentBeatRef = useRef(0);
+  const currentSubdivisionBeatRef = useRef(0);
+  const measuresPlayedRef = useRef(0);
+  
   const lookahead = 25.0; // ms
   const scheduleAheadTime = 0.1; // seconds
+  
   const bpmRef = useRef(120);
+  const beatsPerMeasureRef = useRef(4);
+  const subdivisionRef = useRef(1);
+  const soundStyleRef = useRef<'digital' | 'woodblock' | 'stick' | 'cowbell'>('woodblock');
+  const accentFirstBeatRef = useRef(true);
+  const speedTrainerRef = useRef(false);
+  const speedTrainerStepRef = useRef(2);
+  const speedTrainerIntervalRef = useRef(4);
+  const metronomePlayingRef = useRef(false);
+
+  const gapClickRef = useRef(false);
+  const gapClickPlayRef = useRef(3);
+  const gapClickMuteRef = useRef(1);
+
   const tapTimesRef = useRef<number[]>([]);
   const [tapActive, setTapActive] = useState(false);
 
@@ -117,9 +160,19 @@ export const Dashboard: React.FC = () => {
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    bpmRef.current = bpm;
-  }, [bpm]);
+  // Sync state to refs for standard async scheduling thread access
+  useEffect(() => { bpmRef.current = bpm; }, [bpm]);
+  useEffect(() => { beatsPerMeasureRef.current = beatsPerMeasure; }, [beatsPerMeasure]);
+  useEffect(() => { subdivisionRef.current = subdivision; }, [subdivision]);
+  useEffect(() => { soundStyleRef.current = soundStyle; }, [soundStyle]);
+  useEffect(() => { accentFirstBeatRef.current = accentFirstBeat; }, [accentFirstBeat]);
+  useEffect(() => { speedTrainerRef.current = speedTrainer; }, [speedTrainer]);
+  useEffect(() => { speedTrainerStepRef.current = speedTrainerStep; }, [speedTrainerStep]);
+  useEffect(() => { speedTrainerIntervalRef.current = speedTrainerInterval; }, [speedTrainerInterval]);
+  useEffect(() => { metronomePlayingRef.current = metronomePlaying; }, [metronomePlaying]);
+  useEffect(() => { gapClickRef.current = gapClick; }, [gapClick]);
+  useEffect(() => { gapClickPlayRef.current = gapClickPlay; }, [gapClickPlay]);
+  useEffect(() => { gapClickMuteRef.current = gapClickMute; }, [gapClickMute]);
 
   // Auth Protection redirect
   useEffect(() => {
@@ -140,32 +193,102 @@ export const Dashboard: React.FC = () => {
     };
   }, []);
 
-  // Metronome audio logic
-  const playClick = (time: number, isAccent: boolean) => {
+  // Professional acoustic timbre synthesis engines (Web Audio API synthesis)
+  const playClick = (time: number, isAccent: boolean, isMainBeat: boolean) => {
     const audioCtx = audioContextRef.current;
     if (!audioCtx) return;
 
     const osc = audioCtx.createOscillator();
-    const envelope = audioCtx.createGain();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
 
-    osc.connect(envelope);
-    envelope.connect(audioCtx.destination);
-
-    osc.frequency.value = isAccent ? 1200.0 : 800.0;
-    envelope.gain.value = 1;
-    envelope.gain.exponentialRampToValueAtTime(1, time + 0.001);
-    envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
-
-    osc.start(time);
-    osc.stop(time + 0.05);
-  };
-
-  const nextNote = () => {
-    const secondsPerBeat = 60.0 / bpmRef.current;
-    nextNoteTimeRef.current += secondsPerBeat;
-    currentBeatRef.current++;
-    if (currentBeatRef.current === 4) {
-      currentBeatRef.current = 0;
+    const style = soundStyleRef.current;
+    
+    if (style === 'digital') {
+      osc.type = 'sine';
+      if (isAccent && accentFirstBeatRef.current) {
+        osc.frequency.setValueAtTime(1200, time);
+        gainNode.gain.setValueAtTime(1.0, time);
+      } else if (isMainBeat) {
+        osc.frequency.setValueAtTime(800, time);
+        gainNode.gain.setValueAtTime(0.7, time);
+      } else {
+        osc.frequency.setValueAtTime(600, time);
+        gainNode.gain.setValueAtTime(0.35, time);
+      }
+      gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+      osc.start(time);
+      osc.stop(time + 0.06);
+    } 
+    else if (style === 'woodblock') {
+      osc.type = 'triangle';
+      if (isAccent && accentFirstBeatRef.current) {
+        osc.frequency.setValueAtTime(1400, time);
+        osc.frequency.exponentialRampToValueAtTime(1000, time + 0.03);
+        gainNode.gain.setValueAtTime(1.0, time);
+      } else if (isMainBeat) {
+        osc.frequency.setValueAtTime(1000, time);
+        osc.frequency.exponentialRampToValueAtTime(700, time + 0.03);
+        gainNode.gain.setValueAtTime(0.7, time);
+      } else {
+        osc.frequency.setValueAtTime(800, time);
+        osc.frequency.exponentialRampToValueAtTime(550, time + 0.03);
+        gainNode.gain.setValueAtTime(0.3, time);
+      }
+      gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.045);
+      osc.start(time);
+      osc.stop(time + 0.05);
+    }
+    else if (style === 'stick') {
+      osc.type = 'triangle';
+      if (isAccent && accentFirstBeatRef.current) {
+        osc.frequency.setValueAtTime(2800, time);
+        gainNode.gain.setValueAtTime(1.0, time);
+      } else if (isMainBeat) {
+        osc.frequency.setValueAtTime(2000, time);
+        gainNode.gain.setValueAtTime(0.65, time);
+      } else {
+        osc.frequency.setValueAtTime(1600, time);
+        gainNode.gain.setValueAtTime(0.25, time);
+      }
+      gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.015);
+      osc.start(time);
+      osc.stop(time + 0.02);
+    }
+    else if (style === 'cowbell') {
+      const osc2 = audioCtx.createOscillator();
+      osc.type = 'square';
+      osc2.type = 'square';
+      
+      const f1 = isAccent && accentFirstBeatRef.current ? 840 : isMainBeat ? 800 : 760;
+      const f2 = isAccent && accentFirstBeatRef.current ? 565 : isMainBeat ? 540 : 515;
+      
+      osc.frequency.setValueAtTime(f1, time);
+      osc2.frequency.setValueAtTime(f2, time);
+      
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(isAccent && accentFirstBeatRef.current ? 1000 : 800, time);
+      filter.Q.setValueAtTime(1.5, time);
+      
+      osc.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gainNode);
+      
+      if (isAccent && accentFirstBeatRef.current) {
+        gainNode.gain.setValueAtTime(0.8, time);
+      } else if (isMainBeat) {
+        gainNode.gain.setValueAtTime(0.5, time);
+      } else {
+        gainNode.gain.setValueAtTime(0.2, time);
+      }
+      gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+      
+      osc.start(time);
+      osc.stop(time + 0.1);
+      osc2.start(time);
+      osc2.stop(time + 0.1);
     }
   };
 
@@ -174,8 +297,63 @@ export const Dashboard: React.FC = () => {
     if (!audioCtx) return;
 
     while (nextNoteTimeRef.current < audioCtx.currentTime + scheduleAheadTime) {
-      playClick(nextNoteTimeRef.current, currentBeatRef.current === 0);
-      nextNote();
+      const isMainBeat = currentSubdivisionBeatRef.current === 0;
+      const isFirstBeat = isMainBeat && currentBeatRef.current === 0;
+
+      // Calculate Gap Click Muting
+      let shouldMute = false;
+      if (gapClickRef.current) {
+        const totalCycle = gapClickPlayRef.current + gapClickMuteRef.current;
+        const currentCycleMeasure = measuresPlayedRef.current % totalCycle;
+        if (currentCycleMeasure >= gapClickPlayRef.current) {
+          shouldMute = true;
+        }
+      }
+
+      if (!shouldMute) {
+        playClick(nextNoteTimeRef.current, isFirstBeat, isMainBeat);
+      }
+
+      const timeToPlay = nextNoteTimeRef.current - audioCtx.currentTime;
+      const beatIndex = currentBeatRef.current;
+      const subIndex = currentSubdivisionBeatRef.current;
+      const currentMuteState = shouldMute;
+
+      setTimeout(() => {
+        if (metronomePlayingRef.current) {
+          setActiveBeatVisual(beatIndex);
+          setActiveSubdivisionVisual(subIndex);
+          setIsMutedMeasure(currentMuteState);
+        }
+      }, Math.max(0, timeToPlay * 1000));
+
+      const secondsPerSubdivision = (60.0 / bpmRef.current) / subdivisionRef.current;
+      nextNoteTimeRef.current += secondsPerSubdivision;
+
+      currentSubdivisionBeatRef.current++;
+      if (currentSubdivisionBeatRef.current >= subdivisionRef.current) {
+        currentSubdivisionBeatRef.current = 0;
+        currentBeatRef.current++;
+        if (currentBeatRef.current >= beatsPerMeasureRef.current) {
+          currentBeatRef.current = 0;
+          
+          measuresPlayedRef.current++;
+          const curMeasures = measuresPlayedRef.current;
+          setTimeout(() => setMeasuresCount(curMeasures), 0);
+
+          if (
+            speedTrainerRef.current && 
+            speedTrainerIntervalRef.current > 0 && 
+            curMeasures % speedTrainerIntervalRef.current === 0
+          ) {
+            const nextBpm = Math.min(240, bpmRef.current + speedTrainerStepRef.current);
+            setTimeout(() => {
+              setBpm(nextBpm);
+              showToast(`Time trainer: vitesse accélérée à ${nextBpm} BPM ! ⚡`, "info");
+            }, 0);
+          }
+        }
+      }
     }
     timerIDRef.current = window.setTimeout(() => scheduler(), lookahead);
   };
@@ -186,6 +364,9 @@ export const Dashboard: React.FC = () => {
         clearTimeout(timerIDRef.current);
       }
       setMetronomePlaying(false);
+      setActiveBeatVisual(-1);
+      setActiveSubdivisionVisual(-1);
+      setIsMutedMeasure(false);
     } else {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext!)();
@@ -196,17 +377,13 @@ export const Dashboard: React.FC = () => {
       }
       setMetronomePlaying(true);
       currentBeatRef.current = 0;
+      currentSubdivisionBeatRef.current = 0;
+      measuresPlayedRef.current = 0;
+      setMeasuresCount(0);
+      setIsMutedMeasure(false);
       nextNoteTimeRef.current = audioCtx.currentTime + 0.05;
       
-      // Start scheduling loop
-      const schedulerLoop = () => {
-        while (nextNoteTimeRef.current < audioCtx.currentTime + scheduleAheadTime) {
-          playClick(nextNoteTimeRef.current, currentBeatRef.current === 0);
-          nextNote();
-        }
-        timerIDRef.current = window.setTimeout(() => schedulerLoop(), lookahead);
-      };
-      schedulerLoop();
+      scheduler();
     }
   };
 
@@ -214,7 +391,6 @@ export const Dashboard: React.FC = () => {
     const now = Date.now();
     const tapTimes = [...tapTimesRef.current, now];
 
-    // Keep only last 4 taps
     if (tapTimes.length > 4) {
       tapTimes.shift();
     }
@@ -236,113 +412,261 @@ export const Dashboard: React.FC = () => {
     setTimeout(() => setTapActive(false), 100);
   };
 
-  // Social feed loading
-  useEffect(() => {
-    const loadedPosts = localStorage.getItem('dma_community_posts');
-    if (loadedPosts) {
-      setPosts(JSON.parse(loadedPosts));
-    } else {
-      const defaultPosts: Post[] = [
-        {
-          id: 'seed-1',
-          userName: 'Josué ADETI',
-          userPhoto: 'assets/images/josue_1.jpg',
-          isOfficial: true,
-          category: 'partage',
-          text: "Bienvenue à tous les nouveaux batteurs de la Drum Master Academy ! C'est un honneur de vous accompagner dans votre voyage rythmique. N'oubliez pas d'utiliser le métronome quotidiennement pour ancrer votre tempo de manière parfaite ! 🥁🔥",
-          timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
-          reactions: { like: 12, clap: 8, fire: 15, rocket: 6 },
-          userReactions: {},
-          comments: [
-            {
-              userName: 'Marc D.',
-              text: 'Merci coach Josué ! Toujours au top 🚀',
-              timestamp: new Date(Date.now() - 3600000 * 20).toISOString()
-            }
-          ]
-        }
-      ];
-      setPosts(defaultPosts);
-      localStorage.setItem('dma_community_posts', JSON.stringify(defaultPosts));
+  // Load and subscribe to community feed from Supabase
+  const fetchPostsFromSupabase = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('community_posts')
+        .select('*')
+        .order('timestamp', { ascending: false });
+      
+      if (error) throw error;
+      
+      if (data) {
+        const mapped: Post[] = data.map((row: any) => ({
+          id: row.id,
+          userName: row.user_name || 'Élève Anonyme',
+          userPhoto: row.user_photo || undefined,
+          isOfficial: row.user_name === 'Josué ADETI' || row.user_name?.toLowerCase().includes('josue') || row.user_name?.toLowerCase().includes('coach'),
+          category: row.category || 'partage',
+          text: row.text || '',
+          media: row.media || undefined,
+          timestamp: row.timestamp || new Date().toISOString(),
+          reactions: row.reactions || { like: 0, clap: 0, fire: 0, rocket: 0 },
+          userReactions: row.user_reactions || {},
+          comments: row.comments || []
+        }));
+        
+        setPosts(mapped);
+        localStorage.setItem('dma_community_posts', JSON.stringify(mapped));
+      }
+    } catch (err) {
+      console.error('[DMA Feed] Error fetching posts from Supabase:', err);
+      const loadedPosts = localStorage.getItem('dma_community_posts');
+      if (loadedPosts) {
+        setPosts(JSON.parse(loadedPosts));
+      }
     }
-  }, []);
-
-  const savePostsToLocalStorage = (newPosts: Post[]) => {
-    setPosts(newPosts);
-    localStorage.setItem('dma_community_posts', JSON.stringify(newPosts));
   };
 
-  const handleCreatePost = () => {
-    if (!user || !newPostText.trim()) return;
+  useEffect(() => {
+    if (useAuthContext().supabaseConnected) {
+      fetchPostsFromSupabase();
+      
+      const channel = supabase
+        .channel('public-community-posts')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'community_posts' },
+          () => {
+            fetchPostsFromSupabase();
+          }
+        )
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } else {
+      const loadedPosts = localStorage.getItem('dma_community_posts');
+      if (loadedPosts) {
+        setPosts(JSON.parse(loadedPosts));
+      } else {
+        const defaultPosts: Post[] = [
+          {
+            id: 'seed-1',
+            userName: 'Josué ADETI',
+            userPhoto: 'assets/images/josue_1.jpg',
+            isOfficial: true,
+            category: 'partage',
+            text: "Bienvenue à tous les nouveaux batteurs de la Drum Master Academy ! C'est un honneur de vous accompagner dans votre voyage rythmique. N'oubliez pas d'utiliser le métronome quotidiennement pour ancrer votre tempo de manière parfaite ! 🥁🔥",
+            timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
+            reactions: { like: 12, clap: 8, fire: 15, rocket: 6 },
+            userReactions: {},
+            comments: [
+              {
+                userName: 'Marc D.',
+                text: 'Merci coach Josué ! Toujours au top 🚀',
+                timestamp: new Date(Date.now() - 3600000 * 20).toISOString()
+              }
+            ]
+          }
+        ];
+        setPosts(defaultPosts);
+        localStorage.setItem('dma_community_posts', JSON.stringify(defaultPosts));
+      }
+      return () => {};
+    }
+  }, [useAuthContext().supabaseConnected]);
 
-    const newPost: Post = {
-      id: Math.random().toString(36).substring(2, 9),
+  function useAuthContext() {
+    return useAuth();
+  }
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 15 * 1024 * 1024) {
+        showToast("Le média est trop volumineux. La limite est fixée à 15 Mo.", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setNewPostMedia(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCreatePost = async () => {
+    if (!user || (!newPostText.trim() && !newPostMedia)) return;
+
+    const postUuid = crypto.randomUUID();
+    const timestampStr = new Date().toISOString();
+
+    const newPostData = {
+      id: postUuid,
+      user_id: user.id,
+      user_name: user.name,
+      user_photo: user.photo || null,
+      category: newPostCategory,
+      text: newPostText,
+      media: newPostMedia || null,
+      timestamp: timestampStr,
+      reactions: { like: 0, clap: 0, fire: 0, rocket: 0 },
+      user_reactions: {},
+      comments: []
+    };
+
+    const optimisticPost: Post = {
+      id: postUuid,
       userName: user.name,
       userPhoto: user.photo || undefined,
       category: newPostCategory,
       text: newPostText,
       media: newPostMedia || undefined,
-      timestamp: new Date().toISOString(),
+      timestamp: timestampStr,
       reactions: { like: 0, clap: 0, fire: 0, rocket: 0 },
       userReactions: {},
       comments: []
     };
 
-    const updated = [newPost, ...posts];
-    savePostsToLocalStorage(updated);
+    setPosts(prev => [optimisticPost, ...prev]);
     setNewPostText('');
     setNewPostMedia(null);
-    showToast("Votre publication a été partagée avec succès ! 🚀", "success");
+    showToast("Votre publication a été partagée ! 🚀", "success");
+
+    const authCtx = useAuthContext();
+    if (authCtx.supabaseConnected) {
+      try {
+        const { error } = await supabase
+          .from('community_posts')
+          .insert([newPostData]);
+        if (error) throw error;
+        fetchPostsFromSupabase();
+      } catch (err) {
+        console.error('[DMA Feed] Error uploading post to Supabase:', err);
+        const loaded = JSON.parse(localStorage.getItem('dma_community_posts') || '[]');
+        localStorage.setItem('dma_community_posts', JSON.stringify([optimisticPost, ...loaded]));
+      }
+    } else {
+      const loaded = JSON.parse(localStorage.getItem('dma_community_posts') || '[]');
+      localStorage.setItem('dma_community_posts', JSON.stringify([optimisticPost, ...loaded]));
+    }
   };
 
-  const handleReact = (postId: string, type: 'like' | 'clap' | 'fire' | 'rocket') => {
+  const handleReact = async (postId: string, type: 'like' | 'clap' | 'fire' | 'rocket') => {
     if (!user) return;
     
-    const updated = posts.map(post => {
-      if (post.id === postId) {
-        const reactions = { ...post.reactions };
-        const userReactions = { ...post.userReactions };
-        const currentReaction = userReactions[user.email];
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
 
-        if (currentReaction === type) {
-          reactions[type]--;
-          delete userReactions[user.email];
-        } else {
-          if (currentReaction) {
-            reactions[currentReaction as 'like' | 'clap' | 'fire' | 'rocket']--;
-          }
-          reactions[type]++;
-          userReactions[user.email] = type;
-        }
-        return { ...post, reactions, userReactions };
+    const reactions = { ...post.reactions };
+    const userReactions = { ...post.userReactions };
+    const currentReaction = userReactions[user.email];
+
+    if (currentReaction === type) {
+      reactions[type]--;
+      delete userReactions[user.email];
+    } else {
+      if (currentReaction) {
+        reactions[currentReaction as 'like' | 'clap' | 'fire' | 'rocket']--;
       }
-      return post;
+      reactions[type]++;
+      userReactions[user.email] = type;
+    }
+
+    const updated = posts.map(p => {
+      if (p.id === postId) {
+        return { ...p, reactions, userReactions };
+      }
+      return p;
     });
 
-    savePostsToLocalStorage(updated);
+    setPosts(updated);
+    localStorage.setItem('dma_community_posts', JSON.stringify(updated));
+
+    const authCtx = useAuthContext();
+    if (authCtx.supabaseConnected) {
+      try {
+        const { error } = await supabase
+          .from('community_posts')
+          .update({
+            reactions,
+            user_reactions: userReactions
+          })
+          .eq('id', postId);
+        
+        if (error) throw error;
+      } catch (err) {
+        console.error('[DMA Feed] Error syncing reaction with Supabase:', err);
+      }
+    }
   };
 
-  const handleAddComment = (postId: string) => {
+  const handleAddComment = async (postId: string) => {
     if (!user || !commentInputs[postId]?.trim()) return;
 
-    const updated = posts.map(post => {
-      if (post.id === postId) {
-        const comments = [
-          ...post.comments,
-          {
-            userName: user.name,
-            userPhoto: user.photo || undefined,
-            text: commentInputs[postId],
-            timestamp: new Date().toISOString()
-          }
-        ];
-        return { ...post, comments };
+    const commentText = commentInputs[postId];
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    const newComment = {
+      userName: user.name,
+      userPhoto: user.photo || undefined,
+      text: commentText,
+      timestamp: new Date().toISOString()
+    };
+
+    const updatedComments = [...post.comments, newComment];
+
+    const updated = posts.map(p => {
+      if (p.id === postId) {
+        return { ...p, comments: updatedComments };
       }
-      return post;
+      return p;
     });
 
-    savePostsToLocalStorage(updated);
+    setPosts(updated);
     setCommentInputs(prev => ({ ...prev, [postId]: '' }));
+    localStorage.setItem('dma_community_posts', JSON.stringify(updated));
+
+    const authCtx = useAuthContext();
+    if (authCtx.supabaseConnected) {
+      try {
+        const { error } = await supabase
+          .from('community_posts')
+          .update({
+            comments: updatedComments
+          })
+          .eq('id', postId);
+        
+        if (error) throw error;
+      } catch (err) {
+        console.error('[DMA Feed] Error syncing comment with Supabase:', err);
+      }
+    }
   };
 
   const toggleComments = (postId: string) => {
@@ -692,23 +1016,58 @@ export const Dashboard: React.FC = () => {
                         className="w-full bg-zinc-950 border border-white/5 hover:border-white/10 focus:border-gold-500/40 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none min-h-[90px] resize-none"
                       />
                       
+                      {/* Attached Media Preview */}
+                      {newPostMedia && (
+                        <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/40 max-h-[220px] flex items-center justify-center group">
+                          {newPostMedia.startsWith('data:image/') ? (
+                            <img src={newPostMedia} alt="Preview" className="max-h-[220px] object-contain w-full" />
+                          ) : (
+                            <video src={newPostMedia} controls className="max-h-[220px] object-contain w-full" />
+                          )}
+                          <button
+                            onClick={() => setNewPostMedia(null)}
+                            className="absolute top-2 right-2 bg-rose-500 text-white rounded-full p-1.5 hover:bg-rose-600 active:scale-95 transition-all shadow-md"
+                            title="Supprimer le média"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                           <select
                             value={newPostCategory}
                             onChange={(e) => setNewPostCategory(e.target.value)}
-                            className="bg-zinc-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-zinc-300 outline-none"
+                            className="bg-zinc-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-zinc-300 outline-none focus:border-gold-500/30"
                           >
                             <option value="partage">🔥 Progression</option>
                             <option value="aide">🆘 Demande d'aide</option>
                             <option value="materiel">⚙️ Matériel</option>
                             <option value="offtopic">☕ Lounge</option>
                           </select>
+
+                          {/* Media Picker */}
+                          <input
+                            type="file"
+                            accept="image/*,video/*"
+                            id="community-media-picker"
+                            className="hidden"
+                            onChange={handleMediaChange}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('community-media-picker')?.click()}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 active:scale-95 transition-all text-zinc-300 hover:text-white border border-white/5 hover:border-white/10 rounded-lg text-xs font-semibold"
+                          >
+                            <ImageIcon className="w-3.5 h-3.5 text-gold-400" />
+                            <span>Photo / Vidéo</span>
+                          </button>
                         </div>
                         
                         <button
                           onClick={handleCreatePost}
-                          disabled={!newPostText.trim()}
+                          disabled={!newPostText.trim() && !newPostMedia}
                           className="btn-gold flex items-center gap-2 py-2 px-5 text-xs font-semibold disabled:opacity-50"
                         >
                           <Send className="w-3.5 h-3.5" /> Publier
@@ -766,6 +1125,29 @@ export const Dashboard: React.FC = () => {
                             <p className="text-zinc-200 text-sm leading-relaxed whitespace-pre-wrap">
                               {post.text}
                             </p>
+
+                            {/* Attached Media Display */}
+                            {post.media && (
+                              <div className="mt-2 rounded-xl overflow-hidden border border-white/5 max-h-[400px] flex items-center justify-center bg-black/40">
+                                {post.media.startsWith('data:image/') || post.media.match(/\.(jpeg|jpg|gif|png|webp)/i) ? (
+                                  <img 
+                                    src={post.media} 
+                                    alt="Publication media" 
+                                    className="max-h-[400px] w-full object-contain"
+                                  />
+                                ) : post.media.startsWith('data:video/') || post.media.match(/\.(mp4|webm|ogg|mov)/i) ? (
+                                  <video 
+                                    src={post.media} 
+                                    controls 
+                                    className="max-h-[400px] w-full object-contain"
+                                  />
+                                ) : (
+                                  <a href={post.media} target="_blank" rel="noreferrer" className="text-gold-400 hover:underline p-4 text-xs block">
+                                    Voir le média joint
+                                  </a>
+                                )}
+                              </div>
+                            )}
 
                             {/* Multi-Reactions & Comments count */}
                             <div className="flex items-center justify-between pt-3 border-t border-white/5 flex-wrap gap-3">
@@ -897,22 +1279,73 @@ export const Dashboard: React.FC = () => {
                 transition={springTransition}
                 className="flex justify-center"
               >
-                <div className="glass-card bg-obsidian-card/45 border border-white/5 p-8 rounded-2xl text-center max-w-[420px] w-full space-y-6">
+                <div className="glass-card bg-obsidian-card/45 border border-white/5 p-6 sm:p-8 rounded-2xl text-center max-w-[500px] w-full space-y-6">
                   <div>
-                    <h3 className="text-white font-extrabold text-lg">Métronome Professionnel</h3>
-                    <p className="text-zinc-500 text-xs mt-1">L'outil indispensable pour solidifier votre time-feel.</p>
+                    <h3 className="text-white font-extrabold text-lg flex items-center justify-center gap-2">
+                      <Music className="w-5 h-5 text-gold-400" />
+                      <span>Métronome Studio Pro</span>
+                    </h3>
+                    <p className="text-zinc-500 text-xs mt-1">
+                      Conçu pour sculpter votre rigueur rythmique et vos rudiments.
+                    </p>
                   </div>
                   
-                  <div className="py-4 space-y-1 bg-black/30 rounded-2xl border border-white/5 relative overflow-hidden">
-                    <h2 className="text-6xl font-extrabold tracking-tighter text-white font-mono leading-none">
-                      {bpm}
-                    </h2>
-                    <span className="text-[10px] text-gold-400 font-bold uppercase tracking-widest">BPM</span>
-                    <div className="absolute bottom-0 inset-x-0 h-1 bg-white/5">
-                      <div className="h-full bg-gold-400 w-1/4 animate-pulse" />
+                  {/* Advanced Visual pulsing beat grid */}
+                  <div className="flex flex-col gap-2 p-4 bg-zinc-950/60 rounded-2xl border border-white/5">
+                    <div className="flex justify-center gap-2">
+                      {Array.from({ length: beatsPerMeasure }).map((_, idx) => {
+                        const isActive = activeBeatVisual === idx;
+                        return (
+                          <motion.div
+                            key={idx}
+                            animate={{
+                              scale: isActive ? 1.25 : 1.0,
+                              backgroundColor: isActive 
+                                ? isMutedMeasure
+                                  ? '#4B5563' // Muted gray
+                                  : idx === 0 ? '#F59E0B' : '#D4AF37' 
+                                : '#18181B',
+                              borderColor: isActive ? isMutedMeasure ? '#4B5563' : '#D4AF37' : '#3F3F46',
+                              boxShadow: isActive && !isMutedMeasure ? '0 0 14px rgba(212, 175, 55, 0.55)' : 'none',
+                            }}
+                            transition={{ type: 'spring', stiffness: 350, damping: 18 }}
+                            className="w-10 h-10 rounded-full border flex flex-col items-center justify-center font-mono text-xs font-bold text-zinc-300 select-none relative"
+                          >
+                            <span>{idx + 1}</span>
+                            {isActive && subdivision > 1 && (
+                              <div className="absolute -bottom-1.5 flex gap-1 justify-center">
+                                {Array.from({ length: subdivision }).map((_, sIdx) => (
+                                  <div 
+                                    key={sIdx}
+                                    className={`w-1.5 h-1.5 rounded-full transition-all ${
+                                      activeSubdivisionVisual === sIdx ? 'bg-white scale-125 shadow-sm' : 'bg-white/30'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </motion.div>
+                        );
+                      })}
                     </div>
                   </div>
 
+                  {/* BPM Display & Dial Controls */}
+                  <div className="py-4 space-y-1 bg-black/30 rounded-2xl border border-white/5 relative overflow-hidden flex flex-col items-center">
+                    <h2 className="text-6xl font-black tracking-tighter text-white font-mono leading-none flex items-baseline">
+                      {bpm}
+                      <span className="text-xs text-gold-400 font-bold ml-1 uppercase">BPM</span>
+                    </h2>
+                    
+                    {speedTrainer && metronomePlaying && (
+                      <div className="flex items-center gap-1.5 mt-2 px-2.5 py-0.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-[10px] text-gold-400 font-bold uppercase tracking-wider animate-pulse">
+                        <TrendingUp className="w-3 h-3" />
+                        <span>Entraînement : Mesure {measuresCount} / {speedTrainerInterval}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Slider Control */}
                   <div className="space-y-2">
                     <input
                       type="range"
@@ -924,23 +1357,79 @@ export const Dashboard: React.FC = () => {
                     />
                     <div className="flex items-center justify-between text-[10px] text-zinc-500 font-bold uppercase px-1">
                       <span>40 Min</span>
+                      <span>120 Grave</span>
                       <span>240 Max</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-4">
+                  {/* Tempo Adjust Buttons */}
+                  <div className="flex justify-center gap-2 flex-wrap">
+                    <button
+                      onClick={() => setBpm(prev => Math.max(40, prev - 5))}
+                      className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-[11px] font-bold text-zinc-400 hover:text-white transition-all border border-white/5 active:scale-95"
+                    >
+                      -5
+                    </button>
                     <button
                       onClick={() => setBpm(prev => Math.max(40, prev - 1))}
-                      className="w-12 h-12 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/5 flex items-center justify-center font-bold text-white text-lg transition-transform"
+                      className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-[11px] font-bold text-zinc-400 hover:text-white transition-all border border-white/5 active:scale-95"
                     >
                       -1
                     </button>
                     <button
+                      onClick={() => setBpm(120)}
+                      className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-[11px] font-bold text-zinc-400 hover:text-white transition-all border border-white/5 active:scale-95"
+                    >
+                      Reset (120)
+                    </button>
+                    <button
+                      onClick={() => setBpm(prev => Math.min(240, prev + 1))}
+                      className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-[11px] font-bold text-zinc-400 hover:text-white transition-all border border-white/5 active:scale-95"
+                    >
+                      +1
+                    </button>
+                    <button
+                      onClick={() => setBpm(prev => Math.min(240, prev + 5))}
+                      className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-[11px] font-bold text-zinc-400 hover:text-white transition-all border border-white/5 active:scale-95"
+                    >
+                      +5
+                    </button>
+                  </div>
+
+                  {/* Presets de BPM */}
+                  <div className="space-y-1.5 text-left border-t border-white/5 pt-4">
+                    <span className="text-[10px] text-zinc-500 font-bold uppercase block text-center">Presets BPM</span>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { val: 60, label: '60', desc: 'Échauffement' },
+                        { val: 90, label: '90', desc: 'Groove' },
+                        { val: 120, label: '120', desc: 'Standard' },
+                        { val: 140, label: '140', desc: 'Chops' }
+                      ].map((preset) => (
+                        <button
+                          key={preset.val}
+                          onClick={() => setBpm(preset.val)}
+                          className={`py-2 px-1 rounded-lg border transition-all text-center flex flex-col items-center justify-center ${
+                            bpm === preset.val
+                              ? 'bg-gold-500/10 border-gold-500 text-gold-400 font-extrabold'
+                              : 'bg-zinc-950 border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          <span className="text-xs font-black">{preset.label}</span>
+                          <span className="text-[8px] text-zinc-500 font-semibold">{preset.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Play & Tap controls */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
                       onClick={toggleMetronome}
-                      className={`h-14 px-8 rounded-xl font-bold tracking-wider text-sm transition-all flex items-center justify-center gap-2 active:scale-95 ${
+                      className={`h-14 rounded-xl font-bold tracking-wider text-sm transition-all flex items-center justify-center gap-2 active:scale-95 border ${
                         metronomePlaying
-                          ? 'border border-rose-500/40 bg-rose-500/10 text-rose-400'
-                          : 'bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian hover:from-gold-500 hover:to-gold-300 shadow-gold-glow'
+                          ? 'border-rose-500/40 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20'
+                          : 'bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian hover:from-gold-500 hover:to-gold-300 shadow-gold-glow border-transparent'
                       }`}
                     >
                       {metronomePlaying ? (
@@ -954,23 +1443,193 @@ export const Dashboard: React.FC = () => {
                       )}
                     </button>
                     <button
-                      onClick={() => setBpm(prev => Math.min(240, prev + 1))}
-                      className="w-12 h-12 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/5 flex items-center justify-center font-bold text-white text-lg transition-transform"
+                      onClick={handleTapTempo}
+                      className={`h-14 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${
+                        tapActive
+                          ? 'bg-gold-500 border-gold-500 text-obsidian font-extrabold'
+                          : 'border-zinc-800 hover:border-gold-500/30 text-zinc-400 hover:text-gold-400 hover:bg-white/5'
+                      }`}
                     >
-                      +1
+                      Tap Tempo 🥁
                     </button>
                   </div>
 
-                  <button
-                    onClick={handleTapTempo}
-                    className={`w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all ${
-                      tapActive
-                        ? 'bg-gold-500 border-gold-500 text-obsidian font-extrabold'
-                        : 'border-zinc-800 hover:border-gold-500/30 text-zinc-400 hover:text-gold-400'
-                    }`}
-                  >
-                    Tap Tempo 🥁
-                  </button>
+                  {/* Advanced Controls Dropdowns */}
+                  <div className="grid grid-cols-2 gap-4 text-left border-t border-white/5 pt-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-zinc-500 font-bold uppercase block">Signature rythmique</label>
+                      <select
+                        value={beatsPerMeasure}
+                        onChange={(e) => setBeatsPerMeasure(parseInt(e.target.value))}
+                        className="w-full bg-zinc-950 border border-white/5 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-gold-500/40"
+                      >
+                        <option value={4}>4/4 (Standard)</option>
+                        <option value={3}>3/4 (Valse / Blues)</option>
+                        <option value={5}>5/4 (Odd Meter)</option>
+                        <option value={6}>6/8 (Binaire syncopé)</option>
+                        <option value={7}>7/8 (Asymétrique chop)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-zinc-500 font-bold uppercase block">Subdivision</label>
+                      <select
+                        value={subdivision}
+                        onChange={(e) => setSubdivision(parseInt(e.target.value))}
+                        className="w-full bg-zinc-950 border border-white/5 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-gold-500/40"
+                      >
+                        <option value={1}>Noires (1x)</option>
+                        <option value={2}>Croches (2x)</option>
+                        <option value={3}>Triolets (3x)</option>
+                        <option value={4}>Double croches (4x)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Timbre & Accent options */}
+                  <div className="border-t border-white/5 pt-4 text-left space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] text-zinc-500 font-bold uppercase block">Timbre Acoustique</label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {(['woodblock', 'digital', 'stick', 'cowbell'] as const).map((style) => (
+                          <button
+                            key={style}
+                            onClick={() => setSoundStyle(style)}
+                            className={`py-2 px-1 rounded-lg text-[10px] font-bold border transition-all text-center uppercase tracking-wider ${
+                              soundStyle === style
+                                ? 'bg-gold-500/10 border-gold-500 text-gold-400 font-extrabold'
+                                : 'bg-zinc-950 border-white/5 text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
+                            }`}
+                          >
+                            {style === 'woodblock' ? 'Wood' : style === 'digital' ? 'Digi' : style === 'stick' ? 'Stick' : 'Cowbell'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between py-1 border-b border-white/5">
+                      <div className="space-y-0.5">
+                        <h4 className="text-xs font-bold text-white">Accentuer le premier temps</h4>
+                        <p className="text-[10px] text-zinc-500">Marque le début de chaque mesure</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={accentFirstBeat}
+                        onChange={(e) => setAccentFirstBeat(e.target.checked)}
+                        className="w-4 h-4 rounded border-zinc-800 text-gold-500 accent-gold-500 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Speed Trainer Setup */}
+                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-4 text-left space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <TrendingUp className="w-3.5 h-3.5 text-gold-400" />
+                          <span>Mode Entraîneur de Vitesse</span>
+                        </h4>
+                        <p className="text-[10px] text-zinc-500">Accélère le tempo automatiquement</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={speedTrainer}
+                        onChange={(e) => setSpeedTrainer(e.target.checked)}
+                        className="w-4 h-4 rounded border-zinc-800 text-gold-500 accent-gold-500 cursor-pointer"
+                      />
+                    </div>
+
+                    {speedTrainer && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="grid grid-cols-2 gap-3 pt-2 border-t border-white/5 text-[10px] text-zinc-400 font-semibold"
+                      >
+                        <div className="space-y-1">
+                          <span>Accélérer de :</span>
+                          <select
+                            value={speedTrainerStep}
+                            onChange={(e) => setSpeedTrainerStep(parseInt(e.target.value))}
+                            className="w-full bg-zinc-950 border border-white/5 rounded px-2 py-1 text-xs outline-none"
+                          >
+                            <option value={1}>+1 BPM</option>
+                            <option value={2}>+2 BPM (Standard)</option>
+                            <option value={5}>+5 BPM (Intense)</option>
+                            <option value={10}>+10 BPM (Élite)</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <span>Toutes les :</span>
+                          <select
+                            value={speedTrainerInterval}
+                            onChange={(e) => setSpeedTrainerInterval(parseInt(e.target.value))}
+                            className="w-full bg-zinc-950 border border-white/5 rounded px-2 py-1 text-xs outline-none"
+                          >
+                            <option value={2}>2 Mesures</option>
+                            <option value={4}>4 Mesures (Recommandé)</option>
+                            <option value={8}>8 Mesures</option>
+                            <option value={16}>16 Mesures</option>
+                          </select>
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Gap Click (Mute Coach) Setup */}
+                  <div className="bg-zinc-950/40 border border-white/5 rounded-xl p-4 text-left space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <VolumeX className="w-3.5 h-3.5 text-gold-400" />
+                          <span>Mute Coach (Gap Click)</span>
+                        </h4>
+                        <p className="text-[10px] text-zinc-500">Coupe le clic périodiquement pour tester votre tempo interne</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={gapClick}
+                        onChange={(e) => setGapClick(e.target.checked)}
+                        className="w-4 h-4 rounded border-zinc-800 text-gold-500 accent-gold-500 cursor-pointer"
+                      />
+                    </div>
+
+                    {gapClick && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="grid grid-cols-2 gap-3 pt-2 border-t border-white/5 text-[10px] text-zinc-400 font-semibold"
+                      >
+                        <div className="space-y-1">
+                          <span>Mesures jouées :</span>
+                          <select
+                            value={gapClickPlay}
+                            onChange={(e) => setGapClickPlay(parseInt(e.target.value))}
+                            className="w-full bg-zinc-950 border border-white/5 rounded px-2 py-1 text-xs outline-none"
+                          >
+                            <option value={1}>1 Mesure</option>
+                            <option value={2}>2 Mesures</option>
+                            <option value={3}>3 Mesures (Recommandé)</option>
+                            <option value={4}>4 Mesures</option>
+                            <option value={6}>6 Mesures</option>
+                            <option value={8}>8 Mesures</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <span>Mesures mutées :</span>
+                          <select
+                            value={gapClickMute}
+                            onChange={(e) => setGapClickMute(parseInt(e.target.value))}
+                            className="w-full bg-zinc-950 border border-white/5 rounded px-2 py-1 text-xs outline-none"
+                          >
+                            <option value={1}>1 Mesure (Standard)</option>
+                            <option value={2}>2 Mesures (Challenger)</option>
+                            <option value={3}>3 Mesures</option>
+                            <option value={4}>4 Mesures (Expert)</option>
+                          </select>
+                        </div>
+                      </motion.div>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )}
