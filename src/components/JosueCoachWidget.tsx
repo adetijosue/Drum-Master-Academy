@@ -101,7 +101,7 @@ TON ET PERSONNALITÉ :
 - Tu tutoies naturellement tes étudiants pour créer une proximité.
 - Tu utilises des emojis avec modération (🥁, 💪, 🔥, ✨, 🎵).
 - Tu donnes des réponses structurées et détaillées quand c'est technique.
-- Tu motives et encourages constamment.
+- Tu motives et encourage constamment.
 - Tu partages des anecdotes de ta carrière quand c'est pertinent.
 
 EXPERTISE TECHNIQUE :
@@ -125,7 +125,23 @@ FORMAT DES RÉPONSES :
 - Utilise **gras** pour les termes importants
 - Utilise des listes numérotées pour les étapes et exercices
 - Structure tes réponses avec des paragraphes clairs
-- Garde des réponses concises mais complètes (max 300 mots sauf si l'étudiant demande plus de détails)`;
+- Garde des réponses concises mais complètes (max 300 mots sauf si l'étudiant demande plus de détails)
+
+RECOMMANDATION D'EXERCICES (TRÈS IMPORTANT) :
+Quand tu suggères un exercice ou un rythme spécifique à pratiquer, tu dois ABSOLUMENT inclure à la fin de ton explication le format de commande suivant sur une ligne seule :
+[EXERCISE: Nom de l'exercice | BPM: ValeurBPM | Sub: Subdivision]
+
+Subdivision possible :
+- 1 pour Noires
+- 2 pour Croches
+- 3 pour Triolets
+- 4 pour Double croches
+
+Exemple d'intégration :
+"Je te conseille de travailler ton paradiddle pour délier les doigts :
+[EXERCISE: Paradiddle Délié | BPM: 100 | Sub: 4]"
+
+Ce format sera intercepté par le système pour créer une carte d'action interactive magique permettant à l'élève de configurer son métronome ou de logguer sa session en 1 clic !`;
 
   const getLocalResponse = (msg: string): string => {
     const query = msg.toLowerCase().trim();
@@ -137,7 +153,7 @@ FORMAT DES RÉPONSES :
         `1. **Single Stroke Roll (Frisé)** : 2 minutes. Focus sur la régularité et la détente complète des poignets.\n` +
         `2. **Double Stroke Roll (Roulé)** : 2 minutes. Travaille bien le rebond de chaque deuxième coup.\n` +
         `3. **Paradiddle (Moulin)** : 2 minutes. Accentue bien le premier coup de chaque groupe de 4.\n\n` +
-        `Reste bien détendu, respire, et ne force jamais. C'est la régularité quotidienne qui paie ! 🥁💪`;
+        `Reste bien détendu, respire, et ne force jamais. C'est la régularité quotidienne qui paie ! 🥁💪\n\n[EXERCISE: Routine Échauffement | BPM: 60 | Sub: 1]`;
     }
 
     if (query.includes('moulin') || query.includes('paradiddle') || query.includes('technique') || query.includes('rudiment') || query.includes('flam') || query.includes('drag') || query.includes('stick control')) {
@@ -146,7 +162,7 @@ FORMAT DES RÉPONSES :
         `1. **L'accentuation** : Accentue bien le premier coup de chaque groupe de 4 (**D**-g-d-d **G**-d-g-g).\n` +
         `2. **La hauteur de frappe** : Les coups non accentués doivent rester très bas (ghost notes), près de la peau.\n` +
         `3. **Le métronome** : Commence très lentement (60 BPM) et n'augmente le tempo que lorsque ton jeu est parfaitement propre.\n\n` +
-        `Travaille ça 10 minutes par jour et tu verras ton agilité exploser ! 🥢✨`;
+        `Travaille ça 10 minutes par jour et tu verras ton agilité exploser ! 🥢✨\n\n[EXERCISE: Moulin Technique | BPM: 80 | Sub: 4]`;
     }
 
     if (query.includes('motivation') || query.includes('découragé') || query.includes('motiver') || query.includes('fatigué') || query.includes('bloqué') || query.includes('stagner') || query.includes('perdu')) {
@@ -155,7 +171,7 @@ FORMAT DES RÉPONSES :
         `1. **Réduis la vitesse** : Divise par deux le tempo de l'exercice qui te pose problème.\n` +
         `2. **Change de focus** : Laisse tomber l'exercice difficile pendant 2 jours et joue juste pour le plaisir sur tes morceaux préférés.\n` +
         `3. **Célèbre les petites victoires** : Même 10 minutes de pratique régulière valent mieux qu'une heure par semaine.\n\n` +
-        `Je suis super fier de ton engagement à la Drum Master Academy. Relève la tête, prends tes baguettes et garde le groove ! 🔥🥁`;
+        `Je suis super fier de ton engagement à la Drum Master Academy. Relève la tête, prends tes baguettes et garde le groove ! 🔥🥁\n\n[EXERCISE: Practice Flow Zen | BPM: 70 | Sub: 1]`;
     }
 
     if (query.includes('gospel') || query.includes('chops') || query.includes('fill') || query.includes('groove gospel') || query.includes('linéaire') || query.includes('linear')) {
@@ -164,7 +180,7 @@ FORMAT DES RÉPONSES :
         `1. **Le phrasé linéaire** : Joue des patterns où aucun membre ne frappe en même temps (ex: D-G-Pied-D-G-Pied).\n` +
         `2. **La dynamique** : Travaille la nuance entre tes ghost notes légères sur la caisse claire et tes rimshots puissants.\n` +
         `3. **L'écoute** : Écoute beaucoup de Gospel pour t'imprégner du 'feel' (regarde nos modules dans la Masterclass Gospel de la DMA).\n\n` +
-        `Bosser lentement est la clé pour que ça sonne fluide et propre ! 🥁🔥`;
+        `Bosser lentement est la clé pour que ça sonne fluide et propre ! 🥁🔥\n\n[EXERCISE: Gospel Linear Chop | BPM: 90 | Sub: 4]`;
     }
 
     if (query.includes('afro') || query.includes('fusion') || query.includes('afrobeat') || query.includes('coupé') || query.includes('décalé') || query.includes('makossa') || query.includes('highlife') || query.includes('bénin') || query.includes('benin')) {
@@ -173,7 +189,7 @@ FORMAT DES RÉPONSES :
         `1. **L'indépendance du pied droit** : Le kick doit être ultra régulier, souvent sur tous les temps (four-on-the-floor) ou en syncope complexe.\n` +
         `2. **Le hi-hat précis** : Travaille ton ouverture de charleston sur les contretemps.\n` +
         `3. **Le rimshot caisse claire** : Le son typique de l'Afrobeat demande un rimshot bien sec et boisé.\n\n` +
-        `Va faire un tour sur notre formation *Spécialisation Afro Fusion*, je t'y montre tous mes patterns préférés pas à pas ! 🌴🥁`;
+        `Va faire un tour sur notre formation *Spécialisation Afro Fusion*, je t'y montre tous mes patterns préférés pas à pas ! 🌴🥁\n\n[EXERCISE: Afrobeat Groove | BPM: 95 | Sub: 4]`;
     }
 
     if (query.includes('jazz') || query.includes('swing') || query.includes('comping') || query.includes('balai') || query.includes('brushes') || query.includes('polyrhythm') || query.includes('polyrhythmie')) {
@@ -182,7 +198,7 @@ FORMAT DES RÉPONSES :
         `1. **Le Ride Pattern** : Le fameux chabada (ta-tu-ta, ta-tu-ta). Il doit être ultra régulier et aérien.\n` +
         `2. **Le Hi-Hat sur le 2 et le 4** : C'est ta colonne vertébrale rythmique.\n` +
         `3. **Le Comping** : Apprends à ponctuer à la caisse claire et au kick de manière indépendante sans perturber ton chabada.\n\n` +
-        `Travaille la souplesse de ton poignet droit, c'est de là que vient toute la légèreté du swing ! 🎵✨`;
+        `Travaille la souplesse de ton poignet droit, c'est de là que vient toute la légèreté du swing ! 🎵✨\n\n[EXERCISE: Chabada Swing | BPM: 110 | Sub: 3]`;
     }
 
     if (query.includes('vitesse') || query.includes('indépendance') || query.includes('coordination') || query.includes('rapide') || query.includes('rapidité') || query.includes('syncope') || query.includes('coordonner')) {
@@ -191,7 +207,7 @@ FORMAT DES RÉPONSES :
         `1. **L'indépendance** : Prends un ostinato simple (ex: hi-hat à la noire) et essaie de frapper différentes figures rythmiques à la caisse claire par-dessus.\n` +
         `2. **La vitesse** : Utilise le métronome. Fais 1 minute lente, 1 minute rapide (à ta limite propre), et 1 minute lente. Répète.\n` +
         `3. **Le relâchement** : Si tes muscles se contractent, tu t'arrêtes immédiatement. La vitesse vient de la décontraction, pas de la force.\n\n` +
-        `Prends ton temps, le corps a besoin de répétition pour imprimer ces connexions neuronales ! 💪🥢`;
+        `Prends ton temps, le corps a besoin de répétition pour imprimer ces connexions neuronales ! 💪🥢\n\n[EXERCISE: Pyramide de Vitesse | BPM: 120 | Sub: 4]`;
     }
 
     if (query.includes('tuning') || query.includes('accorder') || query.includes('accordage') || query.includes('matériel') || query.includes('baguette') || query.includes('caisse claire') || query.includes('peau') || query.includes('cymbales')) {
@@ -200,7 +216,7 @@ FORMAT DES RÉPONSES :
         `1. **La caisse claire** : Tends la peau du dessous (résonance) très fort pour avoir un timbre bien réactif. La peau de frappe doit être tendue selon le pitch désiré.\n` +
         `2. **Les toms** : Accorde en croix pour équilibrer la tension autour des tirants. Essaie d'obtenir la même note devant chaque tirant.\n` +
         `3. **Le Kick** : Mets une petite couverture ou un coussin à l'intérieur qui touche légèrement les deux peaux pour un son mat et puissant.\n\n` +
-        `Un bon son donne toujours envie de travailler plus ! 🥁✨`;
+        `Un bon son donne toujours envie de travailler plus ! 🥁✨\n\n[EXERCISE: Test Accordage Groove | BPM: 80 | Sub: 2]`;
     }
 
     if (query.includes('cours') || query.includes('formation') || query.includes('site') || query.includes('métronome') || query.includes('vidéo') || query.includes('pdf') || query.includes('exercice') || query.includes('masterclass')) {
@@ -346,6 +362,100 @@ FORMAT DES RÉPONSES :
     });
   };
 
+  const renderMessageContent = (msg: ChatMessage) => {
+    if (msg.role === 'user') {
+      return renderFormattedText(msg.text);
+    }
+
+    // Check for [EXERCISE: Name | BPM: X | Sub: Y]
+    const exerciseRegex = /\[EXERCISE:\s*([^|\]]+)\|\s*BPM:\s*(\d+)\s*\|\s*Sub:\s*(\d+)\]/gi;
+    
+    const exercises: { name: string; bpm: number; sub: number }[] = [];
+    let match;
+    exerciseRegex.lastIndex = 0;
+    while ((match = exerciseRegex.exec(msg.text)) !== null) {
+      exercises.push({
+        name: match[1].trim(),
+        bpm: parseInt(match[2]),
+        sub: parseInt(match[3])
+      });
+    }
+
+    // Clean text by removing the exercise tags
+    const cleanText = msg.text.replace(exerciseRegex, '').trim();
+
+    return (
+      <div className="space-y-3">
+        {cleanText && <div>{renderFormattedText(cleanText)}</div>}
+        {exercises.map((ex, exIdx) => (
+          <motion.div
+            key={exIdx}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={springTransition}
+            className="mt-2 p-3 bg-zinc-950/80 rounded-xl border border-gold-500/30 shadow-lg relative overflow-hidden flex flex-col gap-2.5"
+          >
+            {/* Ambient gold glow on card */}
+            <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-gold-500/10 blur-xl pointer-events-none" />
+            
+            <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
+              <span className="text-[10px] text-gold-400 font-extrabold uppercase tracking-widest flex items-center gap-1">
+                ⚡ Exercice Recommandé
+              </span>
+              <span className="text-[10px] text-zinc-500 font-mono">
+                Sub: {ex.sub === 1 ? 'Noires' : ex.sub === 2 ? 'Croches' : ex.sub === 3 ? 'Triolets' : 'Dbl croches'}
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <h5 className="font-extrabold text-white text-xs tracking-wide">{ex.name}</h5>
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded bg-zinc-900 border border-white/5 text-[10px] text-gold-400 font-black font-mono">
+                  {ex.bpm} BPM
+                </span>
+                <span className="text-[9px] text-zinc-500 font-medium">
+                  Cible quotidienne
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              <button
+                onClick={() => {
+                  const event = new CustomEvent('dma-set-metronome', {
+                    detail: {
+                      bpm: ex.bpm,
+                      subdivision: ex.sub,
+                      title: ex.name
+                    }
+                  });
+                  window.dispatchEvent(event);
+                }}
+                className="py-1.5 px-2 rounded-lg bg-gold-600 hover:bg-gold-500 text-obsidian font-extrabold text-[9px] tracking-wider uppercase text-center transition-all active:scale-95 shadow-md"
+              >
+                🥁 Lancer Clic
+              </button>
+              <button
+                onClick={() => {
+                  const event = new CustomEvent('dma-log-practice', {
+                    detail: {
+                      title: ex.name,
+                      bpm: ex.bpm
+                    }
+                  });
+                  window.dispatchEvent(event);
+                }}
+                className="py-1.5 px-2 rounded-lg bg-zinc-900 hover:bg-zinc-850 border border-white/10 text-zinc-300 hover:text-white font-bold text-[9px] tracking-wider uppercase text-center transition-all active:scale-95"
+              >
+                📝 Log Journal
+              </button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    );
+  };
+
   if (isAuthPage) return null;
 
   return (
@@ -426,7 +536,7 @@ FORMAT DES RÉPONSES :
                         : 'bg-gold-500/5 border border-gold-500/15 text-zinc-200 rounded-tl-none'
                     }`}
                   >
-                    {renderFormattedText(msg.text)}
+                    {renderMessageContent(msg)}
                   </div>
                 </motion.div>
               ))}

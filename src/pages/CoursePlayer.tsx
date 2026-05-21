@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -340,6 +340,174 @@ export const CoursePlayer: React.FC = () => {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [quizCorrect, setQuizCorrect] = useState<boolean | null>(null);
 
+  // Batteur Pro Player state hooks
+  const playerRef = useRef<any>(null);
+  const [playerReady, setPlayerReady] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [loopStart, setLoopStart] = useState<number | null>(null);
+  const [loopEnd, setLoopEnd] = useState<number | null>(null);
+  const [isLooping, setIsLooping] = useState(false);
+  const [, setCurrentTime] = useState(0);
+
+  // Dynamic YouTube Player API logic
+  useEffect(() => {
+    if (!currentLesson?.videoUrl || currentLesson.quiz) return;
+
+    const initYTPlayer = () => {
+      if (playerRef.current) {
+        try {
+          playerRef.current.destroy();
+        } catch (e) {
+          console.warn("Error destroying player:", e);
+        }
+      }
+
+      playerRef.current = new (window as any).YT.Player('dma-youtube-player', {
+        videoId: currentLesson.videoUrl,
+        playerVars: {
+          autoplay: 0,
+          rel: 0,
+          modestbranding: 1,
+          controls: 1,
+        },
+        events: {
+          onReady: () => {
+            setPlayerReady(true);
+            setPlaybackSpeed(1);
+            setLoopStart(null);
+            setLoopEnd(null);
+            setIsLooping(false);
+          },
+        }
+      });
+    };
+
+    if (!(window as any).YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+
+      (window as any).onYouTubeIframeAPIReady = () => {
+        initYTPlayer();
+      };
+    } else {
+      if ((window as any).YT.Player) {
+        initYTPlayer();
+      } else {
+        const checkInterval = setInterval(() => {
+          if ((window as any).YT && (window as any).YT.Player) {
+            clearInterval(checkInterval);
+            initYTPlayer();
+          }
+        }, 100);
+      }
+    }
+
+    return () => {
+      if (playerRef.current) {
+        try {
+          playerRef.current.destroy();
+          playerRef.current = null;
+          setPlayerReady(false);
+        } catch (e) {}
+      }
+    };
+  }, [currentLesson?.videoUrl, currentLesson?.quiz]);
+
+  // A-B Looper Interval logic
+  useEffect(() => {
+    let interval: number;
+
+    if (isLooping && loopStart !== null && loopEnd !== null && playerReady && playerRef.current) {
+      interval = window.setInterval(() => {
+        try {
+          const current = playerRef.current.getCurrentTime();
+          setCurrentTime(current);
+          if (current >= loopEnd) {
+            playerRef.current.seekTo(loopStart);
+          }
+        } catch (e) {}
+      }, 150);
+    } else if (playerReady && playerRef.current) {
+      interval = window.setInterval(() => {
+        try {
+          const current = playerRef.current.getCurrentTime();
+          setCurrentTime(current);
+        } catch (e) {}
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [isLooping, loopStart, loopEnd, playerReady]);
+
+  const handleSpeedChange = (speed: number) => {
+    setPlaybackSpeed(speed);
+    if (playerRef.current && playerRef.current.setPlaybackRate) {
+      playerRef.current.setPlaybackRate(speed);
+      showToast(`Vitesse de lecture réglée à ${speed}x ⚡`, "info");
+    } else {
+      showToast("Lecteur en cours de chargement...", "warning");
+    }
+  };
+
+  const setPointA = () => {
+    if (playerRef.current && playerRef.current.getCurrentTime) {
+      const current = playerRef.current.getCurrentTime();
+      setLoopStart(current);
+      showToast(`Point A défini à ${formatTime(current)} 📌`, "success");
+      if (loopEnd !== null && current >= loopEnd) {
+        setLoopEnd(null);
+        setIsLooping(false);
+      }
+    } else {
+      showToast("Lecteur non prêt.", "warning");
+    }
+  };
+
+  const setPointB = () => {
+    if (playerRef.current && playerRef.current.getCurrentTime) {
+      const current = playerRef.current.getCurrentTime();
+      if (loopStart !== null && current <= loopStart) {
+        showToast("Le point B doit être après le point A !", "error");
+        return;
+      }
+      setLoopEnd(current);
+      showToast(`Point B défini à ${formatTime(current)} 📌`, "success");
+    } else {
+      showToast("Lecteur non prêt.", "warning");
+    }
+  };
+
+  const toggleLoop = () => {
+    if (loopStart === null || loopEnd === null) {
+      showToast("Veuillez définir les points A et B d'abord !", "warning");
+      return;
+    }
+    const nextLooping = !isLooping;
+    setIsLooping(nextLooping);
+    if (nextLooping) {
+      playerRef.current.seekTo(loopStart);
+      playerRef.current.playVideo();
+      showToast("Boucle A-B activée ! 🔄", "success");
+    } else {
+      showToast("Boucle A-B désactivée.", "info");
+    }
+  };
+
+  const resetLoop = () => {
+    setLoopStart(null);
+    setLoopEnd(null);
+    setIsLooping(false);
+    showToast("Boucle A-B réinitialisée.", "info");
+  };
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
   useEffect(() => {
     if (!user) {
       showToast("Vous devez être connecté pour accéder à la zone de cours.", "info");
@@ -570,17 +738,10 @@ export const CoursePlayer: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-6">
-                {/* Beautiful custom HTML5 Video placeholder that triggers play overlay or real embed */}
-                <div className="aspect-video w-full rounded-2xl border border-white/10 overflow-hidden bg-zinc-950 relative shadow-2xl group">
+                <div className="space-y-6">
+                  <div className="aspect-video w-full rounded-2xl border border-white/10 overflow-hidden bg-zinc-950 relative shadow-2xl group">
                   {currentLesson.videoUrl ? (
-                    <iframe
-                      src={`https://www.youtube.com/embed/${currentLesson.videoUrl}?autoplay=0&rel=0&modestbranding=1`}
-                      title={currentLesson.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-full border-none"
-                    />
+                    <div id="dma-youtube-player" className="w-full h-full border-none" />
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-cover bg-center" style={{ backgroundImage: `url('${course.img}')` }}>
                       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-[1]" />
@@ -591,6 +752,83 @@ export const CoursePlayer: React.FC = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Advanced Batteur Pro Player Controls */}
+                {currentLesson.videoUrl && (
+                  <div className="glass-card bg-obsidian-card/40 border border-white/5 p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+                    {/* Left: Speed Controller */}
+                    <div className="flex flex-col gap-2 w-full md:w-auto">
+                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">
+                        Vitesse de lecture (Slow-Mo Practice)
+                      </span>
+                      <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-white/5 w-fit">
+                        {[0.5, 0.75, 1.0, 1.25, 1.5].map((speed) => (
+                          <button
+                            key={speed}
+                            onClick={() => handleSpeedChange(speed)}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                              playbackSpeed === speed
+                                ? 'bg-gold-500 text-obsidian shadow-sm font-black'
+                                : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                            }`}
+                          >
+                            {speed}x
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right: A-B Looper Tool */}
+                    <div className="flex flex-col gap-2 w-full md:w-auto flex-1 md:max-w-md">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                          Outil Boucle A-B (Travail de Remplissages)
+                        </span>
+                        {(loopStart !== null || loopEnd !== null) && (
+                          <span className="text-[10px] text-gold-400 font-mono">
+                            {loopStart !== null ? formatTime(loopStart) : '--:--'} → {loopEnd !== null ? formatTime(loopEnd) : '--:--'}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-4 gap-2">
+                        <button
+                          onClick={setPointA}
+                          className="px-2 py-2 rounded-lg bg-zinc-900 border border-white/5 hover:border-gold-500/30 text-zinc-300 hover:text-white text-xs font-bold transition-all active:scale-95 flex flex-col items-center justify-center"
+                        >
+                          <span className="text-gold-400 text-[10px] font-extrabold block">[A]</span>
+                          <span className="text-[9px] mt-0.5">DÉBUT</span>
+                        </button>
+                        <button
+                          onClick={setPointB}
+                          className="px-2 py-2 rounded-lg bg-zinc-900 border border-white/5 hover:border-gold-500/30 text-zinc-300 hover:text-white text-xs font-bold transition-all active:scale-95 flex flex-col items-center justify-center"
+                        >
+                          <span className="text-gold-400 text-[10px] font-extrabold block">[B]</span>
+                          <span className="text-[9px] mt-0.5">FIN</span>
+                        </button>
+                        <button
+                          onClick={toggleLoop}
+                          disabled={loopStart === null || loopEnd === null}
+                          className={`px-2 py-2 rounded-lg border text-xs font-bold transition-all active:scale-95 flex flex-col items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed ${
+                            isLooping
+                              ? 'bg-rose-500/10 border-rose-500 text-rose-400 font-black'
+                              : 'bg-zinc-900 border-white/5 hover:border-gold-500/30 text-zinc-300 hover:text-white'
+                          }`}
+                        >
+                          <span className="text-[10px] font-extrabold block">🔄</span>
+                          <span className="text-[9px] mt-0.5">{isLooping ? 'STOP' : 'BOUCLE'}</span>
+                        </button>
+                        <button
+                          onClick={resetLoop}
+                          className="px-2 py-2 rounded-lg bg-zinc-900 border border-white/5 hover:border-rose-500/30 text-zinc-400 hover:text-rose-400 text-xs font-bold transition-all active:scale-95 flex flex-col items-center justify-center"
+                        >
+                          <span className="text-rose-500 text-[10px] font-extrabold block">✕</span>
+                          <span className="text-[9px] mt-0.5">RESET</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Lesson info */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
