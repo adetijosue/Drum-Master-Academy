@@ -106,6 +106,79 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     bio: profile.bio as string | undefined,
   });
 
+  // Sync or fallback helper for Supabase users
+  const syncOrFallbackProfile = async (supabaseUser: any): Promise<UserSession> => {
+    try {
+      // 1. Try to fetch existing profile
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', supabaseUser.id)
+        .single();
+
+      if (profile && !error) {
+        return mapProfileToSession(profile);
+      }
+
+      // 2. Profile not found, let's attempt to insert a default profile
+      const fallbackUser: UserSession = {
+        id: supabaseUser.id,
+        name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Étudiant',
+        email: supabaseUser.email || '',
+        enrolledCourses: [],
+        photo: null,
+        level: 'beginner',
+        interests: [],
+        setupCompleted: false,
+        setupPostponed: false,
+        courseProgress: {},
+        joinDate: supabaseUser.created_at || new Date().toISOString(),
+      };
+
+      const newProfile = {
+        id: fallbackUser.id,
+        name: fallbackUser.name,
+        email: fallbackUser.email,
+        enrolled_courses: fallbackUser.enrolledCourses,
+        photo_url: fallbackUser.photo,
+        level: fallbackUser.level,
+        interests: fallbackUser.interests,
+        setup_completed: fallbackUser.setupCompleted,
+        setup_postponed: fallbackUser.setupPostponed,
+        course_progress: fallbackUser.courseProgress,
+        join_date: fallbackUser.joinDate,
+      };
+
+      const { data: inserted, error: insertError } = await supabase
+        .from('profiles')
+        .insert([newProfile])
+        .select()
+        .single();
+
+      if (!insertError && inserted) {
+        return mapProfileToSession(inserted);
+      }
+
+      console.warn("[DMA Auth] Could not sync profile with Supabase DB (RLS or connection issues), using memory profile:", insertError);
+      return fallbackUser;
+    } catch (e) {
+      console.warn("[DMA Auth] Error syncing profile with Supabase, using local fallback:", e);
+      return {
+        id: supabaseUser.id,
+        name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Étudiant',
+        email: supabaseUser.email || '',
+        enrolledCourses: [],
+        photo: null,
+        level: 'beginner',
+        interests: [],
+        setupCompleted: false,
+        setupPostponed: false,
+        courseProgress: {},
+        joinDate: supabaseUser.created_at || new Date().toISOString(),
+      };
+    }
+  };
+
   // Test Supabase Connection & Initialize session
   useEffect(() => {
     const initAuth = async () => {
@@ -115,20 +188,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!error) {
           setSupabaseConnected(true);
           if (data.session?.user) {
-            // Load user profile from Supabase
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', data.session.user.id)
-              .single();
-
-            if (profile) {
-              const mappedUser = mapProfileToSession(profile);
-              setUser(mappedUser);
-              localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(mappedUser));
-              setLoading(false);
-              return;
-            }
+            const mappedUser = await syncOrFallbackProfile(data.session.user);
+            setUser(mappedUser);
+            localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(mappedUser));
+            setLoading(false);
+            return;
           }
         }
       } catch (e) {
@@ -147,23 +211,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
 
     // Listen to Supabase auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setSupabaseConnected(true);
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile) {
-          const mappedUser = mapProfileToSession(profile);
-          setUser(mappedUser);
-          localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(mappedUser));
-        }
-      } else {
-        // Only clear if we are not in simulated offline mode
-        if (supabaseConnected) {
+        const mappedUser = await syncOrFallbackProfile(session.user);
+        setUser(mappedUser);
+        localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(mappedUser));
+      } else if (event === 'SIGNED_OUT') {
+        // Only clear if the active user session was NOT a local simulated user
+        const activeSession = safeJsonParse<UserSession | null>(localStorage.getItem(DMA_SESSION_KEY), null);
+        if (activeSession && !activeSession.id.startsWith('sim-')) {
           setUser(null);
           localStorage.removeItem(DMA_SESSION_KEY);
         }
@@ -173,25 +230,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [supabaseConnected]);
+  }, []);
 
   // Auth Operations
   const login = async (email: string, password: string) => {
     if (supabaseConnected) {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return { success: false, message: error.message };
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user?.id)
-        .single();
-
-      if (profile) {
-        const mappedUser = mapProfileToSession(profile);
-        setUser(mappedUser);
-        localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(mappedUser));
-        return { success: true };
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (!error && data.user) {
+          const mappedUser = await syncOrFallbackProfile(data.user);
+          setUser(mappedUser);
+          localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(mappedUser));
+          return { success: true };
+        }
+      } catch (err) {
+        console.warn("[DMA Auth] Supabase sign-in error, falling back to local database:", err);
       }
     }
 
@@ -256,16 +309,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(DMA_DB_KEY, JSON.stringify(users));
 
     if (supabaseConnected) {
-      const redirectUrl = window.location.origin + '/login';
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: { name }
-        }
-      });
-      if (error) return { success: false, message: error.message };
+      try {
+        const redirectUrl = window.location.origin + '/login';
+        await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectUrl,
+            data: { name }
+          }
+        });
+      } catch (err) {
+        console.warn("[DMA Auth] Supabase signUp failed, continuing offline registration:", err);
+      }
     }
 
     // Auto-login locally — session does NOT include password hash
@@ -288,8 +344,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    if (supabaseConnected) {
-      await supabase.auth.signOut();
+    if (supabaseConnected && user && !user.id.startsWith('sim-')) {
+      try {
+        await supabase.auth.signOut();
+      } catch (e) {}
     }
     setUser(null);
     localStorage.removeItem(DMA_SESSION_KEY);
@@ -304,7 +362,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(updatedUser);
       localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(updatedUser));
 
-      if (supabaseConnected) {
+      if (supabaseConnected && !user.id.startsWith('sim-')) {
         const { error } = await supabase
           .from('profiles')
           .update({ enrolled_courses: updatedCourses })
@@ -334,7 +392,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(updatedUser);
       localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(updatedUser));
 
-      if (supabaseConnected) {
+      if (supabaseConnected && !user.id.startsWith('sim-')) {
         const { error } = await supabase
           .from('profiles')
           .update({ course_progress: progress })
@@ -355,7 +413,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteAccount = async (password: string) => {
     if (!user) return { success: false, message: "Utilisateur non connecté." };
 
-    if (supabaseConnected) {
+    if (supabaseConnected && !user.id.startsWith('sim-')) {
       const { error } = await supabase.rpc('delete_user');
       if (error) return { success: false, message: error.message };
       await logout();
@@ -391,7 +449,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(updatedUser);
     localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(updatedUser));
 
-    if (supabaseConnected) {
+    if (supabaseConnected && !user.id.startsWith('sim-')) {
       const updates = {
         name: updatedUser.name,
         level: updatedUser.level,
@@ -432,7 +490,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(updatedUser);
     localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(updatedUser));
 
-    if (supabaseConnected) {
+    if (supabaseConnected && !user.id.startsWith('sim-')) {
       const { error } = await supabase
         .from('profiles')
         .update({ photo_url: photoBase64 })
@@ -451,7 +509,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const changePassword = async (currentPassword: string, newPassword: string) => {
-    if (supabaseConnected) {
+    if (supabaseConnected && user && !user.id.startsWith('sim-')) {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) return { success: false, message: error.message };
       return { success: true };
