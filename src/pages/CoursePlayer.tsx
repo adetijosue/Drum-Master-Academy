@@ -1365,7 +1365,7 @@ export const CoursePlayer: React.FC = () => {
                                 </div>
                               </div>
                               
-                              <div className="grid grid-cols-4 gap-2">
+                              <div className="grid grid-cols-2 xs:grid-cols-4 gap-2">
                                 <motion.button
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}

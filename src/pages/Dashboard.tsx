@@ -1941,7 +1941,7 @@ export const Dashboard: React.FC = () => {
                   {/* Presets de BPM */}
                   <div className="space-y-1.5 text-left border-t border-white/5 pt-4">
                     <span className="text-[10px] text-zinc-500 font-bold uppercase block text-center">Presets BPM</span>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 xs:grid-cols-4 gap-2">
                       {[
                         { val: 60, label: '60', desc: 'Échauffement' },
                         { val: 90, label: '90', desc: 'Groove' },
@@ -1967,7 +1967,7 @@ export const Dashboard: React.FC = () => {
                   {/* Presets Rythmiques & Claves */}
                   <div className="space-y-1.5 text-left border-t border-white/5 pt-4">
                     <span className="text-[10px] text-zinc-500 font-bold uppercase block text-center">Presets Rythmiques & Claves</span>
-                    <div className="grid grid-cols-5 gap-1.5">
+                    <div className="grid grid-cols-3 xs:grid-cols-5 gap-1.5">
                       {[
                         { id: 'standard', label: 'Std', desc: 'Standard', sub: 1, sig: 4 },
                         { id: 'shuffle', label: 'Shuffle', desc: 'Triolet', sub: 3, sig: 4 },
@@ -2064,7 +2064,7 @@ export const Dashboard: React.FC = () => {
                   <div className="border-t border-white/5 pt-4 text-left space-y-4">
                     <div className="space-y-2">
                       <label className="text-[10px] text-zinc-500 font-bold uppercase block">Timbre Acoustique</label>
-                      <div className="grid grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 xs:grid-cols-4 gap-2">
                         {(['woodblock', 'digital', 'stick', 'cowbell'] as const).map((style) => (
                           <button
                             key={style}

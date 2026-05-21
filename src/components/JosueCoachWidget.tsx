@@ -483,7 +483,7 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 50 }}
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
-            className="absolute bottom-20 right-0 w-[360px] xs:w-[380px] h-[550px] max-h-[75vh] flex flex-col bg-zinc-950/85 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+            className="absolute bottom-20 right-0 w-[calc(100vw-2.5rem)] xs:w-[380px] h-[550px] max-h-[75vh] flex flex-col bg-zinc-950/85 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/5">

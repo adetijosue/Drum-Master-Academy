@@ -376,6 +376,7 @@ const InteractiveStudioSection: React.FC = () => {
   const [isPlayingSequencer, setIsPlayingSequencer] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [volume, setVolume] = useState(50); // 0 to 100
+  const [selectedPack, setSelectedPack] = useState<'drum' | 'afro' | 'latin' | 'hand'>('drum');
   
   // Game state
   const [score, setScore] = useState(0);
@@ -391,45 +392,7 @@ const InteractiveStudioSection: React.FC = () => {
     crash: false,
   });
 
-  // Step sequencer grids (8 steps)
-  const [sequence, setSequence] = useState<Record<string, boolean[]>>({
-    kick: [true, false, false, false, true, false, false, false],
-    snare: [false, false, true, false, false, false, true, false],
-    hihat: [true, true, true, true, true, true, true, true],
-    crash: [false, false, false, false, false, false, false, false],
-  });
-
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const mainVolumeGainRef = useRef<GainNode | null>(null);
-  const lastTickTimeRef = useRef<number>(0);
-  const feedbackTimeoutRef = useRef<any>(null);
-
-  // Initialize audio
-  const initAudio = () => {
-    if (!audioCtxRef.current) {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioContextClass();
-      const mainGain = ctx.createGain();
-      mainGain.gain.setValueAtTime(volume / 100, ctx.currentTime);
-      mainGain.connect(ctx.destination);
-      
-      audioCtxRef.current = ctx;
-      mainVolumeGainRef.current = mainGain;
-    } else {
-      if (audioCtxRef.current.state === 'suspended') {
-        audioCtxRef.current.resume();
-      }
-    }
-  };
-
-  // Adjust volume
-  useEffect(() => {
-    if (mainVolumeGainRef.current && audioCtxRef.current) {
-      mainVolumeGainRef.current.gain.setValueAtTime(volume / 100, audioCtxRef.current.currentTime);
-    }
-  }, [volume]);
-
-  // Acoustic synthesizer modeling
+  // Dynamic instrument mapping & synthesizers
   const playKick = (ctx: AudioContext, dest: AudioNode) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -523,6 +486,278 @@ const InteractiveStudioSection: React.FC = () => {
     noise.stop(ctx.currentTime + 1.2);
   };
 
+  // Afro Percussion Synthesizers
+  const playDjembeLow = (ctx: AudioContext, dest: AudioNode) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(dest);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(110, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(55, ctx.currentTime + 0.18);
+    gain.gain.setValueAtTime(1.0, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.18);
+  };
+
+  const playDjembeHigh = (ctx: AudioContext, dest: AudioNode) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(dest);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(360, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.1);
+    
+    // Slap noise burst
+    const bufferSize = ctx.sampleRate * 0.04;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1200, ctx.currentTime);
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.35, ctx.currentTime);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.04);
+    
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(dest);
+    
+    gain.gain.setValueAtTime(0.55, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+    
+    osc.start();
+    noise.start();
+    osc.stop(ctx.currentTime + 0.1);
+    noise.stop(ctx.currentTime + 0.1);
+  };
+
+  const playShekere = (ctx: AudioContext, dest: AudioNode) => {
+    const bufferSize = ctx.sampleRate * 0.07;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(6200, ctx.currentTime);
+    filter.Q.setValueAtTime(4, ctx.currentTime);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(dest);
+    noise.start();
+    noise.stop(ctx.currentTime + 0.07);
+  };
+
+  const playWoodblock = (ctx: AudioContext, dest: AudioNode) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(dest);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1150, ctx.currentTime);
+    gain.gain.setValueAtTime(0.55, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.04);
+  };
+
+  // Latin Percussion Synthesizers
+  const playConga = (ctx: AudioContext, dest: AudioNode) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(dest);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(185, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.8, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.12);
+  };
+
+  const playBongo = (ctx: AudioContext, dest: AudioNode) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(dest);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(310, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.08);
+  };
+
+  const playCowbell = (ctx: AudioContext, dest: AudioNode) => {
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    
+    osc1.type = 'square';
+    osc1.frequency.setValueAtTime(540, ctx.currentTime);
+    osc2.type = 'square';
+    osc2.frequency.setValueAtTime(800, ctx.currentTime);
+    
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(800, ctx.currentTime);
+    filter.Q.setValueAtTime(3, ctx.currentTime);
+    
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+    
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gain);
+    gain.connect(dest);
+    
+    osc1.start();
+    osc2.start();
+    osc1.stop(ctx.currentTime + 0.22);
+    osc2.stop(ctx.currentTime + 0.22);
+  };
+
+  const playClave = (ctx: AudioContext, dest: AudioNode) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(dest);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(2050, ctx.currentTime);
+    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.04);
+  };
+
+  // Hand/Modern Percussion Synthesizers
+  const playClap = (ctx: AudioContext, dest: AudioNode) => {
+    const bufferSize = ctx.sampleRate * 0.15;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    for (let i = 0; i < bufferSize; i++) {
+      let amplitude = 0;
+      if (i < ctx.sampleRate * 0.01) {
+        amplitude = (Math.random() * 2 - 1) * 0.3;
+      } else if (i < ctx.sampleRate * 0.02) {
+        amplitude = (Math.random() * 2 - 1) * 0.4;
+      } else if (i < ctx.sampleRate * 0.03) {
+        amplitude = (Math.random() * 2 - 1) * 0.5;
+      } else {
+        const t = (i - ctx.sampleRate * 0.03) / (bufferSize - ctx.sampleRate * 0.03);
+        amplitude = (Math.random() * 2 - 1) * Math.exp(-t * 6);
+      }
+      data[i] = amplitude;
+    }
+    
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1000, ctx.currentTime);
+    filter.Q.setValueAtTime(2, ctx.currentTime);
+    
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.55, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+    
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(dest);
+    noise.start();
+    noise.stop(ctx.currentTime + 0.15);
+  };
+
+  const playShaker = (ctx: AudioContext, dest: AudioNode) => {
+    const bufferSize = ctx.sampleRate * 0.08;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      const t = i / bufferSize;
+      const envelope = t < 0.2 ? t / 0.2 : (1 - t) / 0.8;
+      data[i] = (Math.random() * 2 - 1) * envelope;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(7200, ctx.currentTime);
+    
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(dest);
+    noise.start();
+    noise.stop(ctx.currentTime + 0.08);
+  };
+
+  const playTambourine = (ctx: AudioContext, dest: AudioNode) => {
+    const bufferSize = ctx.sampleRate * 0.16;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      const t = i / bufferSize;
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-t * 7);
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(9500, ctx.currentTime);
+    
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
+    
+    const skinOsc = ctx.createOscillator();
+    const skinGain = ctx.createGain();
+    skinOsc.type = 'triangle';
+    skinOsc.frequency.setValueAtTime(175, ctx.currentTime);
+    skinGain.gain.setValueAtTime(0.25, ctx.currentTime);
+    skinGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+    
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(dest);
+    
+    skinOsc.connect(skinGain);
+    skinGain.connect(dest);
+    
+    noise.start();
+    skinOsc.start();
+    noise.stop(ctx.currentTime + 0.16);
+    skinOsc.stop(ctx.currentTime + 0.16);
+  };
+
+  const playTriangle = (ctx: AudioContext, dest: AudioNode) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(dest);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(3100, ctx.currentTime);
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  };
+
   const playMetronomeTick = (ctx: AudioContext, dest: AudioNode, isDownbeat: boolean) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -536,7 +771,93 @@ const InteractiveStudioSection: React.FC = () => {
     osc.stop(ctx.currentTime + 0.04);
   };
 
-  // Helper trigger
+  // Instrument Packs Definition
+  const INSTRUMENT_PACKS = {
+    drum: {
+      name: 'Batterie Kit',
+      tracks: [
+        { id: 'track1', name: 'KICK', label: 'Grosse Caisse', play: playKick },
+        { id: 'track2', name: 'SNARE', label: 'Caisse Claire', play: playSnare },
+        { id: 'track3', name: 'HI-HAT', label: 'Charley', play: playHiHat },
+        { id: 'track4', name: 'CRASH', label: 'Crash', play: playCrash },
+      ]
+    },
+    afro: {
+      name: 'Afro Percu',
+      tracks: [
+        { id: 'track1', name: 'DJEMBE L', label: 'Djembe Grave', play: playDjembeLow },
+        { id: 'track2', name: 'DJEMBE H', label: 'Djembe Aigu', play: playDjembeHigh },
+        { id: 'track3', name: 'SHEKERE', label: 'Chéquéré', play: playShekere },
+        { id: 'track4', name: 'WOODBLK', label: 'Woodblock', play: playWoodblock },
+      ]
+    },
+    latin: {
+      name: 'Latin Percu',
+      tracks: [
+        { id: 'track1', name: 'CONGA', label: 'Conga', play: playConga },
+        { id: 'track2', name: 'BONGO', label: 'Bongo', play: playBongo },
+        { id: 'track3', name: 'COWBELL', label: 'Cloche', play: playCowbell },
+        { id: 'track4', name: 'CLAVE', label: 'Clave', play: playClave },
+      ]
+    },
+    hand: {
+      name: 'Hand Percu',
+      tracks: [
+        { id: 'track1', name: 'CLAP', label: 'Hand Clap', play: playClap },
+        { id: 'track2', name: 'SHAKER', label: 'Shaker', play: playShaker },
+        { id: 'track3', name: 'TAMBOUR', label: 'Tambourin', play: playTambourine },
+        { id: 'track4', name: 'TRIANGLE', label: 'Triangle', play: playTriangle },
+      ]
+    }
+  };
+
+  // Step sequencer grids (8 steps for 4 generic tracks)
+  const [sequence, setSequence] = useState<Record<string, boolean[]>>({
+    track1: [true, false, false, false, true, false, false, false],
+    track2: [false, false, true, false, false, false, true, false],
+    track3: [true, true, true, true, true, true, true, true],
+    track4: [false, false, false, false, false, false, false, false],
+  });
+
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const mainVolumeGainRef = useRef<GainNode | null>(null);
+  const lastTickTimeRef = useRef<number>(0);
+  const feedbackTimeoutRef = useRef<any>(null);
+
+  // Initialize audio
+  const initAudio = () => {
+    if (!audioCtxRef.current) {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioContextClass();
+      const mainGain = ctx.createGain();
+      mainGain.gain.setValueAtTime(volume / 100, ctx.currentTime);
+      mainGain.connect(ctx.destination);
+      
+      audioCtxRef.current = ctx;
+      mainVolumeGainRef.current = mainGain;
+    } else {
+      if (audioCtxRef.current.state === 'suspended') {
+        audioCtxRef.current.resume();
+      }
+    }
+  };
+
+  // Adjust volume
+  useEffect(() => {
+    if (mainVolumeGainRef.current && audioCtxRef.current) {
+      mainVolumeGainRef.current.gain.setValueAtTime(volume / 100, audioCtxRef.current.currentTime);
+    }
+  }, [volume]);
+
+  // Drum Pads configurations (always mapped to drum kit for playing accompaniment)
+  const padsList = [
+    { id: 'crash', name: 'CRASH', key: 'G', color: 'from-purple-600 to-indigo-600', glowColor: 'rgba(168, 85, 247, 0.4)', bgGlow: 'bg-purple-500/20', soundName: 'Crash Cymbal' },
+    { id: 'hihat', name: 'HI-HAT', key: 'D', color: 'from-gold-600 to-amber-500', glowColor: 'rgba(212, 175, 55, 0.4)', bgGlow: 'bg-gold-500/20', soundName: 'Charley' },
+    { id: 'snare', name: 'SNARE', key: 'S', color: 'from-blue-600 to-cyan-500', glowColor: 'rgba(59, 130, 246, 0.4)', bgGlow: 'bg-blue-500/20', soundName: 'Caisse Claire' },
+    { id: 'kick', name: 'KICK', key: 'F', color: 'from-rose-600 to-orange-500', glowColor: 'rgba(244, 63, 94, 0.4)', bgGlow: 'bg-rose-500/20', soundName: 'Grosse Caisse' },
+  ];
+
+  // Helper trigger for pads (accompanied playing)
   const triggerInstrument = (id: string, isManual = false) => {
     initAudio();
     if (!audioCtxRef.current || !mainVolumeGainRef.current) return;
@@ -553,8 +874,8 @@ const InteractiveStudioSection: React.FC = () => {
     else if (id === 'hihat') playHiHat(ctx, dest);
     else if (id === 'crash') playCrash(ctx, dest);
 
-    // Rhythm game scoring mechanism (only for manual taps when metronome is playing)
-    if (isManual && isPlayingMetronome) {
+    // Rhythm game scoring mechanism (only for manual taps when metronome/sequencer is playing)
+    if (isManual && (isPlayingMetronome || isPlayingSequencer)) {
       const beatDuration = (60 / bpm) * 1000;
       const pressTime = Date.now();
       const timeSinceLast = pressTime - lastTickTimeRef.current;
@@ -589,7 +910,6 @@ const InteractiveStudioSection: React.FC = () => {
       }
       setFeedback(feed);
       
-      // Auto-clear feedback text with ref tracking
       if (feedbackTimeoutRef.current) {
         clearTimeout(feedbackTimeoutRef.current);
       }
@@ -606,7 +926,7 @@ const InteractiveStudioSection: React.FC = () => {
     else setRank('Débutant');
   }, [score]);
 
-  // Physical keyboard listeners
+  // Physical keyboard listeners (Drum Pad Accompaniment)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
@@ -618,7 +938,7 @@ const InteractiveStudioSection: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlayingMetronome, bpm]);
+  }, [isPlayingMetronome, isPlayingSequencer, bpm]);
 
   // Master Clock / Tick Loop for Sequencer and Metronome
   useEffect(() => {
@@ -636,17 +956,17 @@ const InteractiveStudioSection: React.FC = () => {
       setCurrentStep((prev) => {
         const next = (prev + 1) % 8;
 
-        // Sound trigger block
         if (audioCtxRef.current && mainVolumeGainRef.current) {
           const ctx = audioCtxRef.current;
           const dest = mainVolumeGainRef.current;
 
-          // Play sequencer tracks
+          // Play sequencer tracks according to active pack
           if (isPlayingSequencer) {
-            if (sequence.kick[next]) playKick(ctx, dest);
-            if (sequence.snare[next]) playSnare(ctx, dest);
-            if (sequence.hihat[next]) playHiHat(ctx, dest);
-            if (sequence.crash[next]) playCrash(ctx, dest);
+            const pack = INSTRUMENT_PACKS[selectedPack];
+            if (sequence.track1[next]) pack.tracks[0].play(ctx, dest);
+            if (sequence.track2[next]) pack.tracks[1].play(ctx, dest);
+            if (sequence.track3[next]) pack.tracks[2].play(ctx, dest);
+            if (sequence.track4[next]) pack.tracks[3].play(ctx, dest);
           }
 
           // Play metronome tick on standard beats (steps 0, 2, 4, 6)
@@ -660,65 +980,67 @@ const InteractiveStudioSection: React.FC = () => {
       });
     };
 
-    // Run first step instantly
     tick();
-
     const timer = setInterval(tick, stepDurationMs);
     return () => clearInterval(timer);
-  }, [isPlayingSequencer, isPlayingMetronome, bpm, sequence]);
+  }, [isPlayingSequencer, isPlayingMetronome, bpm, sequence, selectedPack]);
 
-  // Load beat presets
+  // Load beat presets with corresponding Pack & Sequence Steps
   const loadPreset = (presetName: string) => {
     initAudio();
     if (presetName === 'gospel') {
+      setSelectedPack('drum');
       setSequence({
-        kick: [true, false, false, true, false, false, true, false],
-        snare: [false, false, true, false, false, true, false, true],
-        hihat: [true, true, true, true, true, true, true, true],
-        crash: [true, false, false, false, false, false, false, false],
+        track1: [true, false, false, true, false, false, true, false],
+        track2: [false, false, true, false, false, true, false, true],
+        track3: [true, true, true, true, true, true, true, true],
+        track4: [true, false, false, false, false, false, false, false],
       });
       setBpm(130);
     } else if (presetName === 'afro') {
+      setSelectedPack('afro');
       setSequence({
-        kick: [true, false, false, false, true, false, false, false],
-        snare: [false, false, true, false, false, false, true, false],
-        hihat: [true, false, true, false, true, false, true, false],
-        crash: [true, false, false, false, false, false, false, false],
+        track1: [true, false, false, false, true, false, false, false], // Djembe L
+        track2: [false, false, true, false, false, false, true, false], // Djembe H
+        track3: [true, false, true, false, true, false, true, false], // Shekere
+        track4: [true, false, false, false, false, true, false, false], // Woodblk
       });
       setBpm(110);
-    } else if (presetName === 'rock') {
+    } else if (presetName === 'latin') {
+      setSelectedPack('latin');
       setSequence({
-        kick: [true, false, false, false, true, false, false, false],
-        snare: [false, false, true, false, false, false, true, false],
-        hihat: [true, true, true, true, true, true, true, true],
-        crash: [false, false, false, false, false, false, false, false],
+        track1: [true, false, false, false, true, false, false, false], // Conga
+        track2: [false, false, true, false, false, false, true, false], // Bongo
+        track3: [true, false, true, false, true, false, true, false], // Cowbell
+        track4: [true, false, false, true, false, false, true, false], // Clave
       });
-      setBpm(120);
+      setBpm(124);
+    } else if (presetName === 'hand') {
+      setSelectedPack('hand');
+      setSequence({
+        track1: [false, false, true, false, false, false, true, false], // Clap
+        track2: [true, true, true, true, true, true, true, true], // Shaker
+        track3: [true, false, false, false, true, false, false, false], // Tambourine
+        track4: [false, false, false, false, false, false, false, true], // Triangle
+      });
+      setBpm(115);
     }
   };
 
   const clearSequence = () => {
     setSequence({
-      kick: Array(8).fill(false),
-      snare: Array(8).fill(false),
-      hihat: Array(8).fill(false),
-      crash: Array(8).fill(false),
+      track1: Array(8).fill(false),
+      track2: Array(8).fill(false),
+      track3: Array(8).fill(false),
+      track4: Array(8).fill(false),
     });
   };
 
-  // Drum Pads configurations
-  const padsList = [
-    { id: 'crash', name: 'CRASH', key: 'G', color: 'from-purple-600 to-indigo-600', glowColor: 'rgba(168, 85, 247, 0.4)', bgGlow: 'bg-purple-500/20', soundName: 'Crash Cymbal' },
-    { id: 'hihat', name: 'HI-HAT', key: 'D', color: 'from-gold-600 to-amber-500', glowColor: 'rgba(212, 175, 55, 0.4)', bgGlow: 'bg-gold-500/20', soundName: 'Charley' },
-    { id: 'snare', name: 'SNARE', key: 'S', color: 'from-blue-600 to-cyan-500', glowColor: 'rgba(59, 130, 246, 0.4)', bgGlow: 'bg-blue-500/20', soundName: 'Caisse Claire' },
-    { id: 'kick', name: 'KICK', key: 'F', color: 'from-rose-600 to-orange-500', glowColor: 'rgba(244, 63, 94, 0.4)', bgGlow: 'bg-rose-500/20', soundName: 'Grosse Caisse' },
-  ];
-
   return (
-    <section className="py-24 bg-zinc-950/80 border-t border-b border-white/5 relative overflow-hidden" aria-label="DMA Interactive Studio">
+    <section className="py-16 sm:py-24 bg-zinc-950/80 border-t border-b border-white/5 relative overflow-hidden" aria-label="DMA Interactive Studio">
       {/* Decorative Blur Orbs */}
-      <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 left-1/10 w-64 sm:w-96 h-64 sm:h-96 bg-gold-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/10 w-64 sm:w-96 h-64 sm:h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -728,91 +1050,90 @@ const InteractiveStudioSection: React.FC = () => {
           initial="initial"
           whileInView="animate"
           viewport={{ once: true }}
-          className="text-center max-w-3xl mx-auto mb-16 space-y-4"
+          className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 space-y-4"
         >
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wider text-gold-400 bg-gold-400/10 border border-gold-400/20 uppercase">
             <Sparkles className="w-3.5 h-3.5" /> DMA. Studio Virtuel
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-sans">
+          <h2 className="text-2xl sm:text-4xl font-bold font-sans text-white">
             DMA. Interactive <span className="text-gold-400">Studio</span>
           </h2>
-          <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
-            Expérimentez le rythme instantanément. Utilisez votre clavier ou cliquez sur les pads ci-dessous pour jouer. Programmez votre séquenceur et essayez de rester dans le groove !
+          <p className="text-zinc-400 text-xs sm:text-base leading-relaxed max-w-2xl mx-auto">
+            Composez vos loops de percussion comme backingtracks personnalisés et accompagnez-les à la batterie sur les pads ou avec les touches de votre clavier !
           </p>
         </motion.div>
 
         {/* Content Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
           
           {/* LEFT: Dynamic Glowing Drum Pads */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="glass-card p-6 border-white/5 shadow-2xl relative">
-              <div className="flex justify-between items-center mb-6">
-                <span className="text-sm font-bold text-zinc-300 tracking-wider flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-gold-400 animate-pulse" /> CLAVIER ACTIF : S - D - F - G
+          <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+            <div className="glass-card p-4 sm:p-6 border-white/5 shadow-2xl relative">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
+                <span className="text-xs sm:text-sm font-bold text-zinc-300 tracking-wider flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-gold-400 animate-pulse" /> 
+                  <span className="hidden sm:inline">CLAVIER ACTIF : S - D - F - G</span>
+                  <span className="sm:hidden">BATTERIE D'ACCOMPAGNEMENT</span>
                 </span>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => initAudio()} 
-                    className="text-xs bg-white/5 hover:bg-white/10 text-zinc-300 px-3 py-1 rounded-md border border-white/10 transition-colors"
-                  >
-                    Activer Audio Context
-                  </button>
-                </div>
+                <button 
+                  onClick={() => initAudio()} 
+                  className="text-[10px] sm:text-xs bg-white/5 hover:bg-white/10 text-zinc-300 px-2.5 py-1 rounded-md border border-white/10 transition-colors"
+                >
+                  Init Audio
+                </button>
               </div>
 
               {/* The Pads Grid */}
-              <div className="grid grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-2 gap-3 sm:gap-6">
                 {padsList.map((pad) => (
                   <motion.button
                     key={pad.id}
                     onClick={() => triggerInstrument(pad.id, true)}
-                    whileHover={{ scale: 1.03 }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.96 }}
                     style={{
                       boxShadow: activePads[pad.id]
-                        ? `0 0 30px ${pad.glowColor}`
-                        : '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)'
+                        ? `0 0 25px ${pad.glowColor}`
+                        : '0 4px 6px -1px rgba(0,0,0,0.1)'
                     }}
-                    className={`relative aspect-square sm:aspect-[1.2/1] rounded-2xl border transition-all duration-75 overflow-hidden flex flex-col items-center justify-between p-6 ${
+                    className={`relative aspect-square sm:aspect-[1.3/1] rounded-xl sm:rounded-2xl border transition-all duration-75 overflow-hidden flex flex-col items-center justify-between p-3 sm:p-5 ${
                       activePads[pad.id]
                         ? `${pad.bgGlow} border-white/30 scale-[0.98]`
                         : 'bg-obsidian-card/40 border-white/5 hover:border-white/15'
                     }`}
                   >
-                    {/* Ring ripple on press */}
                     {activePads[pad.id] && (
                       <motion.span
                         initial={{ opacity: 0.5, scale: 0.8 }}
                         animate={{ opacity: 0, scale: 1.5 }}
                         transition={{ duration: 0.3 }}
-                        className="absolute inset-0 rounded-2xl border border-white/50 pointer-events-none"
+                        className="absolute inset-0 rounded-xl sm:rounded-2xl border border-white/50 pointer-events-none"
                       />
                     )}
 
                     {/* Glowing LED Header */}
                     <div className="w-full flex justify-between items-start">
                       <div className="flex items-center gap-1.5">
-                        <span className={`w-2.5 h-2.5 rounded-full ${activePads[pad.id] ? 'bg-white animate-ping' : 'bg-zinc-700'}`} />
-                        <span className="text-[10px] text-zinc-500 uppercase tracking-widest">{pad.soundName}</span>
+                        <span className={`w-2 h-2 rounded-full ${activePads[pad.id] ? 'bg-white animate-ping' : 'bg-zinc-700'}`} />
+                        <span className="text-[9px] text-zinc-500 uppercase tracking-widest hidden xs:inline">{pad.soundName}</span>
                       </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-950/80 border border-white/10 text-gold-400/90 shadow-md">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-zinc-950/80 border border-white/10 text-gold-400/90 shadow-md hidden sm:inline-block">
                         TOUCHE {pad.key}
                       </span>
                     </div>
 
                     {/* Pad Center Title */}
-                    <span className={`text-2xl sm:text-3xl font-black bg-gradient-to-r ${pad.color} bg-clip-text text-transparent group-hover:brightness-110`}>
+                    <span className={`text-xl sm:text-2xl font-black bg-gradient-to-r ${pad.color} bg-clip-text text-transparent group-hover:brightness-110`}>
                       {pad.name}
                     </span>
 
                     {/* Visual Wave Preview */}
-                    <div className="w-full h-1 flex gap-1 items-end justify-center">
-                      {[...Array(6)].map((_, idx) => (
+                    <div className="w-full h-1.5 flex gap-0.5 sm:gap-1 items-end justify-center">
+                      {[...Array(5)].map((_, idx) => (
                         <motion.span
                           key={idx}
                           animate={{
-                            height: activePads[pad.id] ? [4, Math.random() * 24 + 4, 4] : 4
+                            height: activePads[pad.id] ? [4, Math.random() * 20 + 4, 4] : 4
                           }}
                           transition={{
                             duration: 0.15,
@@ -828,11 +1149,11 @@ const InteractiveStudioSection: React.FC = () => {
             </div>
 
             {/* Timings / Feedback bar */}
-            <div className="glass-card p-4 border-white/5 flex flex-wrap gap-4 items-center justify-between">
+            <div className="glass-card p-3 sm:p-4 border-white/5 flex gap-4 items-center justify-between min-h-[48px]">
               <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-gold-400" />
-                <span className="text-xs text-zinc-400">
-                  Tapez en rythme avec le métronome pour accumuler les combos et marquer des points.
+                <Info className="w-4 h-4 text-gold-400 shrink-0" />
+                <span className="text-[10px] sm:text-xs text-zinc-400 leading-tight">
+                  Jouez par-dessus le boucleur en rythme pour accumuler les points !
                 </span>
               </div>
               <AnimatePresence mode="wait">
@@ -843,7 +1164,7 @@ const InteractiveStudioSection: React.FC = () => {
                     animate={{ opacity: 1, scale: 1.1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, y: -10 }}
                     transition={snappySpring}
-                    className={`text-sm font-extrabold tracking-wider px-3 py-1 rounded border shadow-lg ${
+                    className={`text-[10px] sm:text-xs font-extrabold tracking-wider px-2.5 py-0.5 rounded border shadow-lg shrink-0 ${
                       feedback.includes('PARFAIT')
                         ? 'bg-success-muted border-success/30 text-success'
                         : feedback.includes('SUPER')
@@ -861,36 +1182,36 @@ const InteractiveStudioSection: React.FC = () => {
           </div>
 
           {/* RIGHT: Rhythm game + Metronome & Sequencer controls */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-4 sm:space-y-6">
             
-            {/* 1. Dashboard de Score & Métrome */}
-            <div className="glass-card p-6 border-white/5 space-y-6 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                <h3 className="text-base font-bold text-white tracking-wide">PANNEAU DE GROOVE</h3>
-                <span className="text-xs text-gold-400 font-bold tracking-widest">{rank}</span>
+            {/* 1. Score & Metronome Controls */}
+            <div className="glass-card p-4 sm:p-6 border-white/5 space-y-4 sm:space-y-6 shadow-2xl">
+              <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide uppercase">GROOVE MASTER SCORE</h3>
+                <span className="text-[10px] sm:text-xs text-gold-400 font-bold tracking-widest uppercase">{rank}</span>
               </div>
 
               {/* Rhythm Game Stats */}
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-zinc-950/60 p-3 rounded-xl border border-white/5">
-                  <span className="text-[10px] text-zinc-500 block mb-1 uppercase tracking-wider">Score</span>
-                  <span className="text-xl font-bold text-white">{score}</span>
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
+                <div className="bg-zinc-950/60 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-white/5">
+                  <span className="text-[9px] text-zinc-500 block mb-0.5 sm:mb-1 uppercase tracking-wider">Score</span>
+                  <span className="text-sm sm:text-lg font-bold text-white">{score}</span>
                 </div>
-                <div className="bg-zinc-950/60 p-3 rounded-xl border border-white/5">
-                  <span className="text-[10px] text-zinc-500 block mb-1 uppercase tracking-wider">Combo Actuel</span>
-                  <span className="text-xl font-bold text-gold-400 animate-pulse">{combo}</span>
+                <div className="bg-zinc-950/60 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-white/5">
+                  <span className="text-[9px] text-zinc-500 block mb-0.5 sm:mb-1 uppercase tracking-wider">Combo</span>
+                  <span className="text-sm sm:text-lg font-bold text-gold-400 animate-pulse">{combo}</span>
                 </div>
-                <div className="bg-zinc-950/60 p-3 rounded-xl border border-white/5">
-                  <span className="text-[10px] text-zinc-500 block mb-1 uppercase tracking-wider">Combo Max</span>
-                  <span className="text-xl font-bold text-purple-400">{maxCombo}</span>
+                <div className="bg-zinc-950/60 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-white/5">
+                  <span className="text-[9px] text-zinc-500 block mb-0.5 sm:mb-1 uppercase tracking-wider">Max</span>
+                  <span className="text-sm sm:text-lg font-bold text-purple-400">{maxCombo}</span>
                 </div>
               </div>
 
               {/* Metronome & BPM Controls */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-400 font-medium">Contrôle de Tempo (BPM)</span>
-                  <span className="text-sm font-extrabold text-gold-400 bg-gold-400/10 px-2 py-0.5 rounded border border-gold-400/20">{bpm} BPM</span>
+                  <span className="text-[10px] sm:text-xs text-zinc-400 font-medium">Tempo Backingtrack</span>
+                  <span className="text-xs font-extrabold text-gold-400 bg-gold-400/10 px-2 py-0.5 rounded border border-gold-400/20">{bpm} BPM</span>
                 </div>
                 
                 <div className="flex items-center gap-4">
@@ -900,23 +1221,23 @@ const InteractiveStudioSection: React.FC = () => {
                     max="180"
                     value={bpm}
                     onChange={(e) => setBpm(parseInt(e.target.value))}
-                    className="flex-1 accent-gold-500 h-1.5 bg-zinc-800 rounded-lg cursor-pointer"
+                    className="flex-1 accent-gold-500 h-1 bg-zinc-800 rounded-lg cursor-pointer"
                   />
                 </div>
 
-                <div className="flex items-center justify-between gap-4 pt-2">
-                  <div className="flex items-center gap-2">
-                    {/* Visual Pulse LED synced to current beats (steps 0, 2, 4, 6) */}
+                <div className="flex items-center justify-between gap-4 pt-1">
+                  <div className="flex items-center gap-1.5">
+                    {/* Visual Pulse LED synced to beats */}
                     <div 
-                      className={`w-3.5 h-3.5 rounded-full border transition-all duration-75 ${
+                      className={`w-3 h-3 rounded-full border transition-all duration-75 ${
                         (isPlayingMetronome || isPlayingSequencer) && currentStep % 2 === 0
                           ? currentStep === 0
-                            ? 'bg-purple-500 shadow-[0_0_12px_#a855f7] border-purple-400'
-                            : 'bg-gold-500 shadow-[0_0_12px_#d4af37] border-gold-400'
+                            ? 'bg-purple-500 shadow-[0_0_10px_#a855f7] border-purple-400'
+                            : 'bg-gold-500 shadow-[0_0_10px_#d4af37] border-gold-400'
                           : 'bg-zinc-800 border-white/5'
                       }`}
                     />
-                    <span className="text-xs text-zinc-500">Impulsion LED</span>
+                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">LED</span>
                   </div>
 
                   <div className="flex gap-2">
@@ -925,14 +1246,14 @@ const InteractiveStudioSection: React.FC = () => {
                         initAudio();
                         setIsPlayingMetronome(prev => !prev);
                       }}
-                      className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${
+                      className={`flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg border transition-all ${
                         isPlayingMetronome
                           ? 'bg-gold-500 text-obsidian border-gold-400 shadow-gold-glow'
                           : 'bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10'
                       }`}
                     >
                       {isPlayingMetronome ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-                      Métronome
+                      Clic
                     </button>
                     <button
                       onClick={() => {
@@ -940,9 +1261,9 @@ const InteractiveStudioSection: React.FC = () => {
                         setCombo(0);
                         setMaxCombo(0);
                       }}
-                      className="text-xs bg-white/5 hover:bg-white/10 text-zinc-400 px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-1"
+                      className="text-[10px] sm:text-xs bg-white/5 hover:bg-white/10 text-zinc-400 px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center gap-1"
                     >
-                      <RefreshCw className="w-3.5 h-3.5" /> Reset Game
+                      <RefreshCw className="w-3 h-3" /> Reset
                     </button>
                   </div>
                 </div>
@@ -950,103 +1271,142 @@ const InteractiveStudioSection: React.FC = () => {
             </div>
 
             {/* 2. Step Sequencer / Boîte à Rythmes */}
-            <div className="glass-card p-6 border-white/5 space-y-6 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                <div className="flex items-center gap-2">
-                  <Music className="w-4 h-4 text-gold-400" />
-                  <h3 className="text-base font-bold text-white tracking-wide">SÉQUENCEUR DE BOUCLE</h3>
+            <div className="glass-card p-4 sm:p-6 border-white/5 space-y-4 sm:space-y-6 shadow-2xl">
+              
+              {/* Selector for Percussion Packs */}
+              <div className="border-b border-white/5 pb-3">
+                <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-extrabold block mb-2">
+                  Sélectionner un Pack de Percussions :
+                </span>
+                <div className="grid grid-cols-2 xs:grid-cols-4 gap-1.5">
+                  {Object.entries(INSTRUMENT_PACKS).map(([key, pack]) => (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        initAudio();
+                        setSelectedPack(key as any);
+                      }}
+                      className={`text-[9px] sm:text-[10px] font-bold py-1.5 px-2 rounded-lg border text-center transition-all truncate ${
+                        selectedPack === key
+                          ? 'bg-gold-500 text-obsidian border-gold-400 shadow-gold-glow'
+                          : 'bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      {pack.name}
+                    </button>
+                  ))}
                 </div>
-                <div className="flex gap-1.5">
+              </div>
+
+              {/* Loop Presets */}
+              <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2">
+                  <Music className="w-4 h-4 text-gold-400 shrink-0" />
+                  <span className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Presets de Loops</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
                   <button 
                     onClick={() => loadPreset('gospel')} 
-                    className="text-[10px] bg-gold-500/10 hover:bg-gold-500/20 text-gold-400 px-2 py-0.5 rounded border border-gold-500/20"
+                    className="text-[9px] bg-gold-500/10 hover:bg-gold-500/20 text-gold-400 px-2 py-0.5 rounded border border-gold-500/20 font-bold"
                   >
                     Gospel
                   </button>
                   <button 
                     onClick={() => loadPreset('afro')} 
-                    className="text-[10px] bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded border border-purple-500/20"
+                    className="text-[9px] bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded border border-purple-500/20 font-bold"
                   >
                     Afro
                   </button>
                   <button 
-                    onClick={() => loadPreset('rock')} 
-                    className="text-[10px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20"
+                    onClick={() => loadPreset('latin')} 
+                    className="text-[9px] bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 font-bold"
                   >
-                    Rock
+                    Latin
+                  </button>
+                  <button 
+                    onClick={() => loadPreset('hand')} 
+                    className="text-[9px] bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/20 font-bold"
+                  >
+                    Hand
                   </button>
                   <button 
                     onClick={clearSequence} 
-                    className="text-[10px] bg-white/5 hover:bg-white/10 text-zinc-400 px-2 py-0.5 rounded border border-white/5"
+                    className="text-[9px] bg-white/5 hover:bg-white/10 text-zinc-400 px-2 py-0.5 rounded border border-white/5"
                   >
-                    Clear
+                    Vider
                   </button>
                 </div>
               </div>
 
-              {/* Grid 8 steps * 4 tracks */}
-              <div className="space-y-3">
-                {/* Visual Step indicators at the top */}
-                <div className="grid grid-cols-9 gap-1 items-center">
-                  <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider text-right pr-2">Temps</span>
-                  <div className="col-span-8 grid grid-cols-8 gap-1.5">
-                    {[...Array(8)].map((_, idx) => (
-                      <span
-                        key={idx}
-                        className={`text-center text-[10px] font-black rounded ${
-                          currentStep === idx
-                            ? 'text-gold-400 bg-gold-400/10 scale-110'
-                            : 'text-zinc-600'
-                        }`}
-                      >
-                        {idx + 1}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Instrument Rows */}
-                {Object.keys(sequence).map((instrument) => {
-                  const instDetails = padsList.find(p => p.id === instrument);
-                  return (
-                    <div key={instrument} className="grid grid-cols-9 gap-1 items-center">
-                      <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider text-right pr-2">
-                        {instrument}
-                      </span>
-                      <div className="col-span-8 grid grid-cols-8 gap-1.5">
-                        {sequence[instrument].map((isActive, stepIdx) => (
-                          <button
-                            key={stepIdx}
-                            onClick={() => {
-                              initAudio();
-                              const newSeq = { ...sequence };
-                              newSeq[instrument][stepIdx] = !isActive;
-                              setSequence(newSeq);
-                            }}
-                            className={`aspect-square w-full rounded-md border flex items-center justify-center transition-all ${
-                              isActive
-                                ? `bg-gradient-to-br ${instDetails?.color} border-white/20 shadow-md scale-95`
-                                : currentStep === stepIdx
-                                ? 'bg-zinc-800 border-zinc-700'
-                                : 'bg-zinc-950/80 border-white/5 hover:border-white/10'
-                            }`}
-                            aria-label={`Étape ${stepIdx + 1} pour ${instrument}`}
-                          >
-                            {currentStep === stepIdx && (
-                              <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
+              {/* Horizontal Scrollable container for mobile-strict responsiveness */}
+              <div className="overflow-x-auto pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin scrollbar-thumb-gold-500/20 scrollbar-track-transparent">
+                <div className="min-w-[460px] sm:min-w-0 space-y-3">
+                  
+                  {/* Visual Step indicators at the top */}
+                  <div className="grid grid-cols-9 gap-1 items-center">
+                    <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-wider text-right pr-2">Temps</span>
+                    <div className="col-span-8 grid grid-cols-8 gap-1.5">
+                      {[...Array(8)].map((_, idx) => (
+                        <span
+                          key={idx}
+                          className={`text-center text-[10px] font-black rounded ${
+                            currentStep === idx
+                              ? 'text-gold-400 bg-gold-400/10 scale-110'
+                              : 'text-zinc-600'
+                          }`}
+                        >
+                          {idx + 1}
+                        </span>
+                      ))}
                     </div>
-                  );
-                })}
+                  </div>
+
+                  {/* Instrument Rows based on active pack */}
+                  {INSTRUMENT_PACKS[selectedPack].tracks.map((track, trackIdx) => {
+                    const trackKey = `track${trackIdx + 1}`;
+                    return (
+                      <div key={track.id} className="grid grid-cols-9 gap-1 items-center">
+                        <span 
+                          title={track.label} 
+                          className="text-[9px] text-zinc-400 font-extrabold uppercase tracking-wider text-right pr-2 truncate cursor-help"
+                        >
+                          {track.name}
+                        </span>
+                        <div className="col-span-8 grid grid-cols-8 gap-1.5">
+                          {sequence[trackKey].map((isActive, stepIdx) => (
+                            <button
+                              key={stepIdx}
+                              onClick={() => {
+                                initAudio();
+                                const newSeq = { ...sequence };
+                                newSeq[trackKey][stepIdx] = !isActive;
+                                setSequence(newSeq);
+                              }}
+                              className={`aspect-square w-full rounded-md border flex items-center justify-center transition-all ${
+                                isActive
+                                  ? 'bg-gradient-to-br from-gold-600 to-gold-400 text-obsidian border-white/20 shadow-md scale-95 shadow-gold-glow/20'
+                                  : currentStep === stepIdx
+                                  ? 'bg-zinc-800 border-zinc-700'
+                                  : 'bg-zinc-950/80 border-white/5 hover:border-white/10'
+                              }`}
+                              aria-label={`Étape ${stepIdx + 1} pour ${track.name}`}
+                            >
+                              {currentStep === stepIdx && (
+                                <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Volume & Sequencer Switch */}
               <div className="flex flex-wrap gap-4 items-center justify-between border-t border-white/5 pt-4">
-                <div className="flex items-center gap-2 flex-1 max-w-[200px]">
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Volume</span>
+                <div className="flex items-center gap-2 flex-1 min-w-[140px]">
+                  <span className="text-[9px] text-zinc-500 uppercase tracking-wider font-bold">Vol.</span>
                   <input
                     type="range"
                     min="0"
@@ -1062,14 +1422,14 @@ const InteractiveStudioSection: React.FC = () => {
                     initAudio();
                     setIsPlayingSequencer(prev => !prev);
                   }}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-lg border transition-all ${
+                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-lg border transition-all ${
                     isPlayingSequencer
                       ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500 shadow-lg shadow-purple-500/25'
                       : 'bg-gold-500 text-obsidian border-gold-400 shadow-gold-glow hover:bg-gold-400'
                   }`}
                 >
                   <Play className={`w-3.5 h-3.5 ${isPlayingSequencer ? 'animate-spin-slow' : ''}`} />
-                  {isPlayingSequencer ? 'Arrêter la Boucle' : 'Lancer la Séquence'}
+                  {isPlayingSequencer ? 'Pause Boucle' : 'Jouer la Boucle'}
                 </button>
               </div>
             </div>
