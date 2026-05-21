@@ -101,6 +101,10 @@ export const ForgotPassword: React.FC = () => {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      autoCapitalize="none"
+                      autoComplete="email"
+                      autoCorrect="off"
+                      spellCheck="false"
                       placeholder="votre@email.com"
                       className="w-full bg-zinc-950/80 border border-white/5 rounded-lg px-4 py-3 pl-10 text-white placeholder-zinc-500 focus:outline-none focus:border-gold-500 transition-colors text-sm sm:text-base"
                     />

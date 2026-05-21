@@ -234,9 +234,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Auth Operations
   const login = async (email: string, password: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
     if (supabaseConnected) {
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
         if (!error && data.user) {
           const mappedUser = await syncOrFallbackProfile(data.user);
           setUser(mappedUser);
@@ -251,7 +252,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Local simulation fallback
     const users = getLocalUsers();
     const hashed = await hashPassword(password);
-    const matched = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === hashed);
+    const matched = users.find(u => u.email.toLowerCase() === normalizedEmail && u.password === hashed);
 
     if (matched) {
       const sessionUser: UserSession = {
@@ -279,9 +280,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (name: string, email: string, password: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
     // Generate simulated user id or local register
     const users = getLocalUsers();
-    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+    if (users.find(u => u.email.toLowerCase() === normalizedEmail)) {
       return { success: false, message: "Cet email est déjà utilisé." };
     }
 
@@ -294,7 +296,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const newUser: LocalUser = {
       id: 'sim-' + crypto.randomUUID().slice(0, 9),
       name,
-      email,
+      email: normalizedEmail,
       password: hashed,
       enrolledCourses: [],
       photo: null,
@@ -312,7 +314,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const redirectUrl = window.location.origin + '/login';
         await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
           options: {
             emailRedirectTo: redirectUrl,
@@ -535,9 +537,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const resetPassword = async (email: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
     if (supabaseConnected) {
       const redirectUrl = window.location.origin + '/reset-password';
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
         redirectTo: redirectUrl
       });
       if (error) return { success: false, message: error.message };
@@ -546,7 +549,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Local simulation fallback
     const users = getLocalUsers();
-    const exists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
+    const exists = users.some(u => u.email.toLowerCase() === normalizedEmail);
     if (!exists) return { success: false, message: "Aucun compte associé à cet e-mail." };
     
     return { success: true, message: "Simulation locale : Lien de réinitialisation envoyé avec succès." };

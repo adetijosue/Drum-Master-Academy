@@ -140,6 +140,10 @@ export const Login: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  autoCorrect="off"
+                  spellCheck="false"
                   placeholder="votre@email.com"
                   className="w-full bg-zinc-950 border border-white/5 hover:border-white/10 focus:border-gold-500/40 focus:outline-none rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-zinc-500 transition-colors"
                 />
