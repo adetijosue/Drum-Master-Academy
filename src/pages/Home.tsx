@@ -129,7 +129,7 @@ const AnimatedCounter: React.FC<{ target: number; duration?: number; suffix?: st
 /* ─── Section Components ─── */
 
 const HeroSection: React.FC = () => (
-  <section className="relative min-h-[90vh] flex items-center justify-center bg-zinc-950 overflow-hidden py-24 px-4 sm:px-6 lg:px-8" aria-label="Accueil héros">
+  <section className="relative min-h-[75vh] sm:min-h-[80vh] flex items-center justify-center bg-zinc-950 overflow-hidden py-14 sm:py-16 px-4 sm:px-6 lg:px-8" aria-label="Accueil héros">
     {/* Cinematic Slow Ken Burns Background Image */}
     <motion.div 
       animate={{ 
@@ -292,7 +292,7 @@ const HeroSection: React.FC = () => (
 
 const AboutSection: React.FC = () => {
   return (
-    <section className="py-24 bg-obsidian relative" aria-label="À propos de l'instructeur">
+    <section className="py-14 sm:py-16 bg-obsidian relative" aria-label="À propos de l'instructeur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           <motion.div 
@@ -1989,7 +1989,7 @@ const InteractiveStudioSection: React.FC = () => {
 
 
   return (
-    <section className="py-16 sm:py-24 bg-zinc-950/80 border-t border-b border-white/5 relative overflow-hidden" aria-label="DMA Interactive Studio">
+    <section className="py-10 sm:py-12 bg-zinc-950/80 border-t border-b border-white/5 relative overflow-hidden" aria-label="DMA Interactive Studio">
       <div className="absolute top-1/4 left-1/10 w-64 sm:w-96 h-64 sm:h-96 bg-gold-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/10 w-64 sm:w-96 h-64 sm:h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -2012,25 +2012,25 @@ const InteractiveStudioSection: React.FC = () => {
           </p>
         </motion.div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 shadow-2xl relative overflow-hidden">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 mb-4 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-4 flex flex-wrap gap-4 items-center justify-between lg:justify-start border-b lg:border-b-0 lg:border-r border-zinc-800/80 pb-4 lg:pb-0 lg:pr-6">
-              <div className="flex gap-2 bg-zinc-950 p-1.5 rounded-lg border border-white/5 shadow-inner">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+            <div className="lg:col-span-4 flex flex-wrap gap-3 items-center justify-between lg:justify-start border-b lg:border-b-0 lg:border-r border-zinc-800/80 pb-3 lg:pb-0 lg:pr-4">
+              <div className="flex gap-1.5 bg-zinc-950 p-1 rounded-lg border border-white/5 shadow-inner">
                 <button
                   onClick={() => {
                     initAudio();
                     setIsPlayingSequencer(prev => !prev);
                   }}
-                  className={`w-10 h-10 rounded-md flex items-center justify-center border transition-all ${
+                  className={`w-8 h-8 rounded-md flex items-center justify-center border transition-all ${
                     isPlayingSequencer
-                      ? 'bg-emerald-500/20 border-emerald-400 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                      ? 'bg-emerald-500/20 border-emerald-400 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
                       : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
                   }`}
                   title={isPlayingSequencer ? 'Pause' : 'Jouer'}
                 >
-                  <Play className={`w-4 h-4 ${isPlayingSequencer ? 'animate-pulse' : ''}`} />
+                  <Play className={`w-3.5 h-3.5 ${isPlayingSequencer ? 'animate-pulse' : ''}`} />
                 </button>
                 
                 <button
@@ -2039,28 +2039,28 @@ const InteractiveStudioSection: React.FC = () => {
                     setCurrentStep(-1);
                     setCurrentBar(0);
                   }}
-                  className="w-10 h-10 rounded-md flex items-center justify-center bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-rose-400 transition-colors"
+                  className="w-8 h-8 rounded-md flex items-center justify-center bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-rose-400 transition-colors"
                   title="Arrêter"
                 >
-                  <Square className="w-4 h-4 fill-current" />
+                  <Square className="w-3.5 h-3.5 fill-current" />
                 </button>
                 
                 <button
-                  className="w-10 h-10 rounded-md flex items-center justify-center bg-zinc-900 border border-zinc-800 text-rose-500/40 cursor-not-allowed"
+                  className="w-8 h-8 rounded-md flex items-center justify-center bg-zinc-900 border border-zinc-800 text-rose-500/40 cursor-not-allowed"
                   title="Enregistrer (Décoratif)"
                 >
-                  <span className="w-3.5 h-3.5 rounded-full bg-rose-600 animate-ping" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping" />
                 </button>
               </div>
 
-              <div className="flex flex-col gap-1 items-center bg-zinc-950/80 px-3 py-1 rounded-lg border border-white/5 shadow-md">
-                <span className="text-[8px] font-black text-zinc-500 tracking-widest uppercase">MODE PLAY</span>
+              <div className="flex flex-col gap-0.5 items-center bg-zinc-950/80 px-2 py-0.5 rounded-lg border border-white/5 shadow-md">
+                <span className="text-[7px] font-black text-zinc-500 tracking-widest uppercase">MODE PLAY</span>
                 <div className="flex bg-zinc-900 rounded-md border border-zinc-850 p-0.5 relative">
                   <button
                     onClick={() => setPlayMode('pat')}
-                    className={`px-3 py-1 text-[10px] font-black rounded transition-all uppercase tracking-wider ${
+                    className={`px-2 py-0.5 text-[9px] font-black rounded transition-all uppercase tracking-wider ${
                       playMode === 'pat'
-                        ? 'bg-gold-500 text-obsidian font-bold shadow-md shadow-gold-500/20'
+                        ? 'bg-gold-500 text-obsidian font-bold shadow-md'
                         : 'text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
@@ -2071,9 +2071,9 @@ const InteractiveStudioSection: React.FC = () => {
                       initAudio();
                       setPlayMode('song');
                     }}
-                    className={`px-3 py-1 text-[10px] font-black rounded transition-all uppercase tracking-wider ${
+                    className={`px-2 py-0.5 text-[9px] font-black rounded transition-all uppercase tracking-wider ${
                       playMode === 'song'
-                        ? 'bg-purple-600 text-white font-bold shadow-md shadow-purple-600/20'
+                        ? 'bg-purple-600 text-white font-bold shadow-md'
                         : 'text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
@@ -2083,79 +2083,79 @@ const InteractiveStudioSection: React.FC = () => {
               </div>
             </div>
 
-            <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-4 items-center justify-center">
-              <div className="bg-zinc-950/80 p-2.5 rounded-lg border border-white/5 text-center flex flex-col justify-between h-[64px] min-w-[90px]">
-                <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-wider block">BPM / TEMPO</span>
-                <span className="text-base sm:text-lg font-black text-gold-400 font-mono tracking-widest leading-none mt-1">{bpm}</span>
+            <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-3 items-center justify-center">
+              <div className="bg-zinc-950/80 p-1.5 rounded-lg border border-white/5 text-center flex flex-col justify-between h-[54px] min-w-[85px]">
+                <span className="text-[7px] text-zinc-500 font-bold uppercase tracking-wider block leading-none">BPM / TEMPO</span>
+                <span className="text-sm font-black text-gold-400 font-mono tracking-widest leading-none my-0.5">{bpm}</span>
                 <input
                   type="range"
                   min="60"
                   max="180"
                   value={bpm}
                   onChange={(e) => setBpm(parseInt(e.target.value))}
-                  className="w-full accent-gold-500 h-0.5 bg-zinc-800 rounded cursor-pointer mt-1"
+                  className="w-full accent-gold-500 h-0.5 bg-zinc-800 rounded cursor-pointer"
                 />
               </div>
 
-              <div className="bg-zinc-950/80 p-2.5 rounded-lg border border-white/5 text-center flex flex-col justify-between h-[64px] min-w-[90px]">
-                <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-wider block">BAR / STEP</span>
-                <span className="text-sm font-extrabold text-gold-400/90 font-mono tracking-widest mt-1">
+              <div className="bg-zinc-950/80 p-1.5 rounded-lg border border-white/5 text-center flex flex-col justify-between h-[54px] min-w-[85px]">
+                <span className="text-[7px] text-zinc-500 font-bold uppercase tracking-wider block leading-none">BAR / STEP</span>
+                <span className="text-xs font-extrabold text-gold-400/90 font-mono tracking-widest my-0.5">
                   {currentBar >= 0 ? `${currentBar + 1}` : '--'}.{currentStep >= 0 ? `${currentStep + 1}` : '--'}
                 </span>
-                <span className="text-[8px] text-zinc-500/70 font-mono font-medium block">
-                  {isPlayingSequencer ? 'EN LECTURE' : 'ARRÊTÉ'}
+                <span className="text-[7px] text-zinc-500/70 font-mono font-medium block leading-none">
+                  {isPlayingSequencer ? 'LECTURE' : 'ARRÊTÉ'}
                 </span>
               </div>
 
-              <div className="bg-zinc-950/80 p-2.5 rounded-lg border border-white/5 text-center flex flex-col justify-between h-[64px] min-w-[90px]">
-                <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-wider block">GROOVE SWING</span>
-                <span className="text-base font-black text-purple-400 font-mono tracking-widest leading-none mt-1">{swing}%</span>
+              <div className="bg-zinc-950/80 p-1.5 rounded-lg border border-white/5 text-center flex flex-col justify-between h-[54px] min-w-[85px]">
+                <span className="text-[7px] text-zinc-500 font-bold uppercase tracking-wider block leading-none">GROOVE SWING</span>
+                <span className="text-sm font-black text-purple-400 font-mono tracking-widest leading-none my-0.5">{swing}%</span>
                 <input
                   type="range"
                   min="0"
                   max="100"
                   value={swing}
                   onChange={(e) => setSwing(parseInt(e.target.value))}
-                  className="w-full accent-purple-500 h-0.5 bg-zinc-800 rounded cursor-pointer mt-1"
+                  className="w-full accent-purple-500 h-0.5 bg-zinc-800 rounded cursor-pointer"
                 />
               </div>
 
-              <div className="bg-zinc-950/80 p-1.5 rounded-lg border border-white/5 flex flex-col justify-between items-center h-[64px] min-w-[90px]">
-                <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-wider">CLIC BEAT</span>
+              <div className="bg-zinc-950/80 p-1 rounded-lg border border-white/5 flex flex-col justify-between items-center h-[54px] min-w-[85px]">
+                <span className="text-[7px] text-zinc-500 font-bold uppercase tracking-wider leading-none">CLIC BEAT</span>
                 <button
                   onClick={() => {
                     initAudio();
                     setIsPlayingMetronome(prev => !prev);
                   }}
-                  className={`w-full py-1 text-[9px] font-black rounded border flex items-center justify-center gap-1 mt-1 transition-all ${
+                  className={`w-full py-0.5 text-[8px] font-black rounded border flex items-center justify-center gap-1 mt-0.5 transition-all ${
                     isPlayingMetronome
                       ? 'bg-gold-500/10 border-gold-500/30 text-gold-400'
                       : 'bg-zinc-900 border-zinc-850 text-zinc-500'
                   }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${isPlayingMetronome ? 'bg-gold-400 animate-pulse' : 'bg-zinc-700'}`} />
-                  MÉTRONOME
+                  METRONOME
                 </button>
               </div>
             </div>
 
-            <div className="lg:col-span-3 flex flex-col items-center justify-center bg-zinc-950/90 p-2 rounded-xl border border-white/5 shadow-inner">
-              <span className="text-[8px] font-black text-gold-500/70 tracking-widest uppercase mb-1 flex items-center gap-1">
-                <Waves className="w-3.5 h-3.5" /> DMA. OSCILLOSCOPE
+            <div className="lg:col-span-3 flex flex-col items-center justify-center bg-zinc-950/90 p-1.5 rounded-xl border border-white/5 shadow-inner">
+              <span className="text-[7px] font-black text-gold-500/70 tracking-widest uppercase mb-0.5 flex items-center gap-1">
+                <Waves className="w-3 h-3" /> DMA. OSCILLOSCOPE
               </span>
               <canvas
                 ref={canvasRef}
                 width="200"
-                height="50"
-                className="w-full h-[46px] rounded bg-zinc-950/90 border border-zinc-900"
+                height="36"
+                className="w-full h-[32px] rounded bg-zinc-950/90 border border-zinc-900"
               />
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-4 items-stretch">
           <div className="lg:col-span-5 flex flex-col">
-            <div className="glass-card p-4 sm:p-5 border-white/5 shadow-2xl relative flex-1 flex flex-col justify-between">
+            <div className="glass-card p-3 sm:p-4 border-white/5 shadow-2xl relative flex-1 flex flex-col justify-between">
               
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xs font-bold text-zinc-300 tracking-wider flex items-center gap-2">
@@ -2265,7 +2265,7 @@ const InteractiveStudioSection: React.FC = () => {
           </div>
 
           <div className="lg:col-span-7 flex flex-col justify-between">
-            <div className="glass-card p-4 sm:p-5 border-white/5 shadow-2xl flex-1 flex flex-col justify-between">
+            <div className="glass-card p-3 sm:p-4 border-white/5 shadow-2xl flex-1 flex flex-col justify-between">
               
               <div className="flex justify-between items-center border-b border-white/5 pb-2 mb-3">
                 <span className="text-[10px] font-bold text-zinc-400 tracking-wider flex items-center gap-1">
@@ -2385,8 +2385,8 @@ const InteractiveStudioSection: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass-card p-4 sm:p-6 border-white/5 shadow-2xl relative mb-8">
-          <div className="flex justify-between items-center border-b border-white/5 pb-4 mb-4">
+        <div className="glass-card p-3 sm:p-4 border-white/5 shadow-2xl relative mb-6">
+          <div className="flex justify-between items-center border-b border-white/5 pb-2.5 mb-2.5">
             <span className="text-xs sm:text-sm font-bold text-white tracking-wider flex items-center gap-2 uppercase">
               <Grid className="w-4 h-4 text-gold-400" /> CHANNEL RACK : PATTERN {selectedPattern.replace('pat', '')}
             </span>
@@ -2410,19 +2410,19 @@ const InteractiveStudioSection: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gold-500/20 scrollbar-track-transparent">
-            <div className="min-w-[850px] space-y-3.5">
-              <div className="flex items-center gap-3 pb-2 border-b border-white/5 mb-2">
-                <div className="w-[48px] text-[9px] text-zinc-600 font-black uppercase text-center">Mix</div>
-                <div className="w-[100px] text-[9px] text-zinc-600 font-black uppercase text-center">Paramètres</div>
-                <div className="w-[96px] text-[9px] text-zinc-600 font-black uppercase pl-2">Instrument</div>
-                <div className="w-[64px] text-[9px] text-zinc-600 font-black uppercase text-center">FX Toggles</div>
-                <div className="flex-1 grid grid-cols-16 gap-1 text-center shrink-0">
+            <div className="min-w-[750px] space-y-2">
+              <div className="flex items-center gap-1.5 pb-1 border-b border-white/5 mb-1">
+                <div className="w-[34px] text-[7px] text-zinc-600 font-black uppercase text-center">Mix</div>
+                <div className="w-[68px] text-[7px] text-zinc-600 font-black uppercase text-center">Pan/Pit</div>
+                <div className="w-[76px] text-[7px] text-zinc-600 font-black uppercase text-center">Instrument</div>
+                <div className="w-[44px] text-[7px] text-zinc-600 font-black uppercase text-center">FX</div>
+                <div className="flex-1 grid grid-cols-16 gap-0.5 sm:gap-1 text-center shrink-0">
                   {[...Array(16)].map((_, idx) => {
                     const isBeatStart = idx % 4 === 0;
                     return (
                       <span
                         key={idx}
-                        className={`text-[9px] font-black rounded py-0.5 ${
+                        className={`text-[7px] font-black rounded py-0.5 ${
                           currentStep === idx && isPlayingSequencer
                             ? 'text-white bg-white/10 scale-110 shadow-[0_0_6px_rgba(255,255,255,0.4)]'
                             : isBeatStart
@@ -2435,14 +2435,14 @@ const InteractiveStudioSection: React.FC = () => {
                     );
                   })}
                 </div>
-                <div className="w-16 text-[9px] text-zinc-600 font-black uppercase text-center">Édition</div>
+                <div className="w-10 text-[7px] text-zinc-600 font-black uppercase text-center">Ed.</div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-0.5">
                 {channels.map((channel) => (
                   <div
                     key={channel.id}
-                    className={`flex items-center gap-3 bg-zinc-950/40 p-2 rounded-xl border transition-all ${
+                    className={`flex items-center gap-1.5 bg-zinc-950/40 py-0.5 px-1.5 rounded-md border transition-all ${
                       channel.solo
                         ? 'border-amber-500/20 bg-amber-500/5'
                         : channel.mute
@@ -2452,10 +2452,10 @@ const InteractiveStudioSection: React.FC = () => {
                         : 'border-white/5 hover:border-white/10'
                     }`}
                   >
-                    <div className="flex items-center gap-1 shrink-0 w-[48px] justify-center">
+                    <div className="flex items-center gap-0.5 shrink-0 w-[34px] justify-center">
                       <button
                         onClick={() => toggleMute(channel.id)}
-                        className={`w-5 h-5 rounded text-[9px] font-black flex items-center justify-center border transition-all ${
+                        className={`w-3.5 h-3.5 rounded text-[7px] font-black flex items-center justify-center border transition-all ${
                           channel.mute
                             ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
                             : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border-white/5'
@@ -2466,7 +2466,7 @@ const InteractiveStudioSection: React.FC = () => {
                       </button>
                       <button
                         onClick={() => toggleSolo(channel.id)}
-                        className={`w-5 h-5 rounded text-[9px] font-black flex items-center justify-center border transition-all ${
+                        className={`w-3.5 h-3.5 rounded text-[7px] font-black flex items-center justify-center border transition-all ${
                           channel.solo
                             ? 'bg-amber-500/20 text-amber-400 border-amber-500/30 shadow-md shadow-amber-500/20'
                             : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border-white/5'
@@ -2477,9 +2477,9 @@ const InteractiveStudioSection: React.FC = () => {
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-1.5 shrink-0 w-[100px] justify-between">
+                    <div className="flex items-center gap-1 shrink-0 w-[68px] justify-between">
                       <div className="flex flex-col items-center group/pan" title={`Panoramique: ${channel.pan}`}>
-                        <span className="text-[7px] text-zinc-500 font-extrabold group-hover/pan:text-purple-400 transition-colors uppercase">PAN</span>
+                        <span className="text-[5px] text-zinc-500 font-extrabold group-hover/pan:text-purple-400 transition-colors uppercase leading-none mb-0.5">PAN</span>
                         <input
                           type="range"
                           min="-1"
@@ -2490,12 +2490,12 @@ const InteractiveStudioSection: React.FC = () => {
                             const val = parseFloat(e.target.value);
                             setChannels(prev => prev.map(ch => ch.id === channel.id ? { ...ch, pan: val } : ch));
                           }}
-                          className="w-10 accent-purple-500 h-0.5 bg-zinc-800 rounded cursor-pointer group-hover/pan:scale-y-110"
+                          className="w-6 accent-purple-500 h-0.5 bg-zinc-800 rounded cursor-pointer group-hover/pan:scale-y-110"
                         />
                       </div>
                       
                       <div className="flex flex-col items-center group/pitch" title={`Pitch Shift: ${channel.pitch} semitones`}>
-                        <span className="text-[7px] text-zinc-500 font-extrabold group-hover/pitch:text-gold-400 transition-colors uppercase">PITCH</span>
+                        <span className="text-[5px] text-zinc-500 font-extrabold group-hover/pitch:text-gold-400 transition-colors uppercase leading-none mb-0.5">PIT</span>
                         <input
                           type="range"
                           min="-12"
@@ -2506,22 +2506,22 @@ const InteractiveStudioSection: React.FC = () => {
                             const val = parseInt(e.target.value);
                             setChannels(prev => prev.map(ch => ch.id === channel.id ? { ...ch, pitch: val } : ch));
                           }}
-                          className="w-10 accent-gold-500 h-0.5 bg-zinc-800 rounded cursor-pointer group-hover/pitch:scale-y-110"
+                          className="w-6 accent-gold-500 h-0.5 bg-zinc-800 rounded cursor-pointer group-hover/pitch:scale-y-110"
                         />
                       </div>
                     </div>
 
-                    <div className="relative w-[96px] shrink-0">
+                    <div className="relative w-[76px] shrink-0">
                       <button
                         onClick={() => auditionChannel(channel)}
-                        className={`w-full py-1.5 px-2 text-left rounded-md font-sans text-[10px] font-black truncate transition-all border flex items-center justify-between ${
+                        className={`w-full py-0.5 px-1 text-left rounded-md font-sans text-[8px] font-black truncate transition-all border flex items-center justify-between ${
                           activeDropdown === channel.id
                             ? 'bg-gold-500 text-obsidian border-gold-400 shadow-gold-glow'
                             : 'bg-zinc-900 border-zinc-800 text-zinc-200 hover:bg-zinc-800 hover:border-zinc-700'
                         }`}
                       >
                         <span>{channel.name}</span>
-                        <span className="text-[7px] opacity-65">▼</span>
+                        <span className="text-[6px] opacity-65">▼</span>
                       </button>
 
                       {activeDropdown === channel.id && (
@@ -2557,7 +2557,7 @@ const InteractiveStudioSection: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="w-[64px] shrink-0 flex items-center justify-between px-1">
+                    <div className="w-[44px] shrink-0 flex items-center justify-between">
                       {[
                         { type: 'delay', label: 'D', tooltip: 'Delay/Écho' },
                         { type: 'reverb', label: 'R', tooltip: 'Reverb/Espace' },
@@ -2570,9 +2570,9 @@ const InteractiveStudioSection: React.FC = () => {
                             key={fx.type}
                             onClick={() => toggleChannelFx(channel.id, fx.type as any)}
                             title={fx.tooltip}
-                            className={`w-3.5 h-3.5 rounded-full text-[8px] font-extrabold flex items-center justify-center transition-all ${
+                            className={`w-2 h-2 rounded-full text-[5px] font-extrabold flex items-center justify-center transition-all ${
                               active
-                                ? 'bg-purple-600 text-white shadow-[0_0_8px_#a855f7]'
+                                ? 'bg-purple-600 text-white shadow-[0_0_6px_#a855f7]'
                                 : 'bg-zinc-900 border border-zinc-800 text-zinc-500 hover:border-zinc-700'
                             }`}
                           >
@@ -2582,7 +2582,7 @@ const InteractiveStudioSection: React.FC = () => {
                       })}
                     </div>
 
-                    <div className="flex-1 grid grid-cols-16 gap-1 shrink-0">
+                    <div className="flex-1 grid grid-cols-16 gap-0.5 sm:gap-1 shrink-0 items-center justify-items-center">
                       {channel.patternSteps[selectedPattern]?.map((isActive, stepIdx) => {
                         const isBeatGroupA = (stepIdx >= 0 && stepIdx < 4) || (stepIdx >= 8 && stepIdx < 12);
                         const isPlayhead = currentStep === stepIdx && isPlayingSequencer;
@@ -2607,13 +2607,13 @@ const InteractiveStudioSection: React.FC = () => {
                                 return ch;
                               }));
                             }}
-                            className={`aspect-square w-full rounded-md border flex items-center justify-center transition-all ${
+                            className={`aspect-square max-h-5 sm:max-h-5.5 w-full rounded-[2px] border-[0.5px] flex items-center justify-center transition-all ${
                               isActive
                                 ? isBeatGroupA
-                                  ? 'bg-gradient-to-br from-gold-600 to-gold-400 text-obsidian border-white/20 shadow-[0_0_8px_rgba(212,175,55,0.4)] scale-[0.93]'
-                                  : 'bg-gradient-to-br from-purple-500 to-indigo-500 text-white border-white/20 shadow-[0_0_8px_rgba(168,85,247,0.4)] scale-[0.93]'
+                                  ? 'bg-gradient-to-br from-gold-600 to-gold-400 text-obsidian border-white/20 shadow-[0_0_6px_rgba(212,175,55,0.4)] scale-[0.93]'
+                                  : 'bg-gradient-to-br from-purple-500 to-indigo-500 text-white border-white/20 shadow-[0_0_6px_rgba(168,85,247,0.4)] scale-[0.93]'
                                 : isPlayhead
-                                ? 'bg-white border-white shadow-[0_0_12px_rgba(255,255,255,0.85)] scale-105'
+                                ? 'bg-white border-white shadow-[0_0_10px_rgba(255,255,255,0.85)] scale-105'
                                 : isBeatGroupA
                                 ? 'bg-zinc-900 border-zinc-800 text-gold-500/30 hover:bg-zinc-800 hover:border-zinc-750'
                                 : 'bg-zinc-950 border-zinc-900 text-purple-400/30 hover:bg-zinc-900 hover:border-zinc-850'
@@ -2621,34 +2621,34 @@ const InteractiveStudioSection: React.FC = () => {
                             aria-label={`Piste ${channel.name} Pas ${stepIdx + 1}`}
                           >
                             {isPlayhead && !isActive && (
-                              <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                              <div className="w-1 h-1 rounded-full bg-white animate-ping" />
                             )}
                           </button>
                         );
                       })}
                     </div>
 
-                    <div className="w-16 shrink-0 flex items-center justify-between gap-1">
+                    <div className="w-10 shrink-0 flex items-center justify-between gap-0.5">
                       <button
                         onClick={() => duplicateSteps(channel.id)}
-                        className="text-[8px] bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 font-extrabold px-1 rounded transition-colors uppercase py-0.5"
+                        className="text-[5px] bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 font-black px-0.5 rounded transition-colors uppercase py-0.5 shrink-0"
                         title="Dupliquer pas 1-8 sur 9-16"
                       >
-                        DUP
+                        2X
                       </button>
                       <button
                         onClick={() => shiftSteps(channel.id, 'right')}
-                        className="text-[8px] bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 font-extrabold px-1 rounded transition-colors uppercase py-0.5"
-                        title="Décaler pas vers la droite"
+                        className="text-[5px] bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 font-black px-0.5 rounded transition-colors uppercase py-0.5 shrink-0"
+                        title="Décaler pas"
                       >
                         &gt;
                       </button>
                       <button
                         onClick={() => deleteChannel(channel.id)}
-                        className="w-5 h-5 rounded text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition-colors"
+                        className="w-3 h-3 rounded text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition-colors shrink-0"
                         title="Supprimer la Piste"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-2.5 h-2.5" />
                       </button>
                     </div>
 
@@ -2897,7 +2897,7 @@ const InteractiveStudioSection: React.FC = () => {
 };
 
 const CoursesSection: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => (
-  <section className="py-24 bg-zinc-950/50 relative" aria-label="Nos formations">
+  <section className="py-14 sm:py-16 bg-zinc-950/50 relative" aria-label="Nos formations">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <motion.div 
         variants={fadeInUp}
@@ -3010,7 +3010,7 @@ const TestimonialsSection: React.FC = () => {
   const marqueeItems = [...testimonials, ...testimonials];
 
   return (
-    <section className="py-24 bg-obsidian border-y border-white/5 overflow-hidden" aria-label="Témoignages">
+    <section className="py-14 sm:py-16 bg-obsidian border-y border-white/5 overflow-hidden" aria-label="Témoignages">
       <motion.div 
         variants={fadeInUp}
         initial="initial"
@@ -3068,7 +3068,7 @@ const TestimonialsSection: React.FC = () => {
 };
 
 const CTASection: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => (
-  <section className="py-24 bg-gradient-to-b from-obsidian to-zinc-950 relative border-b border-white/5" aria-label="Appel à l'action">
+  <section className="py-14 sm:py-16 bg-gradient-to-b from-obsidian to-zinc-950 relative border-b border-white/5" aria-label="Appel à l'action">
     <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 space-y-6 relative z-10">
       <motion.div 
         variants={fadeInUp}

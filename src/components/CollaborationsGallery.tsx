@@ -92,14 +92,14 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
 
   return (
     <ContainerTag 
-      className={isDashboard ? "w-full" : "py-24 bg-gradient-to-b from-obsidian to-black relative"} 
+      className={isDashboard ? "w-full" : "py-14 sm:py-16 bg-gradient-to-b from-obsidian to-black relative"} 
       aria-label="Collaborations artistiques"
     >
       <div className={isDashboard ? "w-full" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"}>
         
         {/* Header Section */}
         {!isDashboard ? (
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <motion.div 
               variants={fadeInUp}
               initial="initial"
@@ -165,7 +165,7 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
         )}
 
         {/* Category Filters */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           {categories.map((cat) => (
             cat.count > 0 && (
               <button
@@ -189,7 +189,7 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
         </div>
 
         {/* Grid Player + Playlist */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
           
           {/* Left Column: Player (Lg: 8 cols) */}
           <div className="lg:col-span-8 flex flex-col justify-between">
@@ -213,7 +213,7 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
                 </div>
 
                 {/* Video Info under the player */}
-                <div className="mt-5 p-5 rounded-2xl bg-zinc-950/40 border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="mt-4 p-4 rounded-xl bg-zinc-950/40 border border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="space-y-1.5 flex-1 pr-4">
                     <span className="text-[10px] text-gold-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
                       <Music className="w-3 h-3" />
@@ -253,8 +253,8 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
           </div>
 
           {/* Right Column: Playlist index (Lg: 4 cols) */}
-          <div className="lg:col-span-4 flex flex-col h-[450px] lg:h-[540px]">
-            <div className="bg-zinc-950/60 border border-white/10 rounded-2xl flex flex-col h-full overflow-hidden">
+          <div className="lg:col-span-4 flex flex-col h-[380px] lg:h-[480px]">
+            <div className="bg-zinc-950/60 border border-white/10 rounded-xl flex flex-col h-full overflow-hidden">
               
               {/* Header Playlist */}
               <div className="p-4 border-b border-white/10 flex items-center justify-between bg-zinc-950/80">
@@ -288,7 +288,7 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
                             setSelectedVideo(video);
                             setShouldAutoplay(true);
                           }}
-                          className={`group cursor-pointer p-2.5 rounded-xl flex gap-3 items-center border transition-all duration-300 ${
+                          className={`group cursor-pointer p-2 rounded-lg flex gap-2.5 items-center border transition-all duration-300 ${
                             isActive
                               ? 'bg-gold-500/10 border-gold-500/30 text-white shadow-inner shadow-gold-500/5'
                               : 'bg-zinc-950/40 border-white/5 hover:bg-white/5 text-zinc-300 hover:text-white'
