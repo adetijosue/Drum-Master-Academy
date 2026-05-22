@@ -21,6 +21,7 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
   
   // States
   const [selectedVideo, setSelectedVideo] = useState<VideoItem>(videos[0]);
+  const [shouldAutoplay, setShouldAutoplay] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const playlistContainerRef = useRef<HTMLDivElement>(null);
@@ -203,7 +204,7 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
                 {/* Embed Video Iframe with premium border and reflection glow */}
                 <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black group shadow-[0_0_50px_-12px_rgba(212,175,55,0.15)] focus-within:shadow-[0_0_50px_-6px_rgba(212,175,55,0.3)] transition-shadow duration-500">
                   <iframe
-                    src={`https://www.youtube.com/embed/${selectedVideo.videoId}?autoplay=0&rel=0&modestbranding=1`}
+                    src={`https://www.youtube.com/embed/${selectedVideo.videoId}?autoplay=${shouldAutoplay ? 1 : 0}&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&iv_load_policy=3&vq=hd1080`}
                     title={selectedVideo.title}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -252,7 +253,7 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
           </div>
 
           {/* Right Column: Playlist index (Lg: 4 cols) */}
-          <div className="lg:col-span-4 flex flex-col h-[400px] lg:h-auto min-h-[400px]">
+          <div className="lg:col-span-4 flex flex-col h-[450px] lg:h-[540px]">
             <div className="bg-zinc-950/60 border border-white/10 rounded-2xl flex flex-col h-full overflow-hidden">
               
               {/* Header Playlist */}
@@ -283,7 +284,10 @@ export const CollaborationsGallery: React.FC<CollaborationsGalleryProps> = ({ is
                           whileHover="whileHover"
                           whileTap="whileTap"
                           transition={snappySpring}
-                          onClick={() => setSelectedVideo(video)}
+                          onClick={() => {
+                            setSelectedVideo(video);
+                            setShouldAutoplay(true);
+                          }}
                           className={`group cursor-pointer p-2.5 rounded-xl flex gap-3 items-center border transition-all duration-300 ${
                             isActive
                               ? 'bg-gold-500/10 border-gold-500/30 text-white shadow-inner shadow-gold-500/5'
