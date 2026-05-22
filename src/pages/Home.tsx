@@ -8,6 +8,7 @@ import {
   staggerContainer, staggerChild, fadeInUp, fadeInLeft, fadeInRight, 
   gentleSpring, snappySpring 
 } from '../lib/motion';
+import { CollaborationsGallery } from '../components/CollaborationsGallery';
 
 /* ─── Course Data ─── */
 const courses = [
@@ -1665,6 +1666,7 @@ export const Home: React.FC = () => {
       <div className="flex flex-col min-h-screen text-zinc-100 overflow-x-hidden font-sans">
         <HeroSection />
         <AboutSection />
+        <CollaborationsGallery />
         <InteractiveStudioSection />
         <CoursesSection isLoggedIn={isLoggedIn} />
         <TestimonialsSection />

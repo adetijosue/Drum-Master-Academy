@@ -6,6 +6,7 @@ import { supabase } from '../services/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../components/ui/PageTransition';
 import { springTransition, snappySpring } from '../lib/motion';
+import { CollaborationsGallery } from '../components/CollaborationsGallery';
 import { 
   Home, 
   BookOpen, 
@@ -26,7 +27,9 @@ import {
   TrendingUp,
   Clock,
   Plus,
-  Calendar
+  Calendar,
+  Youtube,
+  Sparkles
 } from 'lucide-react';
 
 interface Post {
@@ -88,10 +91,11 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'community' | 'tools' | 'practice'>(() => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'community' | 'tools' | 'practice' | 'collaborations'>(() => {
     if (location.pathname === '/community') return 'community';
     if (location.pathname === '/tools') return 'tools';
     if (location.pathname === '/practice') return 'practice';
+    if (location.pathname === '/collaborations') return 'collaborations';
     return 'dashboard';
   });
 
@@ -102,6 +106,8 @@ export const Dashboard: React.FC = () => {
       setActiveTab('tools');
     } else if (location.pathname === '/practice') {
       setActiveTab('practice');
+    } else if (location.pathname === '/collaborations') {
+      setActiveTab('collaborations');
     } else if (location.pathname === '/dashboard') {
       setActiveTab('dashboard');
     }
@@ -1072,6 +1078,22 @@ export const Dashboard: React.FC = () => {
               <Sliders className="w-4 h-4" />
               Métronome Pro
             </motion.button>
+            <motion.button
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.97 }}
+              transition={snappySpring}
+              role="tab"
+              aria-selected={activeTab === 'collaborations'}
+              onClick={() => setActiveTab('collaborations')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
+                activeTab === 'collaborations'
+                  ? 'bg-gold-500/10 border-l-2 border-gold-500 text-gold-400 shadow-inner'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Youtube className="w-4 h-4" />
+              Collaborations &amp; Live
+            </motion.button>
             <Link
               to="/settings"
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
@@ -1204,6 +1226,33 @@ export const Dashboard: React.FC = () => {
                       </Link>
                     </div>
                   )}
+                </div>
+
+                {/* Collaborations & Live Session Banner */}
+                <div className="glass-card bg-gradient-to-r from-obsidian-card via-gold-950/10 to-obsidian-card border border-gold-500/20 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group shadow-[0_0_30px_-15px_rgba(212,175,55,0.1)] hover:shadow-[0_0_30px_-5px_rgba(212,175,55,0.2)] transition-all duration-500">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full blur-2xl pointer-events-none" />
+                  <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left relative z-10">
+                    <div className="w-14 h-14 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center text-gold-400 group-hover:scale-105 transition-transform duration-300">
+                      <Youtube className="w-7 h-7 text-red-500" />
+                    </div>
+                    <div className="space-y-1">
+                      <span className="inline-flex items-center gap-1 bg-gold-400/10 border border-gold-400/20 text-gold-400 font-extrabold text-[9px] px-2 py-0.5 rounded uppercase tracking-wider">
+                        <Sparkles className="w-2.5 h-2.5" />
+                        Inspirations Lives &amp; Clips
+                      </span>
+                      <h3 className="text-white font-bold text-base">Sessions Studio &amp; Collaborations de votre Coach</h3>
+                      <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed max-w-lg">
+                        Visionnez directement les collaborations de Josué ADETI avec Blessing, Toto Patrick, Eugène Ablodevi et bien d'autres sans quitter votre espace !
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('collaborations')}
+                    className="btn-gold py-2.5 px-6 text-xs shrink-0 flex items-center gap-2 relative z-10 cursor-pointer shadow-gold-glow group-hover:shadow-gold-glow-intense transition-all"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-obsidian" />
+                    Regarder dans l'App
+                  </button>
                 </div>
 
                 {/* Freebie PDF Banner */}
@@ -2204,6 +2253,22 @@ export const Dashboard: React.FC = () => {
                       </motion.div>
                     )}
                   </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* TAB 5: COLLABORATIONS & LIVE */}
+            {activeTab === 'collaborations' && (
+              <motion.div
+                key="collaborations-tab"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={springTransition}
+                className="space-y-6"
+              >
+                <div className="glass-card bg-obsidian-card/45 border border-white/5 p-4 sm:p-6 rounded-2xl">
+                  <CollaborationsGallery isDashboard={true} />
                 </div>
               </motion.div>
             )}
