@@ -2416,24 +2416,29 @@ const InteractiveStudioSection: React.FC = () => {
                 <div className="w-[68px] text-[7px] text-zinc-600 font-black uppercase text-center">Pan/Pit</div>
                 <div className="w-[76px] text-[7px] text-zinc-600 font-black uppercase text-center">Instrument</div>
                 <div className="w-[44px] text-[7px] text-zinc-600 font-black uppercase text-center">FX</div>
-                <div className="flex-1 grid grid-cols-16 gap-0.5 sm:gap-1 text-center shrink-0">
-                  {[...Array(16)].map((_, idx) => {
-                    const isBeatStart = idx % 4 === 0;
-                    return (
-                      <span
-                        key={idx}
-                        className={`text-[7px] font-black rounded py-0.5 ${
-                          currentStep === idx && isPlayingSequencer
-                            ? 'text-white bg-white/10 scale-110 shadow-[0_0_6px_rgba(255,255,255,0.4)]'
-                            : isBeatStart
-                            ? 'text-gold-400 font-extrabold'
-                            : 'text-zinc-600'
-                        }`}
-                      >
-                        {isBeatStart ? `${(idx / 4) + 1}` : `.${(idx % 4) + 1}`}
-                      </span>
-                    );
-                  })}
+                <div className="flex-1 flex gap-1.5 shrink-0 items-center justify-between">
+                  {[0, 1, 2, 3].map((beatIdx) => (
+                    <div key={beatIdx} className="flex-1 grid grid-cols-4 gap-0.5 sm:gap-1 text-center">
+                      {[0, 1, 2, 3].map((stepInBeat) => {
+                        const idx = beatIdx * 4 + stepInBeat;
+                        const isBeatStart = idx % 4 === 0;
+                        return (
+                          <span
+                            key={idx}
+                            className={`text-[7px] font-black rounded py-0.5 ${
+                              currentStep === idx && isPlayingSequencer
+                                ? 'text-white bg-white/10 scale-110 shadow-[0_0_6px_rgba(255,255,255,0.4)]'
+                                : isBeatStart
+                                ? 'text-gold-400 font-extrabold'
+                                : 'text-zinc-600'
+                            }`}
+                          >
+                            {isBeatStart ? `${(idx / 4) + 1}` : `.${(idx % 4) + 1}`}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ))}
                 </div>
                 <div className="w-10 text-[7px] text-zinc-600 font-black uppercase text-center">Ed.</div>
               </div>
@@ -2582,50 +2587,56 @@ const InteractiveStudioSection: React.FC = () => {
                       })}
                     </div>
 
-                    <div className="flex-1 grid grid-cols-16 gap-0.5 sm:gap-1 shrink-0 items-center justify-items-center">
-                      {channel.patternSteps[selectedPattern]?.map((isActive, stepIdx) => {
-                        const isBeatGroupA = (stepIdx >= 0 && stepIdx < 4) || (stepIdx >= 8 && stepIdx < 12);
-                        const isPlayhead = currentStep === stepIdx && isPlayingSequencer;
+                    <div className="flex-1 flex gap-1.5 shrink-0 items-center justify-between">
+                      {[0, 1, 2, 3].map((beatIdx) => (
+                        <div key={beatIdx} className="flex-1 grid grid-cols-4 gap-0.5 sm:gap-1 bg-black/45 p-0.5 rounded-[4px] border border-white/5 shadow-inner">
+                          {[0, 1, 2, 3].map((stepInBeat) => {
+                            const stepIdx = beatIdx * 4 + stepInBeat;
+                            const isActive = channel.patternSteps[selectedPattern]?.[stepIdx];
+                            const isBeatGroupA = beatIdx % 2 === 0;
+                            const isPlayhead = currentStep === stepIdx && isPlayingSequencer;
 
-                        return (
-                          <button
-                            key={stepIdx}
-                            onClick={() => {
-                              initAudio();
-                              setChannels(prev => prev.map(ch => {
-                                if (ch.id === channel.id) {
-                                  const stepsCopy = [...ch.patternSteps[selectedPattern]];
-                                  stepsCopy[stepIdx] = !isActive;
-                                  return {
-                                    ...ch,
-                                    patternSteps: {
-                                      ...ch.patternSteps,
-                                      [selectedPattern]: stepsCopy
+                            return (
+                              <button
+                                key={stepIdx}
+                                onClick={() => {
+                                  initAudio();
+                                  setChannels(prev => prev.map(ch => {
+                                    if (ch.id === channel.id) {
+                                      const stepsCopy = [...ch.patternSteps[selectedPattern]];
+                                      stepsCopy[stepIdx] = !isActive;
+                                      return {
+                                        ...ch,
+                                        patternSteps: {
+                                          ...ch.patternSteps,
+                                          [selectedPattern]: stepsCopy
+                                        }
+                                      };
                                     }
-                                  };
-                                }
-                                return ch;
-                              }));
-                            }}
-                            className={`aspect-square max-h-5 sm:max-h-5.5 w-full rounded-[2px] border-[0.5px] flex items-center justify-center transition-all ${
-                              isActive
-                                ? isBeatGroupA
-                                  ? 'bg-gradient-to-br from-gold-600 to-gold-400 text-obsidian border-white/20 shadow-[0_0_6px_rgba(212,175,55,0.4)] scale-[0.93]'
-                                  : 'bg-gradient-to-br from-purple-500 to-indigo-500 text-white border-white/20 shadow-[0_0_6px_rgba(168,85,247,0.4)] scale-[0.93]'
-                                : isPlayhead
-                                ? 'bg-white border-white shadow-[0_0_10px_rgba(255,255,255,0.85)] scale-105'
-                                : isBeatGroupA
-                                ? 'bg-zinc-900 border-zinc-800 text-gold-500/30 hover:bg-zinc-800 hover:border-zinc-750'
-                                : 'bg-zinc-950 border-zinc-900 text-purple-400/30 hover:bg-zinc-900 hover:border-zinc-850'
-                            }`}
-                            aria-label={`Piste ${channel.name} Pas ${stepIdx + 1}`}
-                          >
-                            {isPlayhead && !isActive && (
-                              <div className="w-1 h-1 rounded-full bg-white animate-ping" />
-                            )}
-                          </button>
-                        );
-                      })}
+                                    return ch;
+                                  }));
+                                }}
+                                className={`aspect-square max-h-4 sm:max-h-4.5 w-full rounded-[2.5px] border-[0.5px] flex items-center justify-center transition-all ${
+                                  isActive
+                                    ? isBeatGroupA
+                                      ? 'bg-gradient-to-br from-gold-500 to-gold-400 text-obsidian border-gold-300 shadow-[0_0_8px_rgba(212,175,55,0.6)] scale-[0.91]'
+                                      : 'bg-gradient-to-br from-purple-500 to-indigo-500 text-white border-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.6)] scale-[0.91]'
+                                    : isPlayhead
+                                    ? 'bg-white border-white shadow-[0_0_12px_rgba(255,255,255,0.9)] scale-105'
+                                    : isBeatGroupA
+                                    ? 'bg-zinc-900/60 border-zinc-800/40 text-gold-500/10 hover:bg-zinc-800 hover:border-zinc-750'
+                                    : 'bg-zinc-950/60 border-zinc-900/40 text-purple-400/10 hover:bg-zinc-900 hover:border-zinc-850'
+                                }`}
+                                aria-label={`Piste ${channel.name} Pas ${stepIdx + 1}`}
+                              >
+                                {isPlayhead && !isActive && (
+                                  <div className="w-1 h-1 rounded-full bg-white animate-ping" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ))}
                     </div>
 
                     <div className="w-10 shrink-0 flex items-center justify-between gap-0.5">
