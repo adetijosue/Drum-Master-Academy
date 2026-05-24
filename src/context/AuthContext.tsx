@@ -303,7 +303,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         if (error) {
-          return { success: false, message: error.message };
+          const errMsg = error.message.toLowerCase();
+          const isNetworkError = errMsg.includes('fetch') || 
+                                 errMsg.includes('network') || 
+                                 errMsg.includes('failed') || 
+                                 errMsg.includes('cors') ||
+                                 errMsg.includes('load');
+          
+          if (isNetworkError) {
+            console.warn("[DMA Auth] Supabase network error during signUp, falling back to local simulation mode:", error.message);
+            setSupabaseConnected(false);
+            
+            // Check local simulated database uniqueness as fallback
+            if (users.find(u => u.email.toLowerCase() === normalizedEmail)) {
+              return { success: false, message: "Cet email est déjà utilisé." };
+            }
+          } else {
+            return { success: false, message: error.message };
+          }
         }
 
         if (data.user) {
