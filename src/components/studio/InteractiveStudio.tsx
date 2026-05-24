@@ -4,6 +4,8 @@ import {
   Play, Square, Sliders, Power, Waves, Grid, Layers, Plus, Trash2, Sparkles, Activity, Info, Award, Music 
 } from 'lucide-react';
 import { snappySpring, fadeInUp } from '../../lib/motion';
+import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 interface Channel {
   id: string;
@@ -152,6 +154,53 @@ export const InteractiveStudioSection: React.FC = () => {
     hihat: false,
     crash: false,
   });
+
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
+
+  // Simulated/Demo play loop for visitors to trigger visual sequencer and pad flashing at 120 BPM
+  useEffect(() => {
+    if (isLoggedIn) return; // Only run if not logged in
+    
+    // Set to simulated play mode
+    setIsPlayingSequencer(true);
+    setPlayMode('pat');
+    
+    let step = 0;
+    const intervalTime = (60 / 120) * 1000 / 4; // 120 BPM sixteenth steps (125ms)
+    
+    const timer = setInterval(() => {
+      setCurrentStep(step);
+      setCurrentBar(Math.floor(step / 4));
+      
+      // Flash active pads visually based on selected pattern steps for a beautiful demo!
+      const currentPattern = selectedPattern; // pat1
+      const activePadsUpdate: Record<string, boolean> = {};
+      
+      channels.forEach(ch => {
+        if (ch.patternSteps[currentPattern]?.[step]) {
+          activePadsUpdate[ch.id] = true;
+        }
+      });
+      
+      setActivePads(activePadsUpdate);
+      
+      // Turn off visual pads after a short delay
+      setTimeout(() => {
+        setActivePads({});
+      }, 70);
+      
+      step = (step + 1) % 16;
+    }, intervalTime);
+    
+    return () => {
+      clearInterval(timer);
+      setIsPlayingSequencer(false);
+      setCurrentStep(-1);
+      setCurrentBar(-1);
+      setActivePads({});
+    };
+  }, [isLoggedIn, selectedPattern, channels]);
 
   const playKick = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
     const osc = ctx.createOscillator();
@@ -1650,7 +1699,9 @@ export const InteractiveStudioSection: React.FC = () => {
           </p>
         </motion.div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 mb-4 shadow-2xl relative overflow-hidden">
+        <div className="relative">
+          <div className={`transition-all duration-700 ${!isLoggedIn ? 'blur-[4.5px] select-none pointer-events-none brightness-[45%] contrast-[80%]' : ''}`}>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 mb-4 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
@@ -2538,6 +2589,66 @@ export const InteractiveStudioSection: React.FC = () => {
               </motion.div>
             )}
           </AnimatePresence>
+
+            </div>
+          </div>
+
+          {!isLoggedIn && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="w-full max-w-lg glass-card bg-obsidian-card/85 border border-gold-500/30 p-8 rounded-2xl text-center space-y-6 shadow-[0_0_50px_rgba(212,175,55,0.15)] backdrop-blur-md relative"
+              >
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 bg-zinc-950 border border-gold-500/30 rounded-full flex items-center justify-center text-gold-400 shadow-gold-glow animate-pulse">
+                  <Music className="w-10 h-10 animate-bounce-subtle" />
+                </div>
+                
+                <div className="pt-6 space-y-2">
+                  <span className="inline-flex items-center gap-1 bg-gold-400/10 border border-gold-400/20 text-gold-400 font-extrabold text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider">
+                    Accès Membres Privés
+                  </span>
+                  <h3 className="text-white font-extrabold text-xl sm:text-2xl tracking-tight">
+                    Débloquez le Studio Virtuel DMA
+                  </h3>
+                  <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+                    Rejoignez l'élite des batteurs. Programmez vos Gospel Chops, grooves Afro Fusion et compings Jazz à l'aide de nos synthétiseurs Web Audio de pointe et notre console d'effets professionnelle.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 text-left bg-zinc-950/60 p-4 rounded-xl border border-white/5 text-[11px] text-zinc-300 font-semibold">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gold-400">🥁</span> Séquenceur 16 Pas complet
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gold-400">🎛️</span> Multi-pistes Audio &amp; Mixer
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gold-400">🎚️</span> Effets Reverb/Delay Pro
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gold-400">⚡</span> Synthétiseurs de Percussions
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-3 pt-2">
+                  <Link
+                    to="/register"
+                    className="btn-gold py-3 text-xs font-bold uppercase tracking-wider shadow-gold-glow-intense flex items-center justify-center gap-2 text-obsidian bg-gradient-to-r from-gold-600 to-gold-400 hover:from-gold-500 hover:to-gold-300 cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4 fill-obsidian shrink-0 animate-spin-slow" />
+                    Créer un compte et débloquer
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="text-zinc-400 hover:text-white text-xs font-bold transition-all underline"
+                  >
+                    Déjà membre ? Se connecter
+                  </Link>
+                </div>
+              </motion.div>
+            </div>
+          )}
 
         </div>
       </div>
