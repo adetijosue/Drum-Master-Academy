@@ -282,20 +282,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, password: string) => {
     const normalizedEmail = email.trim().toLowerCase();
-    // Generate simulated user id or local register
     const users = getLocalUsers();
-    if (users.find(u => u.email.toLowerCase() === normalizedEmail)) {
-      return { success: false, message: "Cet email est déjà utilisé." };
-    }
 
     if (password.length < 6) {
       return { success: false, message: "Le mot de passe doit contenir au moins 6 caractères." };
     }
 
-    // Register on local DB first as fallback
+    let userId = 'sim-' + crypto.randomUUID().slice(0, 9);
+
+    if (supabaseConnected) {
+      try {
+        const redirectUrl = window.location.origin + '/login';
+        const { data, error } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password,
+          options: {
+            emailRedirectTo: redirectUrl,
+            data: { name }
+          }
+        });
+
+        if (error) {
+          return { success: false, message: error.message };
+        }
+
+        if (data.user) {
+          userId = data.user.id;
+        }
+
+        // Clean up any old conflicting local simulated users with the same email
+        const cleanedUsers = users.filter(u => u.email.toLowerCase() !== normalizedEmail);
+        localStorage.setItem(DMA_DB_KEY, JSON.stringify(cleanedUsers));
+      } catch (err: any) {
+        console.warn("[DMA Auth] Supabase signUp failed, continuing offline registration:", err);
+      }
+    } else {
+      // In offline/simulated mode, check local simulated database uniqueness
+      if (users.find(u => u.email.toLowerCase() === normalizedEmail)) {
+        return { success: false, message: "Cet email est déjà utilisé." };
+      }
+    }
+
+    // Register/update local DB record
     const hashed = await hashPassword(password);
+    const updatedUsers = getLocalUsers().filter(u => u.email.toLowerCase() !== normalizedEmail);
     const newUser: LocalUser = {
-      id: 'sim-' + crypto.randomUUID().slice(0, 9),
+      id: userId,
       name,
       email: normalizedEmail,
       password: hashed,
@@ -308,24 +340,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       courseProgress: {},
       joinDate: new Date().toISOString()
     };
-    users.push(newUser);
-    localStorage.setItem(DMA_DB_KEY, JSON.stringify(users));
-
-    if (supabaseConnected) {
-      try {
-        const redirectUrl = window.location.origin + '/login';
-        await supabase.auth.signUp({
-          email: normalizedEmail,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-            data: { name }
-          }
-        });
-      } catch (err) {
-        console.warn("[DMA Auth] Supabase signUp failed, continuing offline registration:", err);
-      }
-    }
+    updatedUsers.push(newUser);
+    localStorage.setItem(DMA_DB_KEY, JSON.stringify(updatedUsers));
 
     // Auto-login locally — session does NOT include password hash
     const sessionUser: UserSession = {
