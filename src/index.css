@@ -6,6 +6,7 @@
   /* Smooth scrolling globally */
   html {
     scroll-behavior: smooth;
+    touch-action: manipulation;
   }
 
   body {
@@ -13,6 +14,7 @@
     background-image: 
       radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.03) 0px, transparent 50%),
       radial-gradient(at 50% 0%, rgba(18, 18, 20, 0.98) 0px, transparent 80%);
+    touch-action: manipulation;
   }
 
   /* Premium focus-visible ring for accessibility */
