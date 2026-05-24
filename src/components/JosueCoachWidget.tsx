@@ -38,12 +38,14 @@ export const JosueCoachWidget: React.FC = () => {
 
   useEffect(() => {
     // Initial welcome message
-    if (messages.length === 0) {
+    if (messages.length === 0 || messages.length === 1 && (messages[0].id === 'welcome' || messages[0].id === 'welcome-guest')) {
       setMessages([
         {
-          id: 'welcome',
+          id: user ? 'welcome' : 'welcome-guest',
           role: 'model',
-          text: `Salut ${user ? user.name.split(' ')[0] : ''} ! Je suis Josué, ton coach virtuel 24/7. Comment puis-je t'aider aujourd'hui avec ta batterie ? 🥁`
+          text: user 
+            ? `Salut ${user.name.split(' ')[0]} ! Je suis Josué, ton coach virtuel 24/7. Comment puis-je t'aider aujourd'hui avec ta batterie ? 🥁`
+            : `Salut ! Je suis Josué, ton coach virtuel 24/7. Comment puis-je t'aider aujourd'hui avec ta batterie ? 🥁`
         }
       ]);
     }
@@ -265,6 +267,8 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
       const level = user.level || 'beginner';
       const interests = user.interests ? user.interests.join(', ') : '';
       contextPrefix = `[CONTEXTE ÉTUDIANT — nom: ${name}, niveau: ${level}, intérêts: ${interests}]\n\n`;
+    } else {
+      contextPrefix = `[CONTEXTE VISITEUR — Utilisateur non connecté. Ne l'appelle par aucun prénom ou nom. Adresse-toi à lui simplement et chaleureusement sous forme de visiteur anonyme.]\n\n`;
     }
 
     const newHistory = [...chatHistory, { role: 'user', parts: [{ text: contextPrefix + textToSend }] }];
