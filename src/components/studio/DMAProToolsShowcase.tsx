@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
-  Sparkles, Music, Sliders, Play, TrendingUp, VolumeX, Shield, Lock, ArrowRight, Layers 
+  Sparkles, Music, Sliders, TrendingUp, VolumeX, Shield, Lock, ArrowRight, Layers 
 } from 'lucide-react';
 import { snappySpring, fadeInUp, springTransition } from '../../lib/motion';
 import { useAuth } from '../../context/AuthContext';

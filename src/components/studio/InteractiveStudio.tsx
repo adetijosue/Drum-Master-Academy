@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { snappySpring, fadeInUp } from '../../lib/motion';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+
 
 interface Channel {
   id: string;
