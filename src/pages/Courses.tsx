@@ -8,7 +8,7 @@ import { PageTransition } from '../components/ui/PageTransition';
 import { 
   staggerContainer, springTransition, snappySpring, scaleFade 
 } from '../lib/motion';
-import { COURSES_DATABASE } from './CoursePlayer';
+import { COURSES_DATABASE, Lesson } from '../data/courses';
 
 interface Course {
   id: string;
@@ -152,8 +152,8 @@ export const Courses: React.FC = () => {
     const courseDb = COURSES_DATABASE[c.id];
     if (!courseDb) return acc;
     const completedDurations = courseDb.lessons
-      .filter(l => completed.includes(l.id))
-      .reduce((sum, l) => sum + (parseInt(l.duration) || 0), 0);
+      .filter((l: Lesson) => completed.includes(l.id))
+      .reduce((sum: number, l: Lesson) => sum + (parseInt(l.duration) || 0), 0);
     return acc + completedDurations;
   }, 0);
 
@@ -352,7 +352,7 @@ export const Courses: React.FC = () => {
                 const totalLessons = courseDbData?.lessons?.length || 0;
                 
                 // Calculate total duration of lessons
-                const totalDuration = courseDbData?.lessons?.reduce((acc, curr) => {
+                const totalDuration = courseDbData?.lessons?.reduce((acc: number, curr: Lesson) => {
                   const min = parseInt(curr.duration) || 0;
                   return acc + min;
                 }, 0) || 0;
