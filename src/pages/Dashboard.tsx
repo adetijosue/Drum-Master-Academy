@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../components/ui/PageTransition';
 import { springTransition, snappySpring } from '../lib/motion';
 import { CollaborationsGallery } from '../components/CollaborationsGallery';
+import { InteractiveStudioSection } from '../components/studio/InteractiveStudio';
 import { useMetronome } from '../hooks/useMetronome';
 import { CommunityPanel } from '../components/dashboard/CommunityPanel';
 import { PracticeLogger } from '../components/dashboard/PracticeLogger';
@@ -181,11 +182,12 @@ export const Dashboard: React.FC = () => {
 
   const unreadCount = inbox.filter((m: any) => !m.read).length;
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'community' | 'tools' | 'practice' | 'collaborations'>(() => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'community' | 'tools' | 'practice' | 'collaborations' | 'studio'>(() => {
     if (location.pathname === '/community') return 'community';
     if (location.pathname === '/tools') return 'tools';
     if (location.pathname === '/practice') return 'practice';
     if (location.pathname === '/collaborations') return 'collaborations';
+    if (location.pathname === '/studio') return 'studio';
     return 'dashboard';
   });
 
@@ -198,6 +200,8 @@ export const Dashboard: React.FC = () => {
       setActiveTab('practice');
     } else if (location.pathname === '/collaborations') {
       setActiveTab('collaborations');
+    } else if (location.pathname === '/studio') {
+      setActiveTab('studio');
     } else if (location.pathname === '/dashboard') {
       setActiveTab('dashboard');
     }
@@ -375,6 +379,24 @@ export const Dashboard: React.FC = () => {
               <Users className="w-4 h-4" />
               Communauté Hub
             </motion.button>
+
+            <motion.button
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.97 }}
+              transition={snappySpring}
+              role="tab"
+              aria-selected={activeTab === 'studio'}
+              onClick={() => setActiveTab('studio')}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
+                activeTab === 'studio'
+                  ? 'bg-gold-500/10 border-l-2 border-gold-500 text-gold-400 shadow-inner'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Music className="w-4 h-4" />
+              Studio Virtuel DMA
+            </motion.button>
+
             <motion.button
               whileHover={{ x: 4 }}
               whileTap={{ scale: 0.97 }}
@@ -391,6 +413,7 @@ export const Dashboard: React.FC = () => {
               <Sliders className="w-4 h-4" />
               Métronome Pro
             </motion.button>
+
             <motion.button
               whileHover={{ x: 4 }}
               whileTap={{ scale: 0.97 }}
@@ -1078,6 +1101,20 @@ export const Dashboard: React.FC = () => {
                 </div>
               </motion.div>
             )}
+
+            {/* TAB 6: STUDIO VIRTUEL DMA */}
+            {activeTab === 'studio' && (
+              <motion.div
+                key="studio-tab"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={springTransition}
+                className="space-y-6"
+              >
+                <InteractiveStudioSection />
+              </motion.div>
+            )}
           </AnimatePresence>
         </main>
       </div>
@@ -1117,6 +1154,15 @@ export const Dashboard: React.FC = () => {
         >
           <Users className="w-5 h-5 shrink-0" />
           <span>Membres</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('studio')}
+          className={`flex flex-col items-center justify-center gap-1 flex-1 text-[10px] font-bold uppercase transition-colors ${
+            activeTab === 'studio' ? 'text-gold-400' : 'text-zinc-500 hover:text-zinc-300'
+          }`}
+        >
+          <Music className="w-5 h-5 shrink-0" />
+          <span>Studio</span>
         </button>
         <button
           onClick={() => setActiveTab('tools')}

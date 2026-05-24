@@ -9,7 +9,7 @@ import {
   gentleSpring, snappySpring 
 } from '../lib/motion';
 import { CollaborationsGallery } from '../components/CollaborationsGallery';
-import { InteractiveStudioSection } from '../components/studio/InteractiveStudio';
+import { DMAProToolsShowcase } from '../components/studio/DMAProToolsShowcase';
 
 /* ─── Course Data ─── */
 const courses = [
@@ -591,7 +591,7 @@ export const Home: React.FC = () => {
         <HeroSection />
         <AboutSection />
         <CollaborationsGallery />
-        <InteractiveStudioSection />
+        <DMAProToolsShowcase />
         <CoursesSection isLoggedIn={isLoggedIn} />
         <TestimonialsSection />
         <CTASection isLoggedIn={isLoggedIn} />
