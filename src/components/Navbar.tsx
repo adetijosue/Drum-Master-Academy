@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Drum, LayoutDashboard, Compass, Settings, LogOut, MessageSquare, LogIn, UserPlus } from 'lucide-react';
+import { Menu, X, Drum, LayoutDashboard, Compass, Settings, LogOut, MessageSquare, LogIn, UserPlus, ArrowDownToLine } from 'lucide-react';
 import { Avatar } from './ui/Avatar';
 import { snappySpring, staggerContainer, staggerChild } from '../lib/motion';
 
@@ -13,6 +13,42 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+
+  // PWA Custom Installation states and prompt listeners
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      setIsInstallable(false);
+      showToast("Drum Master Academy a été installée avec succès ! 🥁", "success");
+    };
+
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`PWA Install outcome: ${outcome}`);
+    setDeferredPrompt(null);
+    setIsInstallable(false);
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -82,6 +118,22 @@ export const Navbar: React.FC = () => {
                   </Link>
                 </motion.div>
               ))}
+
+              {isInstallable && (
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={snappySpring}
+                >
+                  <button
+                    onClick={handleInstallClick}
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold text-obsidian bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 shadow-gold-glow animate-pulse-subtle shrink-0"
+                  >
+                    <ArrowDownToLine className="w-3.5 h-3.5" />
+                    Installer l'App
+                  </button>
+                </motion.div>
+              )}
 
               <div className="h-6 w-px bg-white/10 mx-2" />
 
@@ -185,6 +237,18 @@ export const Navbar: React.FC = () => {
                 ))}
                 
                 <div className="border-t border-white/10 my-3" />
+
+                {isInstallable && (
+                  <motion.div variants={staggerChild} className="px-3 pb-2">
+                    <button
+                      onClick={handleInstallClick}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-sm font-bold text-obsidian bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 shadow-gold-glow animate-pulse-subtle cursor-pointer"
+                    >
+                      <ArrowDownToLine className="w-4 h-4" />
+                      Installer l'Application DMA 📲
+                    </button>
+                  </motion.div>
+                )}
 
                 {user ? (
                   <motion.div variants={staggerChild} className="px-3 py-2 space-y-3">
