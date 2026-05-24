@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { MessageSquare, X, RefreshCw, Send } from 'lucide-react';
+import { X, RefreshCw, Send } from 'lucide-react';
 import { snappySpring, springTransition } from '../lib/motion';
 
 interface ChatMessage {
@@ -464,15 +464,26 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Discuter avec Josué"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.92 }}
         transition={snappySpring}
         className="relative group"
       >
-        <div className="w-14 h-14 rounded-full bg-gradient-to-r from-gold-600 to-gold-400 flex items-center justify-center font-bold text-obsidian border-2 border-white/20 shadow-gold-glow animate-pulse-gold">
-          <MessageSquare className="w-6 h-6" />
+        {/* Hover Speech Bubble */}
+        <div className="absolute right-16 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-zinc-900/90 backdrop-blur-md border border-gold-500/30 text-gold-400 text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0 shadow-lg pointer-events-none">
+          Besoin d'aide ? 🥁
         </div>
-        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-obsidian rounded-full animate-pulse" />
+
+        <div className="w-14 h-14 rounded-full p-0.5 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 border border-white/10 shadow-gold-glow animate-pulse-gold overflow-hidden relative">
+          <img 
+            src="/assets/images/josue_avatar.jpg" 
+            alt="Coach Josué ADETI" 
+            className="w-full h-full rounded-full object-cover object-top scale-110"
+          />
+          {/* Subtle overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent rounded-full" />
+        </div>
+        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-zinc-950 rounded-full animate-pulse" />
       </motion.button>
 
       {/* Chat Window */}
@@ -488,8 +499,12 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/5">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-r from-gold-600 to-gold-400 flex items-center justify-center font-bold text-obsidian text-sm">
-                  JA
+                <div className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-r from-gold-600 to-gold-400 border border-white/10 overflow-hidden relative shrink-0 shadow-md">
+                  <img 
+                    src="/assets/images/josue_avatar.jpg" 
+                    alt="Coach Josué" 
+                    className="w-full h-full rounded-full object-cover object-top scale-110"
+                  />
                 </div>
                 <div>
                   <h4 className="text-white font-medium text-sm leading-tight">Josué ADETI</h4>
@@ -520,17 +535,26 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
             </div>
 
             {/* Message Body */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 scrollbar-thin" role="log" aria-live="polite" aria-label="Messages du chat">
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 scrollbar-thin" role="log" aria-live="polite" aria-label="Messages du chat">
               {messages.map((msg, idx) => (
                 <motion.div
                   key={msg.id}
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ ...springTransition, delay: idx === messages.length - 1 ? 0.05 : 0 }}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} gap-2.5 items-end`}
                 >
+                  {msg.role === 'model' && (
+                    <div className="w-6 h-6 rounded-full border border-gold-500/30 overflow-hidden shrink-0 shadow-inner">
+                      <img 
+                        src="/assets/images/josue_avatar.jpg" 
+                        alt="Josué" 
+                        className="w-full h-full object-cover object-top scale-110"
+                      />
+                    </div>
+                  )}
                   <div
-                    className={`max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                    className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm leading-relaxed ${
                       msg.role === 'user'
                         ? 'bg-zinc-800 text-white rounded-tr-none border border-white/5'
                         : 'bg-gold-500/5 border border-gold-500/15 text-zinc-200 rounded-tl-none'
