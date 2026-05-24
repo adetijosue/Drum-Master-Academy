@@ -26,7 +26,12 @@ import {
   Youtube,
   Sparkles,
   Trash2,
-  TrendingUp
+  TrendingUp,
+  Mail,
+  X,
+  Inbox,
+  CheckCheck,
+  Clock
 } from 'lucide-react';
 
 const COURSES_DATA: Record<string, { title: string; img: string; link: string; totalLessons: number }> = {
@@ -73,6 +78,108 @@ export const Dashboard: React.FC = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [inbox, setInbox] = useState<any[]>([]);
+  const [showMailbox, setShowMailbox] = useState(false);
+  const [selectedMail, setSelectedMail] = useState<any>(null);
+
+  // Load and subscribe to DMA inbox messages
+  useEffect(() => {
+    if (!user) return;
+    
+    const loadInbox = () => {
+      try {
+        const inboxKey = `dma_inbox_${user.id}`;
+        const stored = localStorage.getItem(inboxKey);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setInbox(parsed);
+          if (selectedMail) {
+            const updatedSelected = parsed.find((m: any) => m.id === selectedMail.id);
+            if (updatedSelected) {
+              setSelectedMail(updatedSelected);
+            }
+          }
+        } else {
+          setInbox([]);
+        }
+      } catch (e) {
+        console.error("Failed to load DMA inbox:", e);
+      }
+    };
+
+    loadInbox();
+
+    const handleInboxUpdate = () => {
+      loadInbox();
+    };
+
+    window.addEventListener('dma-inbox-updated', handleInboxUpdate);
+    return () => {
+      window.removeEventListener('dma-inbox-updated', handleInboxUpdate);
+    };
+  }, [user, selectedMail?.id]);
+
+  const markAsRead = (mailId: string) => {
+    if (!user) return;
+    try {
+      const inboxKey = `dma_inbox_${user.id}`;
+      const stored = localStorage.getItem(inboxKey);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const updated = parsed.map((m: any) => 
+          m.id === mailId ? { ...m, read: true } : m
+        );
+        localStorage.setItem(inboxKey, JSON.stringify(updated));
+        setInbox(updated);
+        window.dispatchEvent(new CustomEvent('dma-inbox-updated'));
+      }
+    } catch (e) {
+      console.error("Failed to mark mail as read:", e);
+    }
+  };
+
+  const markAllAsRead = () => {
+    if (!user || inbox.length === 0) return;
+    try {
+      const inboxKey = `dma_inbox_${user.id}`;
+      const stored = localStorage.getItem(inboxKey);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const updated = parsed.map((m: any) => ({ ...m, read: true }));
+        localStorage.setItem(inboxKey, JSON.stringify(updated));
+        setInbox(updated);
+        window.dispatchEvent(new CustomEvent('dma-inbox-updated'));
+        showToast("Tous les messages ont été marqués comme lus.", "success");
+      }
+    } catch (e) {
+      console.error("Failed to mark all as read:", e);
+    }
+  };
+
+  const deleteMail = (mailId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) return;
+    try {
+      const inboxKey = `dma_inbox_${user.id}`;
+      const stored = localStorage.getItem(inboxKey);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const updated = parsed.filter((m: any) => m.id !== mailId);
+        localStorage.setItem(inboxKey, JSON.stringify(updated));
+        setInbox(updated);
+        if (selectedMail && selectedMail.id === mailId) {
+          setSelectedMail(null);
+        }
+        window.dispatchEvent(new CustomEvent('dma-inbox-updated'));
+        showToast("Message supprimé.", "success");
+      }
+    } catch (e) {
+      console.error("Failed to delete mail:", e);
+    }
+  };
+
+  const unreadCount = inbox.filter((m: any) => !m.read).length;
   
   const [activeTab, setActiveTab] = useState<'dashboard' | 'community' | 'tools' | 'practice' | 'collaborations'>(() => {
     if (location.pathname === '/community') return 'community';
@@ -300,6 +407,23 @@ export const Dashboard: React.FC = () => {
               <Youtube className="w-4 h-4" />
               Collaborations &amp; Live
             </motion.button>
+            <motion.button
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.97 }}
+              transition={snappySpring}
+              onClick={() => setShowMailbox(true)}
+              className="flex items-center justify-between px-4 py-3 rounded-xl font-medium text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left w-full animate-pulse-subtle"
+            >
+              <div className="flex items-center gap-3">
+                <Mail className="w-4 h-4" />
+                <span>Messagerie</span>
+              </div>
+              {unreadCount > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-gold-500 to-gold-400 text-obsidian text-[10px] font-extrabold shadow-gold-glow">
+                  {unreadCount}
+                </span>
+              )}
+            </motion.button>
             <Link
               to="/settings"
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
@@ -337,9 +461,25 @@ export const Dashboard: React.FC = () => {
               </h1>
               <p className="text-zinc-400 text-sm mt-1">Continuez votre progression vers l'excellence rythmique.</p>
             </div>
-            <div className="text-left sm:text-right shrink-0">
-              <span className="text-[10px] text-zinc-500 uppercase tracking-widest block">Saison Active</span>
-              <strong className="text-sm text-gold-300 font-bold uppercase tracking-wider">Académie 2026</strong>
+            <div className="flex items-center gap-4 text-left sm:text-right shrink-0">
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase tracking-widest block">Saison Active</span>
+                <strong className="text-sm text-gold-300 font-bold uppercase tracking-wider">Académie 2026</strong>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowMailbox(true)}
+                className="relative p-3 rounded-xl bg-zinc-900/60 border border-white/10 hover:border-gold-500/30 text-zinc-300 hover:text-gold-400 transition-all flex items-center justify-center cursor-pointer shadow-lg"
+                title="Messagerie"
+              >
+                <Mail className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gradient-to-r from-gold-500 to-gold-400 text-obsidian font-bold text-[10px] rounded-full flex items-center justify-center shadow-gold-glow animate-bounce">
+                    {unreadCount}
+                  </span>
+                )}
+              </motion.button>
             </div>
           </div>
 
@@ -995,6 +1135,189 @@ export const Dashboard: React.FC = () => {
           <span>Réglages</span>
         </Link>
       </nav>
+
+      {/* Premium In-App Mailbox Modal */}
+      <AnimatePresence>
+        {showMailbox && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMailbox(false)}
+              className="absolute inset-0 bg-obsidian/85 backdrop-blur-md"
+            />
+            
+            {/* Modal Body */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="relative w-full max-w-5xl h-[85vh] bg-obsidian-card/95 border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden z-10 backdrop-blur-xl"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0 bg-zinc-950/60">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center text-gold-400">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-extrabold text-base">Boîte de réception DMA</h3>
+                    <p className="text-zinc-500 text-xs font-semibold">
+                      {unreadCount > 0 ? `${unreadCount} message(s) non lu(s)` : 'Tous les messages sont lus'}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={markAllAsRead}
+                      className="px-3 py-1.5 rounded-lg border border-white/10 hover:border-gold-500/30 text-zinc-400 hover:text-gold-400 text-xs font-bold transition-all flex items-center gap-1.5"
+                    >
+                      <CheckCheck className="w-3.5 h-3.5" />
+                      Tout marquer comme lu
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={() => setShowMailbox(false)}
+                    className="p-2 rounded-lg border border-white/10 hover:border-rose-500/40 text-zinc-500 hover:text-rose-400 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Content Area: Split View */}
+              <div className="flex-1 flex overflow-hidden">
+                {/* Mail List Panel */}
+                <div className={`w-full ${selectedMail ? 'hidden md:flex' : 'flex'} md:w-80 border-r border-white/10 flex-col bg-zinc-950/20 shrink-0`}>
+                  <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                    {inbox.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-full text-center p-6 space-y-3">
+                        <Inbox className="w-8 h-8 text-zinc-600" />
+                        <p className="text-zinc-500 text-xs font-semibold">Votre boîte de réception est vide.</p>
+                      </div>
+                    ) : (
+                      inbox.map((mail) => {
+                        const isSelected = selectedMail?.id === mail.id;
+                        return (
+                          <div
+                            key={mail.id}
+                            onClick={() => {
+                              setSelectedMail(mail);
+                              if (!mail.read) markAsRead(mail.id);
+                            }}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer relative group flex flex-col gap-2 ${
+                              isSelected
+                                ? 'bg-gold-500/5 border-gold-500/30 shadow-inner'
+                                : 'bg-obsidian-card/40 border-white/5 hover:border-white/10 hover:bg-white/5'
+                            }`}
+                          >
+                            {/* Unread indicator */}
+                            {!mail.read && (
+                              <span className="absolute top-4 right-4 w-2 h-2 rounded-full bg-gold-400 shadow-[0_0_8px_rgba(212,175,55,0.8)]" />
+                            )}
+                            
+                            <div className="flex flex-col pr-4">
+                              <span className={`text-xs font-bold ${!mail.read ? 'text-white' : 'text-zinc-400'}`}>
+                                {mail.sender}
+                              </span>
+                              <span className="text-[10px] text-zinc-500 flex items-center gap-1 mt-0.5">
+                                <Clock className="w-3 h-3" />
+                                {new Date(mail.date).toLocaleDateString('fr-FR', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            </div>
+                            
+                            <h4 className={`text-xs ${!mail.read ? 'font-extrabold text-gold-300' : 'font-medium text-zinc-300'} line-clamp-1`}>
+                              {mail.subject}
+                            </h4>
+                            
+                            <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+                              <button
+                                onClick={(e) => deleteMail(mail.id, e)}
+                                className="p-1.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 transition-all"
+                                title="Supprimer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Mail Reader Panel */}
+                <div className={`flex-1 flex flex-col overflow-hidden bg-obsidian-card/20 ${!selectedMail ? 'hidden md:flex' : 'flex'}`}>
+                  {selectedMail ? (
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                      {/* Back button on mobile */}
+                      <div className="md:hidden px-4 py-2 bg-zinc-950/40 border-b border-white/5 flex items-center">
+                        <button
+                          onClick={() => setSelectedMail(null)}
+                          className="flex items-center gap-1 text-xs text-gold-400 font-bold"
+                        >
+                          &larr; Retour à la liste
+                        </button>
+                      </div>
+                      
+                      {/* Mail Header */}
+                      <div className="p-6 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950/20 shrink-0">
+                        <div className="space-y-1">
+                          <h2 className="text-base sm:text-lg font-extrabold text-white">{selectedMail.subject}</h2>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-zinc-400">De : <strong className="text-gold-400">{selectedMail.sender}</strong></span>
+                            <span className="text-zinc-600">|</span>
+                            <span className="text-zinc-500">{new Date(selectedMail.date).toLocaleString('fr-FR')}</span>
+                          </div>
+                        </div>
+                        
+                        <button
+                          onClick={(e) => deleteMail(selectedMail.id, e)}
+                          className="px-3 py-1.5 rounded-lg border border-rose-500/20 text-rose-400 hover:bg-rose-500/10 text-xs font-bold transition-all flex items-center gap-1.5 self-start sm:self-center"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Supprimer le message
+                        </button>
+                      </div>
+
+                      {/* Mail HTML Body */}
+                      <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#0B0B0C]">
+                        <div 
+                          className="w-full max-w-2xl mx-auto rounded-xl overflow-hidden shadow-xl"
+                          dangerouslySetInnerHTML={{ __html: selectedMail.html }} 
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-4">
+                      <div className="w-16 h-16 rounded-full bg-zinc-950 border border-white/5 flex items-center justify-center text-zinc-600 shadow-inner">
+                        <Mail className="w-8 h-8" />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-bold text-sm">Consultez vos messages</h4>
+                        <p className="text-zinc-500 text-xs mt-1 max-w-xs mx-auto">
+                          Sélectionnez un email dans le panneau latéral pour lire les instructions détaillées de votre Coach.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
     </PageTransition>
   );

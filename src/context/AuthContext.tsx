@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
+import { EmailService } from '../services/email';
 
 export interface UserSession {
   id: string;
@@ -342,6 +343,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     setUser(sessionUser);
     localStorage.setItem(DMA_SESSION_KEY, JSON.stringify(sessionUser));
+
+    // Dispatch Transactional Welcome Email
+    try {
+      await EmailService.sendWelcomeEmail(newUser.name, newUser.email, newUser.id);
+    } catch (e) {
+      console.warn("[DMA Auth] Failed to dispatch welcome email:", e);
+    }
+
     return { success: true };
   };
 
