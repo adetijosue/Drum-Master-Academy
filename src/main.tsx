@@ -10,18 +10,29 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 );
 
 // Supprimer et désenregistrer tout Service Worker existant pour éviter les conflits de cache (Écran Blanc)
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    for (const registration of registrations) {
-      registration.unregister();
-    }
-  });
+try {
+  if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister().catch(() => {});
+      }
+    }).catch(() => {});
+  }
+} catch (e) {
+  console.warn('[DMA] Échec du nettoyage des Service Workers :', e);
 }
 
 // Vider les anciens caches pour forcer le navigateur à charger les nouveaux assets compilés
-if ('caches' in window) {
-  caches.keys().then((keys) => {
-    keys.forEach((key) => caches.delete(key));
-  });
+try {
+  if ('caches' in window && caches.keys) {
+    caches.keys().then((keys) => {
+      keys.forEach((key) => {
+        caches.delete(key).catch(() => {});
+      });
+    }).catch(() => {});
+  }
+} catch (e) {
+  console.warn('[DMA] Échec du nettoyage du cache browser :', e);
 }
+
 
