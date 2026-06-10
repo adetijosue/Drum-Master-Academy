@@ -99,7 +99,7 @@ export const Footer: React.FC = () => {
 
             {/* Social Media Icons */}
             <div className="flex items-center gap-3 pt-2">
-              <SocialIcon href="https://youtube.com" label="YouTube">
+              <SocialIcon href="https://www.youtube.com/@josueadeti" label="YouTube">
                 <Youtube className="w-4 h-4" />
               </SocialIcon>
               <SocialIcon href="https://instagram.com" label="Instagram">
