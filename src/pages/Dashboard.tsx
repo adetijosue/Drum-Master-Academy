@@ -255,9 +255,25 @@ export const Dashboard: React.FC = () => {
       setActiveTab('practice');
     };
 
+    const handleSwitchTab = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.tab) {
+        setActiveTab(customEvent.detail.tab);
+      }
+    };
+
+    const handleSharePattern = () => {
+      setActiveTab('community');
+    };
+
     window.addEventListener('dma-log-practice', handleLogPractice);
+    window.addEventListener('dma-switch-tab', handleSwitchTab);
+    window.addEventListener('dma-share-pattern', handleSharePattern);
+    
     return () => {
       window.removeEventListener('dma-log-practice', handleLogPractice);
+      window.removeEventListener('dma-switch-tab', handleSwitchTab);
+      window.removeEventListener('dma-share-pattern', handleSharePattern);
     };
   }, []);
 

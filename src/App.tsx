@@ -97,6 +97,16 @@ const AnimatedRoutes: React.FC = () => {
               <Dashboard />
             </ProtectedRoute>
           } />
+          <Route path="/practice" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/collaborations" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
 
           {/* Course catalog & interactive player */}
           <Route path="/courses" element={<Courses />} />

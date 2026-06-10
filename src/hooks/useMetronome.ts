@@ -237,6 +237,16 @@ export const useMetronome = (options?: UseMetronomeOptions) => {
           setActiveBeatVisual(beatIndex);
           setActiveSubdivisionVisual(subIndex);
           setIsMutedMeasure(currentMuteState);
+          
+          // Dispatch custom event for real-time synchronization (e.g. for the timing recorder)
+          window.dispatchEvent(new CustomEvent('dma-metronome-tick', {
+            detail: {
+              beat: beatIndex,
+              sub: subIndex,
+              time: performance.now(),
+              isMuted: currentMuteState
+            }
+          }));
         }
       }, Math.max(0, timeToPlay * 1000));
 

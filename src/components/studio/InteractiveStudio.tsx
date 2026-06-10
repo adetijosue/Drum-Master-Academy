@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Play, Square, Sliders, Power, Waves, Grid, Layers, Plus, Trash2, Sparkles, Activity, Info, Award, Music 
+  Play, Square, Sliders, Power, Waves, Grid, Layers, Plus, Trash2, Sparkles, Activity, Info, Award, Music, Download
 } from 'lucide-react';
 import { snappySpring, fadeInUp } from '../../lib/motion';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+
 
 
 interface Channel {
@@ -30,6 +32,7 @@ interface Channel {
 }
 
 export const InteractiveStudioSection: React.FC = () => {
+  const { showToast } = useToast();
   const [bpm, setBpm] = useState(120);
   const [isPlayingMetronome, setIsPlayingMetronome] = useState(false);
   const [isPlayingSequencer, setIsPlayingSequencer] = useState(false);
@@ -38,6 +41,8 @@ export const InteractiveStudioSection: React.FC = () => {
   const [volume, setVolume] = useState(75); // Master volume (0 to 100)
   const [swing, setSwing] = useState(0); // 0 to 100
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [customSamples, setCustomSamples] = useState<Record<string, { buffer: AudioBuffer; name: string }>>({});
+
   
   // FL Studio DAW specific states
   const [selectedPattern, setSelectedPattern] = useState<'pat1' | 'pat2' | 'pat3'>('pat1');
@@ -202,20 +207,20 @@ export const InteractiveStudioSection: React.FC = () => {
     };
   }, [isLoggedIn, selectedPattern, channels]);
 
-  const playKick = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playKick = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
-    osc.frequency.setValueAtTime(150 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(0.01 * pitchFactor, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(1.0, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.15);
+    osc.frequency.setValueAtTime(150 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(0.01 * pitchFactor, time + 0.15);
+    gain.gain.setValueAtTime(1.0, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
+    osc.start(time);
+    osc.stop(time + 0.15);
   };
 
-  const playSnare = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playSnare = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.2;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -224,14 +229,14 @@ export const InteractiveStudioSection: React.FC = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'highpass';
-    filter.frequency.setValueAtTime(1000 * pitchFactor, ctx.currentTime);
+    filter.frequency.setValueAtTime(1000 * pitchFactor, time);
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.7, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.7, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
@@ -239,20 +244,20 @@ export const InteractiveStudioSection: React.FC = () => {
     const osc = ctx.createOscillator();
     const oscGain = ctx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(180 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100 * pitchFactor, ctx.currentTime + 0.1);
-    oscGain.gain.setValueAtTime(0.4, ctx.currentTime);
-    oscGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(180 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(100 * pitchFactor, time + 0.1);
+    oscGain.gain.setValueAtTime(0.4, time);
+    oscGain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
     osc.connect(oscGain);
     oscGain.connect(dest);
 
-    noise.start();
-    osc.start();
-    noise.stop(ctx.currentTime + 0.2);
-    osc.stop(ctx.currentTime + 0.2);
+    noise.start(time);
+    osc.start(time);
+    noise.stop(time + 0.2);
+    osc.stop(time + 0.2);
   };
 
-  const playHiHat = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playHiHat = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.05;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -261,23 +266,23 @@ export const InteractiveStudioSection: React.FC = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(8000 * pitchFactor, ctx.currentTime);
-    filter.Q.setValueAtTime(8, ctx.currentTime);
+    filter.frequency.setValueAtTime(8000 * pitchFactor, time);
+    filter.Q.setValueAtTime(8, time);
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.3, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
-    noise.start();
-    noise.stop(ctx.currentTime + 0.05);
+    noise.start(time);
+    noise.stop(time + 0.05);
   };
 
-  const playOpenHat = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playOpenHat = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.35;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -286,25 +291,25 @@ export const InteractiveStudioSection: React.FC = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(7500 * pitchFactor, ctx.currentTime);
-    filter.Q.setValueAtTime(6, ctx.currentTime);
+    filter.frequency.setValueAtTime(7500 * pitchFactor, time);
+    filter.Q.setValueAtTime(6, time);
 
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.24, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.32);
+    gain.gain.setValueAtTime(0.24, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.32);
 
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
-    noise.start();
-    noise.stop(ctx.currentTime + 0.35);
+    noise.start(time);
+    noise.stop(time + 0.35);
   };
 
-  const playCrash = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playCrash = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 1.2;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -313,43 +318,43 @@ export const InteractiveStudioSection: React.FC = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'highpass';
-    filter.frequency.setValueAtTime(5500 * pitchFactor, ctx.currentTime);
+    filter.frequency.setValueAtTime(5500 * pitchFactor, time);
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.5, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
+    gain.gain.setValueAtTime(0.5, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 1.0);
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
-    noise.start();
-    noise.stop(ctx.currentTime + 1.2);
+    noise.start(time);
+    noise.stop(time + 1.2);
   };
 
-  const playDjembeLow = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playDjembeLow = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(110 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(55 * pitchFactor, ctx.currentTime + 0.18);
-    gain.gain.setValueAtTime(1.0, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.18);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.18);
+    osc.frequency.setValueAtTime(110 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(55 * pitchFactor, time + 0.18);
+    gain.gain.setValueAtTime(1.0, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.18);
+    osc.start(time);
+    osc.stop(time + 0.18);
   };
 
-  const playDjembeHigh = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playDjembeHigh = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(360 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(200 * pitchFactor, ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(360 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(200 * pitchFactor, time + 0.1);
     
     const bufferSize = ctx.sampleRate * 0.04;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -357,188 +362,187 @@ export const InteractiveStudioSection: React.FC = () => {
     for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
     const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(1200 * pitchFactor, ctx.currentTime);
+    filter.frequency.setValueAtTime(1200 * pitchFactor, time);
     const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.35, ctx.currentTime);
+    noiseGain.gain.setValueAtTime(0.35, time);
     
     noise.connect(filter);
     filter.connect(noiseGain);
     noiseGain.connect(dest);
     
-    gain.gain.setValueAtTime(0.55, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.55, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
     
-    osc.start();
-    noise.start();
-    osc.stop(ctx.currentTime + 0.1);
-    noise.stop(ctx.currentTime + 0.1);
+    osc.start(time);
+    noise.start(time);
+    osc.stop(time + 0.1);
+    noise.stop(time + 0.1);
   };
 
-  const playTalkingDrum = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playTalkingDrum = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'sine';
-    const now = ctx.currentTime;
     
-    osc.frequency.setValueAtTime(260 * pitchFactor, now);
-    osc.frequency.exponentialRampToValueAtTime(140 * pitchFactor, now + 0.08);
-    osc.frequency.linearRampToValueAtTime(180 * pitchFactor, now + 0.2);
+    osc.frequency.setValueAtTime(260 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(140 * pitchFactor, time + 0.08);
+    osc.frequency.linearRampToValueAtTime(180 * pitchFactor, time + 0.2);
     
-    gain.gain.setValueAtTime(0.85, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-    osc.start(now);
-    osc.stop(now + 0.22);
+    gain.gain.setValueAtTime(0.85, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.22);
+    osc.start(time);
+    osc.stop(time + 0.22);
   };
 
-  const playShekere = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playShekere = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.07;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(6200 * pitchFactor, ctx.currentTime);
-    filter.Q.setValueAtTime(4, ctx.currentTime);
+    filter.frequency.setValueAtTime(6200 * pitchFactor, time);
+    filter.Q.setValueAtTime(4, time);
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.2, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
+    gain.gain.setValueAtTime(0.2, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.07);
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
-    noise.start();
-    noise.stop(ctx.currentTime + 0.07);
+    noise.start(time);
+    noise.stop(time + 0.07);
   };
 
-  const playWoodblock = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playWoodblock = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(1150 * pitchFactor, ctx.currentTime);
-    gain.gain.setValueAtTime(0.55, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.04);
+    osc.frequency.setValueAtTime(1150 * pitchFactor, time);
+    gain.gain.setValueAtTime(0.55, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+    osc.start(time);
+    osc.stop(time + 0.04);
   };
 
-  const playConga = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playConga = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(185 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(140 * pitchFactor, ctx.currentTime + 0.12);
-    gain.gain.setValueAtTime(0.8, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.12);
+    osc.frequency.setValueAtTime(185 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(140 * pitchFactor, time + 0.12);
+    gain.gain.setValueAtTime(0.8, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.12);
+    osc.start(time);
+    osc.stop(time + 0.12);
   };
 
-  const playCongaHigh = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playCongaHigh = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(290 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(220 * pitchFactor, ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.7, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(290 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(220 * pitchFactor, time + 0.1);
+    gain.gain.setValueAtTime(0.7, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+    osc.start(time);
+    osc.stop(time + 0.1);
   };
 
-  const playBongo = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playBongo = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(440 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(310 * pitchFactor, ctx.currentTime + 0.08);
-    gain.gain.setValueAtTime(0.5, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.08);
+    osc.frequency.setValueAtTime(440 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(310 * pitchFactor, time + 0.08);
+    gain.gain.setValueAtTime(0.5, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.08);
+    osc.start(time);
+    osc.stop(time + 0.08);
   };
 
-  const playCowbell = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playCowbell = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc1 = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
     const gain = ctx.createGain();
     const filter = ctx.createBiquadFilter();
     
     osc1.type = 'square';
-    osc1.frequency.setValueAtTime(540 * pitchFactor, ctx.currentTime);
+    osc1.frequency.setValueAtTime(540 * pitchFactor, time);
     osc2.type = 'square';
-    osc2.frequency.setValueAtTime(800 * pitchFactor, ctx.currentTime);
+    osc2.frequency.setValueAtTime(800 * pitchFactor, time);
     
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(800 * pitchFactor, ctx.currentTime);
-    filter.Q.setValueAtTime(3, ctx.currentTime);
+    filter.frequency.setValueAtTime(800 * pitchFactor, time);
+    filter.Q.setValueAtTime(3, time);
     
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+    gain.gain.setValueAtTime(0.3, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.22);
     
     osc1.connect(filter);
     osc2.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
     
-    osc1.start();
-    osc2.start();
-    osc1.stop(ctx.currentTime + 0.22);
-    osc2.stop(ctx.currentTime + 0.22);
+    osc1.start(time);
+    osc2.start(time);
+    osc1.stop(time + 0.22);
+    osc2.stop(time + 0.22);
   };
 
-  const playAgogo = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playAgogo = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc1 = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
     const gain = ctx.createGain();
     
     osc1.type = 'sine';
     osc2.type = 'sine';
-    osc1.frequency.setValueAtTime(880 * pitchFactor, ctx.currentTime);
-    osc2.frequency.setValueAtTime(1230 * pitchFactor, ctx.currentTime);
+    osc1.frequency.setValueAtTime(880 * pitchFactor, time);
+    osc2.frequency.setValueAtTime(1230 * pitchFactor, time);
     
-    gain.gain.setValueAtTime(0.5, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
+    gain.gain.setValueAtTime(0.5, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.16);
     
     osc1.connect(gain);
     osc2.connect(gain);
     gain.connect(dest);
     
-    osc1.start();
-    osc2.start();
-    osc1.stop(ctx.currentTime + 0.16);
-    osc2.stop(ctx.currentTime + 0.16);
+    osc1.start(time);
+    osc2.start(time);
+    osc1.stop(time + 0.16);
+    osc2.stop(time + 0.16);
   };
 
-  const playClave = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playClave = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(2050 * pitchFactor, ctx.currentTime);
-    gain.gain.setValueAtTime(0.5, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.04);
+    osc.frequency.setValueAtTime(2050 * pitchFactor, time);
+    gain.gain.setValueAtTime(0.5, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+    osc.start(time);
+    osc.stop(time + 0.04);
   };
 
-  const playClap = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playClap = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.15;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -560,25 +564,25 @@ export const InteractiveStudioSection: React.FC = () => {
     
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(1000 * pitchFactor, ctx.currentTime);
-    filter.Q.setValueAtTime(2, ctx.currentTime);
+    filter.frequency.setValueAtTime(1000 * pitchFactor, time);
+    filter.Q.setValueAtTime(2, time);
     
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.55, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.55, time);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.15);
     
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
-    noise.start();
-    noise.stop(ctx.currentTime + 0.15);
+    noise.start(time);
+    noise.stop(time + 0.15);
   };
 
-  const playShaker = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playShaker = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.08;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -589,24 +593,24 @@ export const InteractiveStudioSection: React.FC = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'highpass';
-    filter.frequency.setValueAtTime(7200 * pitchFactor, ctx.currentTime);
+    filter.frequency.setValueAtTime(7200 * pitchFactor, time);
     
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.18, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.18, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
     
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
-    noise.start();
-    noise.stop(ctx.currentTime + 0.08);
+    noise.start(time);
+    noise.stop(time + 0.08);
   };
 
-  const playTambourine = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playTambourine = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.16;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -616,22 +620,22 @@ export const InteractiveStudioSection: React.FC = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(9500 * pitchFactor, ctx.currentTime);
+    filter.frequency.setValueAtTime(9500 * pitchFactor, time);
     
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.25, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
+    gain.gain.setValueAtTime(0.25, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.16);
     
     const skinOsc = ctx.createOscillator();
     const skinGain = ctx.createGain();
     skinOsc.type = 'triangle';
-    skinOsc.frequency.setValueAtTime(175 * pitchFactor, ctx.currentTime);
-    skinGain.gain.setValueAtTime(0.25, ctx.currentTime);
-    skinGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+    skinOsc.frequency.setValueAtTime(175 * pitchFactor, time);
+    skinGain.gain.setValueAtTime(0.25, time);
+    skinGain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
     
     noise.connect(filter);
     filter.connect(gain);
@@ -640,33 +644,33 @@ export const InteractiveStudioSection: React.FC = () => {
     skinOsc.connect(skinGain);
     skinGain.connect(dest);
     
-    noise.start();
-    skinOsc.start();
-    noise.stop(ctx.currentTime + 0.16);
-    skinOsc.stop(ctx.currentTime + 0.16);
+    noise.start(time);
+    skinOsc.start(time);
+    noise.stop(time + 0.16);
+    skinOsc.stop(time + 0.16);
   };
 
-  const playTriangle = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playTriangle = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(3100 * pitchFactor, ctx.currentTime);
-    gain.gain.setValueAtTime(0.18, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.5);
+    osc.frequency.setValueAtTime(3100 * pitchFactor, time);
+    gain.gain.setValueAtTime(0.18, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+    osc.start(time);
+    osc.stop(time + 0.5);
   };
 
-  const playCajonBass = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playCajonBass = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(95 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(20 * pitchFactor, ctx.currentTime + 0.14);
+    osc.frequency.setValueAtTime(95 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(20 * pitchFactor, time + 0.14);
     
     const bufferSize = ctx.sampleRate * 0.05;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -678,16 +682,16 @@ export const InteractiveStudioSection: React.FC = () => {
     noise.buffer = buffer;
     noise.connect(dest);
     
-    gain.gain.setValueAtTime(0.95, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    gain.gain.setValueAtTime(0.95, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
     
-    osc.start();
-    noise.start();
-    osc.stop(ctx.currentTime + 0.18);
-    noise.stop(ctx.currentTime + 0.18);
+    osc.start(time);
+    noise.start(time);
+    osc.stop(time + 0.18);
+    noise.stop(time + 0.18);
   };
 
-  const playCajonSlap = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playCajonSlap = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.08;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -697,23 +701,23 @@ export const InteractiveStudioSection: React.FC = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
     
     const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(1400 * pitchFactor, ctx.currentTime);
-    filter.Q.setValueAtTime(3, ctx.currentTime);
+    filter.frequency.setValueAtTime(1400 * pitchFactor, time);
+    filter.Q.setValueAtTime(3, time);
     
     const osc = ctx.createOscillator();
     const oscGain = ctx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(290 * pitchFactor, ctx.currentTime);
-    oscGain.gain.setValueAtTime(0.4, ctx.currentTime);
-    oscGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+    osc.frequency.setValueAtTime(290 * pitchFactor, time);
+    oscGain.gain.setValueAtTime(0.4, time);
+    oscGain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
     
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.7, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.7, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
     
     noise.connect(filter);
     filter.connect(gain);
@@ -721,18 +725,18 @@ export const InteractiveStudioSection: React.FC = () => {
     oscGain.connect(dest);
     gain.connect(dest);
     
-    noise.start();
-    osc.start();
-    noise.stop(ctx.currentTime + 0.08);
-    osc.stop(ctx.currentTime + 0.08);
+    noise.start(time);
+    osc.start(time);
+    noise.stop(time + 0.08);
+    osc.stop(time + 0.08);
   };
 
-  const playTimbaleHigh = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playTimbaleHigh = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(380 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(190 * pitchFactor, ctx.currentTime + 0.12);
+    osc.frequency.setValueAtTime(380 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(190 * pitchFactor, time + 0.12);
     
     const bufferSize = ctx.sampleRate * 0.03;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -745,44 +749,44 @@ export const InteractiveStudioSection: React.FC = () => {
     
     const filter = ctx.createBiquadFilter();
     filter.type = 'highpass';
-    filter.frequency.setValueAtTime(2200 * pitchFactor, ctx.currentTime);
+    filter.frequency.setValueAtTime(2200 * pitchFactor, time);
     
     const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.35, ctx.currentTime);
+    noiseGain.gain.setValueAtTime(0.35, time);
     
     noise.connect(filter);
     filter.connect(noiseGain);
     noiseGain.connect(dest);
     
-    gain.gain.setValueAtTime(0.8, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.8, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
     
     osc.connect(gain);
     gain.connect(dest);
     
-    osc.start();
-    noise.start();
-    osc.stop(ctx.currentTime + 0.15);
-    noise.stop(ctx.currentTime + 0.15);
+    osc.start(time);
+    noise.start(time);
+    osc.stop(time + 0.15);
+    noise.stop(time + 0.15);
   };
 
-  const playTimbaleLow = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playTimbaleLow = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(260 * pitchFactor, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(110 * pitchFactor, ctx.currentTime + 0.18);
+    osc.frequency.setValueAtTime(260 * pitchFactor, time);
+    osc.frequency.exponentialRampToValueAtTime(110 * pitchFactor, time + 0.18);
     
-    gain.gain.setValueAtTime(0.8, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.8, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
     
-    osc.start();
-    osc.stop(ctx.currentTime + 0.2);
+    osc.start(time);
+    osc.stop(time + 0.2);
   };
 
-  const playGuiro = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playGuiro = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.18;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -794,25 +798,25 @@ export const InteractiveStudioSection: React.FC = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
     
     const filter = ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(3200 * pitchFactor, ctx.currentTime);
-    filter.Q.setValueAtTime(2, ctx.currentTime);
+    filter.frequency.setValueAtTime(3200 * pitchFactor, time);
+    filter.Q.setValueAtTime(2, time);
     
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.35, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    gain.gain.setValueAtTime(0.35, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
     
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
-    noise.start();
-    noise.stop(ctx.currentTime + 0.18);
+    noise.start(time);
+    noise.stop(time + 0.18);
   };
 
-  const playMaracas = (ctx: AudioContext, dest: AudioNode, pitchFactor = 1.0) => {
+  const playMaracas = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor = 1.0, time = ctx.currentTime) => {
     const bufferSize = ctx.sampleRate * 0.08;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -823,42 +827,43 @@ export const InteractiveStudioSection: React.FC = () => {
     }
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
-    noise.playbackRate.setValueAtTime(pitchFactor, ctx.currentTime);
+    noise.playbackRate.setValueAtTime(pitchFactor, time);
     
     const filter = ctx.createBiquadFilter();
     filter.type = 'highpass';
-    filter.frequency.setValueAtTime(6500 * pitchFactor, ctx.currentTime);
+    filter.frequency.setValueAtTime(6500 * pitchFactor, time);
     
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.24, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.24, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
     
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(dest);
-    noise.start();
-    noise.stop(ctx.currentTime + 0.08);
+    noise.start(time);
+    noise.stop(time + 0.08);
   };
 
-  const playMetronomeTick = (ctx: AudioContext, dest: AudioNode, isDownbeat: boolean) => {
+  const playMetronomeTick = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, isDownbeat: boolean, time = ctx.currentTime) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(dest);
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(isDownbeat ? 1000 : 750, ctx.currentTime);
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.04);
+    osc.frequency.setValueAtTime(isDownbeat ? 1000 : 750, time);
+    gain.gain.setValueAtTime(0.12, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+    osc.start(time);
+    osc.stop(time + 0.04);
   };
 
   const SOUND_BANK: Record<string, {
     name: string;
     label: string;
     category: 'batterie' | 'afro' | 'latin' | 'moderne';
-    play: (ctx: AudioContext, dest: AudioNode, pitchFactor?: number) => void;
+    play: (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, pitchFactor?: number, time?: number) => void;
   }> = {
+
     kick: { name: 'Grosse Caisse', label: 'KICK', category: 'batterie', play: playKick },
     snare: { name: 'Caisse Claire', label: 'SNARE', category: 'batterie', play: playSnare },
     hihat: { name: 'Charley Fermé', label: 'HI-HAT', category: 'batterie', play: playHiHat },
@@ -1051,6 +1056,14 @@ export const InteractiveStudioSection: React.FC = () => {
     }
   }, [volume]);
 
+  const playCustomSample = (ctx: AudioContext | OfflineAudioContext, dest: AudioNode, buffer: AudioBuffer, pitchFactor = 1.0, time = ctx.currentTime) => {
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.playbackRate.setValueAtTime(pitchFactor, time);
+    source.connect(dest);
+    source.start(time);
+  };
+
   const triggerStepAudio = (channel: Channel, _step: number) => {
     initAudio();
     if (!audioCtxRef.current || !mainVolumeGainRef.current) return;
@@ -1141,7 +1154,12 @@ export const InteractiveStudioSection: React.FC = () => {
     }
 
     const pitchFactor = Math.pow(2, channel.pitch / 12);
-    instr.play(ctx, chanGain, pitchFactor);
+    const customSample = customSamples[channel.id];
+    if (customSample) {
+      playCustomSample(ctx, chanGain, customSample.buffer, pitchFactor, ctx.currentTime);
+    } else {
+      instr.play(ctx, chanGain, pitchFactor, ctx.currentTime);
+    }
   };
 
   const triggerInstrument = (id: string, isManual = false) => {
@@ -1158,10 +1176,99 @@ export const InteractiveStudioSection: React.FC = () => {
     triggerMeter(id, 80);
     triggerMeter('master', volumeRef.current);
 
-    if (id === 'kick') playKick(ctx, dest);
-    else if (id === 'snare') playSnare(ctx, dest);
-    else if (id === 'hihat') playHiHat(ctx, dest);
-    else if (id === 'crash') playCrash(ctx, dest);
+    const channel = channels.find(c => c.id === id);
+    if (channel) {
+      const instr = SOUND_BANK[channel.instrumentId];
+      if (instr) {
+        const chanGain = ctx.createGain();
+        chanGain.gain.setValueAtTime(channel.volume / 100, ctx.currentTime);
+
+        let currentSourceNode: AudioNode = chanGain;
+
+        if (channel.effects.filter) {
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1500, ctx.currentTime);
+          filter.Q.setValueAtTime(2.0, ctx.currentTime);
+          currentSourceNode.connect(filter);
+          currentSourceNode = filter;
+        }
+
+        if (channel.effects.distortion) {
+          const shaper = ctx.createWaveShaper();
+          shaper.curve = makeDistortionCurve(65);
+          shaper.oversample = '4x';
+          currentSourceNode.connect(shaper);
+          currentSourceNode = shaper;
+        }
+
+        if (channel.effects.delay) {
+          const delay = ctx.createDelay();
+          const beatSec = 60 / bpm;
+          delay.delayTime.setValueAtTime(beatSec * 0.375, ctx.currentTime);
+          
+          const feedback = ctx.createGain();
+          feedback.gain.setValueAtTime(0.4, ctx.currentTime);
+          
+          currentSourceNode.connect(delay);
+          delay.connect(feedback);
+          feedback.connect(delay);
+          
+          const delayMix = ctx.createGain();
+          delayMix.gain.setValueAtTime(0.55, ctx.currentTime);
+          delay.connect(delayMix);
+          
+          const fxOutNode = ctx.createGain();
+          currentSourceNode.connect(fxOutNode);
+          delayMix.connect(fxOutNode);
+          currentSourceNode = fxOutNode;
+        }
+
+        if (channel.effects.reverb) {
+          const delay1 = ctx.createDelay();
+          const delay2 = ctx.createDelay();
+          const gain1 = ctx.createGain();
+          const gain2 = ctx.createGain();
+          
+          delay1.delayTime.setValueAtTime(0.024, ctx.currentTime);
+          delay2.delayTime.setValueAtTime(0.038, ctx.currentTime);
+          gain1.gain.setValueAtTime(0.45, ctx.currentTime);
+          gain2.gain.setValueAtTime(0.45, ctx.currentTime);
+          
+          currentSourceNode.connect(delay1);
+          delay1.connect(gain1);
+          gain1.connect(delay2);
+          delay2.connect(gain2);
+          gain2.connect(delay1);
+          
+          const wetGain = ctx.createGain();
+          wetGain.gain.setValueAtTime(0.38, ctx.currentTime);
+          delay1.connect(wetGain);
+          
+          const fxOutNode = ctx.createGain();
+          currentSourceNode.connect(fxOutNode);
+          wetGain.connect(fxOutNode);
+          currentSourceNode = fxOutNode;
+        }
+
+        if (ctx.createStereoPanner) {
+          const panner = ctx.createStereoPanner();
+          panner.pan.setValueAtTime(channel.pan, ctx.currentTime);
+          currentSourceNode.connect(panner);
+          panner.connect(dest);
+        } else {
+          currentSourceNode.connect(dest);
+        }
+
+        const pitchFactor = Math.pow(2, channel.pitch / 12);
+        const customSample = customSamples[channel.id];
+        if (customSample) {
+          playCustomSample(ctx, chanGain, customSample.buffer, pitchFactor, ctx.currentTime);
+        } else {
+          instr.play(ctx, chanGain, pitchFactor, ctx.currentTime);
+        }
+      }
+    }
 
     if (isManual && (isPlayingMetronome || isPlayingSequencer)) {
       const beatDuration = (60 / bpm) * 1000;
@@ -1583,20 +1690,26 @@ export const InteractiveStudioSection: React.FC = () => {
 
     initAudio();
     if (audioCtxRef.current && mainVolumeGainRef.current) {
-      instr.play(audioCtxRef.current, mainVolumeGainRef.current);
+      instr.play(audioCtxRef.current, mainVolumeGainRef.current, 1.0, audioCtxRef.current.currentTime);
     }
   };
 
   const auditionChannel = (channel: Channel) => {
     initAudio();
     if (audioCtxRef.current && mainVolumeGainRef.current) {
-      const instr = SOUND_BANK[channel.instrumentId];
-      if (instr) {
-        const chanGain = audioCtxRef.current.createGain();
-        chanGain.gain.setValueAtTime(channel.volume / 100, audioCtxRef.current.currentTime);
-        chanGain.connect(mainVolumeGainRef.current);
-        const pitchFactor = Math.pow(2, channel.pitch / 12);
-        instr.play(audioCtxRef.current, chanGain, pitchFactor);
+      const pitchFactor = Math.pow(2, channel.pitch / 12);
+      const chanGain = audioCtxRef.current.createGain();
+      chanGain.gain.setValueAtTime(channel.volume / 100, audioCtxRef.current.currentTime);
+      chanGain.connect(mainVolumeGainRef.current);
+      
+      const customSample = customSamples[channel.id];
+      if (customSample) {
+        playCustomSample(audioCtxRef.current, chanGain, customSample.buffer, pitchFactor, audioCtxRef.current.currentTime);
+      } else {
+        const instr = SOUND_BANK[channel.instrumentId];
+        if (instr) {
+          instr.play(audioCtxRef.current, chanGain, pitchFactor, audioCtxRef.current.currentTime);
+        }
       }
     }
     setActiveDropdown(prev => prev === channel.id ? null : channel.id);
@@ -1674,6 +1787,495 @@ export const InteractiveStudioSection: React.FC = () => {
   };
 
 
+
+  const handleSampleUpload = (channelId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+      showToast("Le sample est trop volumineux (Max: 5 Mo).", "error");
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const arrayBuffer = e.target?.result as ArrayBuffer;
+      if (!arrayBuffer) return;
+      
+      initAudio();
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      
+      try {
+        const decodedBuffer = await ctx.decodeAudioData(arrayBuffer);
+        
+        setCustomSamples(prev => ({
+          ...prev,
+          [channelId]: {
+            buffer: decodedBuffer,
+            name: file.name
+          }
+        }));
+        
+        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "").substring(0, 10).toUpperCase();
+        setChannels(prevC => prevC.map(ch => ch.id === channelId ? { ...ch, name: nameWithoutExt } : ch));
+        showToast(`Sample "${file.name}" chargé ! 🥁`, "success");
+        setActiveDropdown(null);
+      } catch (err) {
+        console.error("Failed to decode audio data:", err);
+        showToast("Erreur de décodage audio du fichier.", "error");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const exportToWAV = async () => {
+    initAudio();
+    if (!audioCtxRef.current) return;
+    
+    const stepDuration = 60 / bpm / 4;
+    let totalSteps = 16;
+    let numBars = 1;
+    
+    if (playMode === 'song') {
+      const activeBars = playlist.reduce((acc, val, idx) => val !== null ? idx + 1 : acc, 0);
+      numBars = activeBars > 0 ? activeBars : 1;
+      totalSteps = numBars * 16;
+    }
+    
+    const totalDuration = totalSteps * stepDuration;
+    const sampleRate = 44100;
+    const numSamples = sampleRate * totalDuration;
+    
+    const OfflineAudioContextClass = window.OfflineAudioContext || (window as any).webkitOfflineAudioContext;
+    const offlineCtx = new OfflineAudioContextClass(2, numSamples, sampleRate);
+    
+    const offlineMainGain = offlineCtx.createGain();
+    offlineMainGain.gain.setValueAtTime(volume / 100, 0);
+    offlineMainGain.connect(offlineCtx.destination);
+    
+    const getStepTime = (stepIdx: number) => {
+      const swingFactor = (swing / 100) * 0.33;
+      const baseStepDur = (60 / bpm) / 4;
+      
+      let timeAccumulator = 0;
+      for (let s = 0; s < stepIdx; s++) {
+        const duration = s % 2 === 0 ? baseStepDur * (1 + swingFactor) : baseStepDur * (1 - swingFactor);
+        timeAccumulator += duration;
+      }
+      return timeAccumulator;
+    };
+    
+    const hasAnySolo = channels.some(ch => ch.solo);
+    
+    for (let step = 0; step < totalSteps; step++) {
+      const barIdx = Math.floor(step / 16);
+      const stepInBar = step % 16;
+      const stepTime = getStepTime(step);
+      
+      let activePatId: string | null = selectedPattern;
+      if (playMode === 'song') {
+        activePatId = playlist[barIdx];
+      }
+      
+      if (!activePatId) continue;
+      
+      channels.forEach(channel => {
+        const isActive = channel.patternSteps[activePatId as 'pat1' | 'pat2' | 'pat3']?.[stepInBar];
+        if (isActive) {
+          const isMuted = channel.mute || (hasAnySolo && !channel.solo);
+          if (!isMuted) {
+            const chanGain = offlineCtx.createGain();
+            chanGain.gain.setValueAtTime(channel.volume / 100, stepTime);
+            
+            let currentSourceNode: AudioNode = chanGain;
+            
+            if (channel.effects.filter) {
+              const filter = offlineCtx.createBiquadFilter();
+              filter.type = 'lowpass';
+              filter.frequency.setValueAtTime(1500, stepTime);
+              filter.Q.setValueAtTime(2.0, stepTime);
+              currentSourceNode.connect(filter);
+              currentSourceNode = filter;
+            }
+            
+            if (channel.effects.distortion) {
+              const shaper = offlineCtx.createWaveShaper();
+              shaper.curve = makeDistortionCurve(65);
+              shaper.oversample = '4x';
+              currentSourceNode.connect(shaper);
+              currentSourceNode = shaper;
+            }
+            
+            if (channel.effects.delay) {
+              const delay = offlineCtx.createDelay();
+              const beatSec = 60 / bpm;
+              delay.delayTime.setValueAtTime(beatSec * 0.375, stepTime);
+              
+              const feedbackGain = offlineCtx.createGain();
+              feedbackGain.gain.setValueAtTime(0.4, stepTime);
+              
+              currentSourceNode.connect(delay);
+              delay.connect(feedbackGain);
+              feedbackGain.connect(delay);
+              
+              const delayMix = offlineCtx.createGain();
+              delayMix.gain.setValueAtTime(0.55, stepTime);
+              delay.connect(delayMix);
+              
+              const fxOutNode = offlineCtx.createGain();
+              currentSourceNode.connect(fxOutNode);
+              delayMix.connect(fxOutNode);
+              currentSourceNode = fxOutNode;
+            }
+            
+            if (channel.effects.reverb) {
+              const delay1 = offlineCtx.createDelay();
+              const delay2 = offlineCtx.createDelay();
+              const gain1 = offlineCtx.createGain();
+              const gain2 = offlineCtx.createGain();
+              
+              delay1.delayTime.setValueAtTime(0.024, stepTime);
+              delay2.delayTime.setValueAtTime(0.038, stepTime);
+              gain1.gain.setValueAtTime(0.45, stepTime);
+              gain2.gain.setValueAtTime(0.45, stepTime);
+              
+              currentSourceNode.connect(delay1);
+              delay1.connect(gain1);
+              gain1.connect(delay2);
+              delay2.connect(gain2);
+              gain2.connect(delay1);
+              
+              const wetGain = offlineCtx.createGain();
+              wetGain.gain.setValueAtTime(0.38, stepTime);
+              delay1.connect(wetGain);
+              
+              const fxOutNode = offlineCtx.createGain();
+              currentSourceNode.connect(fxOutNode);
+              wetGain.connect(fxOutNode);
+              currentSourceNode = fxOutNode;
+            }
+            
+            if (offlineCtx.createStereoPanner) {
+              const panner = offlineCtx.createStereoPanner();
+              panner.pan.setValueAtTime(channel.pan, stepTime);
+              currentSourceNode.connect(panner);
+              panner.connect(offlineMainGain);
+            } else {
+              currentSourceNode.connect(offlineMainGain);
+            }
+            
+            const pitchFactor = Math.pow(2, channel.pitch / 12);
+            const customSample = customSamples[channel.id];
+            
+            if (customSample) {
+              playCustomSample(offlineCtx, chanGain, customSample.buffer, pitchFactor, stepTime);
+            } else {
+              const instr = SOUND_BANK[channel.instrumentId];
+              if (instr) {
+                instr.play(offlineCtx, chanGain, pitchFactor, stepTime);
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    try {
+      showToast("Rendu WAV en cours...", "info");
+      const renderedBuffer = await offlineCtx.startRendering();
+      const wavBytes = encodeWAV(renderedBuffer);
+      const blob = new Blob([wavBytes], { type: 'audio/wav' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `dma-groove-${playMode}-${bpm}bpm.wav`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("Fichier WAV exporté avec succès !", "success");
+    } catch (err) {
+      console.error('Offline rendering failed:', err);
+      showToast("Erreur lors de l'export WAV.", "error");
+    }
+  };
+
+  const encodeWAV = (audioBuffer: AudioBuffer) => {
+    const numChannels = audioBuffer.numberOfChannels;
+    const sampleRate = audioBuffer.sampleRate;
+    const format = 1; // PCM
+    const bitDepth = 16;
+    
+    let result;
+    if (numChannels === 2) {
+      result = interleave(audioBuffer.getChannelData(0), audioBuffer.getChannelData(1));
+    } else {
+      result = audioBuffer.getChannelData(0);
+    }
+    
+    const buffer = new ArrayBuffer(44 + result.length * 2);
+    const view = new DataView(buffer);
+    
+    writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + result.length * 2, true);
+    writeString(view, 8, 'WAVE');
+    writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, format, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * numChannels * (bitDepth / 8), true);
+    view.setUint16(32, numChannels * (bitDepth / 8), true);
+    view.setUint16(34, bitDepth, true);
+    writeString(view, 36, 'data');
+    view.setUint32(40, result.length * 2, true);
+    
+    floatTo16BitPCM(view, 44, result);
+    return buffer;
+  };
+
+  const interleave = (inputL: Float32Array, inputR: Float32Array) => {
+    const length = inputL.length + inputR.length;
+    const result = new Float32Array(length);
+    let index = 0;
+    let inputIndex = 0;
+    
+    while (index < length) {
+      result[index++] = inputL[inputIndex];
+      result[index++] = inputR[inputIndex];
+      inputIndex++;
+    }
+    return result;
+  };
+
+  const floatTo16BitPCM = (output: DataView, offset: number, input: Float32Array) => {
+    for (let i = 0; i < input.length; i++, offset += 2) {
+      let s = Math.max(-1, Math.min(1, input[i]));
+      output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
+  };
+
+  const writeString = (view: DataView, offset: number, string: string) => {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
+  };
+
+  const getMidiNote = (instId: string) => {
+    switch (instId) {
+      case 'kick': case 'cajonbass': return 36;
+      case 'snare': case 'cajonslap': return 38;
+      case 'hihat': return 42;
+      case 'openhat': return 46;
+      case 'crash': return 49;
+      case 'djembelow': return 35;
+      case 'djembehigh': return 41;
+      case 'talkingdrum': return 47;
+      case 'shekere': return 54;
+      case 'woodblock': return 76;
+      case 'conga': return 64;
+      case 'congahigh': return 63;
+      case 'bongo': return 60;
+      case 'cowbell': return 56;
+      case 'agogo': return 67;
+      case 'clave': return 75;
+      case 'clap': return 39;
+      case 'shaker': return 82;
+      case 'tambourine': return 54;
+      case 'triangle': return 81;
+      case 'guiro': return 74;
+      case 'maracas': return 70;
+      case 'timbalehigh': return 65;
+      case 'timbalelow': return 66;
+      default: return 36;
+    }
+  };
+
+  const exportToMIDI = () => {
+    let totalSteps = 16;
+    let numBars = 1;
+    
+    if (playMode === 'song') {
+      const activeBars = playlist.reduce((acc, val, idx) => val !== null ? idx + 1 : acc, 0);
+      numBars = activeBars > 0 ? activeBars : 1;
+      totalSteps = numBars * 16;
+    }
+    
+    const ticksPerStep = 24;
+    const midiEvents: { absoluteTick: number; bytes: number[] }[] = [];
+    
+    const tempoVal = Math.round(60000000 / bpm);
+    const t1 = (tempoVal >> 16) & 0xFF;
+    const t2 = (tempoVal >> 8) & 0xFF;
+    const t3 = tempoVal & 0xFF;
+    
+    midiEvents.push({
+      absoluteTick: 0,
+      bytes: [0xFF, 0x51, 0x03, t1, t2, t3]
+    });
+    
+    midiEvents.push({
+      absoluteTick: 0,
+      bytes: [0xFF, 0x58, 0x04, 0x04, 0x02, 0x18, 0x08]
+    });
+    
+    const hasAnySolo = channels.some(ch => ch.solo);
+    
+    for (let step = 0; step < totalSteps; step++) {
+      const barIdx = Math.floor(step / 16);
+      const stepInBar = step % 16;
+      const stepTick = step * ticksPerStep;
+      
+      let activePatId: string | null = selectedPattern;
+      if (playMode === 'song') {
+        activePatId = playlist[barIdx];
+      }
+      
+      if (!activePatId) continue;
+      
+      channels.forEach(channel => {
+        const isActive = channel.patternSteps[activePatId as 'pat1' | 'pat2' | 'pat3']?.[stepInBar];
+        if (isActive) {
+          const isMuted = channel.mute || (hasAnySolo && !channel.solo);
+          if (!isMuted) {
+            const noteNum = getMidiNote(channel.instrumentId);
+            const velocity = Math.round((channel.volume / 100) * 127);
+            
+            midiEvents.push({
+              absoluteTick: stepTick,
+              bytes: [0x99, noteNum, velocity]
+            });
+            
+            midiEvents.push({
+              absoluteTick: stepTick + 12,
+              bytes: [0x99, noteNum, 0x00]
+            });
+          }
+        }
+      });
+    }
+    
+    midiEvents.sort((a, b) => a.absoluteTick - b.absoluteTick);
+    
+    let trackBytes: number[] = [];
+    let lastTick = 0;
+    
+    const writeVLQ = (delta: number) => {
+      const bytes: number[] = [];
+      let buffer = delta;
+      bytes.push(buffer & 0x7F);
+      while (buffer > 127) {
+        buffer = buffer >> 7;
+        bytes.push((buffer & 0x7F) | 0x80);
+      }
+      bytes.reverse();
+      return bytes;
+    };
+    
+    midiEvents.forEach(evt => {
+      const delta = evt.absoluteTick - lastTick;
+      lastTick = evt.absoluteTick;
+      trackBytes.push(...writeVLQ(delta));
+      trackBytes.push(...evt.bytes);
+    });
+    
+    const finalDelta = 0;
+    trackBytes.push(...writeVLQ(finalDelta));
+    trackBytes.push(0xFF, 0x2F, 0x00);
+    
+    const headerBytes = [
+      0x4D, 0x54, 0x68, 0x64,
+      0x00, 0x00, 0x00, 0x06,
+      0x00, 0x00,
+      0x00, 0x01,
+      0x00, 0x60
+    ];
+    
+    const trackLen = trackBytes.length;
+    const l1 = (trackLen >> 24) & 0xFF;
+    const l2 = (trackLen >> 16) & 0xFF;
+    const l3 = (trackLen >> 8) & 0xFF;
+    const l4 = trackLen & 0xFF;
+    
+    const trackHeaderBytes = [
+      0x4D, 0x54, 0x72, 0x6B,
+      l1, l2, l3, l4
+    ];
+    
+    const midiBytes = new Uint8Array([...headerBytes, ...trackHeaderBytes, ...trackBytes]);
+    const blob = new Blob([midiBytes], { type: 'audio/midi' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `dma-groove-${playMode}-${bpm}bpm.mid`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast("Fichier MIDI exporté avec succès !", "success");
+  };
+
+  const sharePattern = () => {
+    try {
+      const patternData = {
+        bpm,
+        channels: channels.map(ch => ({
+          name: ch.name,
+          instrumentId: ch.instrumentId,
+          volume: ch.volume,
+          pan: ch.pan,
+          pitch: ch.pitch,
+          effects: ch.effects,
+          patternSteps: ch.patternSteps
+        }))
+      };
+      
+      const jsonStr = JSON.stringify(patternData);
+      const base64 = btoa(Array.from(new TextEncoder().encode(jsonStr)).map(val => String.fromCharCode(val)).join(''));
+      
+      const event = new CustomEvent('dma-share-pattern', {
+        detail: {
+          base64
+        }
+      });
+      window.dispatchEvent(event);
+      showToast("Groove copié ! Redirection vers la communauté...", "success");
+    } catch (e) {
+      console.error("Failed to share pattern:", e);
+      showToast("Erreur lors du partage du rythme.", "error");
+    }
+  };
+
+  useEffect(() => {
+    const handleLoadPattern = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const data = customEvent.detail.patternData;
+      if (!data) return;
+      
+      if (data.bpm) setBpm(data.bpm);
+      if (data.channels) {
+        const mappedChannels = data.channels.map((ch: any) => ({
+          id: ch.id || ch.instrumentId || `channel_${Date.now()}_${Math.random()}`,
+          name: ch.name || 'COWBELL',
+          instrumentId: ch.instrumentId || 'cowbell',
+          volume: typeof ch.volume === 'number' ? ch.volume : 70,
+          pan: typeof ch.pan === 'number' ? ch.pan : 0,
+          pitch: typeof ch.pitch === 'number' ? ch.pitch : 0,
+          mute: !!ch.mute,
+          solo: !!ch.solo,
+          effects: ch.effects || { delay: false, reverb: false, distortion: false, filter: false },
+          patternSteps: ch.patternSteps || {
+            pat1: Array(16).fill(false),
+            pat2: Array(16).fill(false),
+            pat3: Array(16).fill(false)
+          }
+        }));
+        setChannels(mappedChannels);
+      }
+    };
+    
+    window.addEventListener('dma-load-shared-pattern', handleLoadPattern);
+    return () => {
+      window.removeEventListener('dma-load-shared-pattern', handleLoadPattern);
+    };
+  }, []);
 
   return (
     <section className="py-10 sm:py-12 bg-zinc-950/80 border-t border-b border-white/5 relative overflow-hidden" aria-label="DMA Interactive Studio">
@@ -2224,6 +2826,45 @@ export const InteractiveStudioSection: React.FC = () => {
                             Sélectionner l'Instrument
                           </div>
                           
+                          <div className="px-2 py-1 border-b border-white/5">
+                            <input
+                              type="file"
+                              accept="audio/*"
+                              id={`sample-upload-${channel.id}`}
+                              className="hidden"
+                              onChange={(e) => handleSampleUpload(channel.id, e)}
+                            />
+                            <button
+                              onClick={() => document.getElementById(`sample-upload-${channel.id}`)?.click()}
+                              className="w-full py-1.5 px-2 rounded bg-gold-500/10 hover:bg-gold-500/20 text-gold-400 border border-gold-500/30 text-[9px] font-black uppercase text-center transition-all flex items-center justify-center gap-1"
+                            >
+                              <span>📂 Charger un Sample (.wav, .mp3)</span>
+                            </button>
+                            {customSamples[channel.id] && (
+                              <div className="flex items-center justify-between mt-1 text-[8px] text-zinc-400 px-1 bg-black/40 py-0.5 rounded">
+                                <span className="truncate max-w-[120px]">{customSamples[channel.id].name}</span>
+                                <button
+                                  onClick={() => {
+                                    setCustomSamples(prev => {
+                                      const copy = { ...prev };
+                                      delete copy[channel.id];
+                                      return copy;
+                                    });
+                                    const orig = SOUND_BANK[channel.instrumentId];
+                                    if (orig) {
+                                      setChannels(prevC => prevC.map(ch => ch.id === channel.id ? { ...ch, name: orig.label } : ch));
+                                    }
+                                    showToast("Sample retiré.", "info");
+                                  }}
+                                  className="text-rose-400 hover:text-rose-350 font-bold"
+                                >
+                                  Retirer
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          
                           {['batterie', 'afro', 'latin', 'moderne'].map((cat) => (
                             <div key={cat} className="space-y-0.5 py-1 border-b border-white/5 last:border-b-0">
                               <span className="px-2.5 text-[8px] font-black text-gold-500 uppercase tracking-widest opacity-60 block">
@@ -2372,7 +3013,29 @@ export const InteractiveStudioSection: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-4 mt-4 sm:mt-0">
+                <div className="flex flex-wrap items-center gap-2 mt-4 sm:mt-0">
+                  <button
+                    onClick={exportToMIDI}
+                    className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-350 hover:text-white font-bold text-[10px] sm:text-xs border border-white/5 hover:border-gold-500/20 transition-all flex items-center gap-1.5 shadow-md"
+                    title="Télécharger le rythme au format standard MIDI"
+                  >
+                    <Download className="w-3.5 h-3.5" /> MIDI
+                  </button>
+                  <button
+                    onClick={exportToWAV}
+                    className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-350 hover:text-white font-bold text-[10px] sm:text-xs border border-white/5 hover:border-gold-500/20 transition-all flex items-center gap-1.5 shadow-md"
+                    title="Télécharger le mix audio au format WAV de haute qualité"
+                  >
+                    <Waves className="w-3.5 h-3.5" /> WAV
+                  </button>
+                  <button
+                    onClick={sharePattern}
+                    className="px-3 py-1.5 rounded-lg bg-purple-900/10 hover:bg-purple-900/20 border border-purple-500/30 text-purple-400 font-bold text-[10px] sm:text-xs transition-all flex items-center gap-1.5 shadow-md"
+                    title="Partager ce rythme sur le forum communautaire de la DMA"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" /> Partager
+                  </button>
+
                   <button
                     onClick={() => setIsMixerExpanded(prev => !prev)}
                     className={`text-[10px] sm:text-xs font-black uppercase px-3.5 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
@@ -2385,6 +3048,7 @@ export const InteractiveStudioSection: React.FC = () => {
                     {isMixerExpanded ? 'Masquer Mixer' : 'Afficher Mixer'}
                   </button>
                 </div>
+
               </div>
 
             </div>

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { X, RefreshCw, Send } from 'lucide-react';
+import { X, RefreshCw, Send, Mic, Volume2, VolumeX } from 'lucide-react';
+
 import { snappySpring, springTransition } from '../lib/motion';
 
 interface ChatMessage {
@@ -29,6 +30,108 @@ export const JosueCoachWidget: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [chatHistory, setChatHistory] = useState<{ role: string; parts: { text: string }[] }[]>([]);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeechEnabled, setIsSpeechEnabled] = useState(false);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const recognitionRef = useRef<any>(null);
+
+  const toggleListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("La reconnaissance vocale n'est pas supportée par votre navigateur.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const rec = new SpeechRecognition();
+    rec.lang = 'fr-FR';
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+
+    rec.onstart = () => {
+      setIsListening(true);
+    };
+
+    rec.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(prev => {
+        const space = prev.trim() ? " " : "";
+        return prev + space + transcript;
+      });
+    };
+
+    rec.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      setIsListening(false);
+    };
+
+    rec.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = rec;
+    rec.start();
+  };
+
+  const speakText = (text: string, msgId: string) => {
+    if (!('speechSynthesis' in window)) return;
+    
+    window.speechSynthesis.cancel();
+    
+    const cleanText = text
+      .replace(/\[EXERCISE:[^\]]+\]/gi, '')
+      .replace(/\*\*/g, '')
+      .replace(/[🥁💪🔥✨🌴🥢]/g, '')
+      .trim();
+      
+    if (!cleanText) return;
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'fr-FR';
+    
+    const voices = window.speechSynthesis.getVoices();
+    const frVoice = voices.find(v => v.lang.startsWith('fr'));
+    if (frVoice) {
+      utterance.voice = frVoice;
+    }
+    
+    utterance.onstart = () => {
+      setSpeakingMessageId(msgId);
+    };
+    
+    utterance.onend = () => {
+      setSpeakingMessageId(null);
+    };
+    
+    utterance.onerror = () => {
+      setSpeakingMessageId(null);
+    };
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handleToggleOpen = () => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    if (!nextState && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setSpeakingMessageId(null);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -313,6 +416,9 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
         text: responseText
       }]);
       setChatHistory(prev => [...prev, { role: 'model', parts: [{ text: responseText }] }]);
+      if (isSpeechEnabled) {
+        speakText(responseText, replyId);
+      }
     } catch (e) {
       console.warn("JosueCoach API failed, using intelligent offline fallback.", e);
       // Fallback
@@ -325,6 +431,9 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
           text: responseText
         }]);
         setChatHistory(prev => [...prev, { role: 'model', parts: [{ text: responseText }] }]);
+        if (isSpeechEnabled) {
+          speakText(responseText, fallbackId);
+        }
       }, 700);
     } finally {
       setIsTyping(false);
@@ -391,6 +500,12 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
     return (
       <div className="space-y-3">
         {cleanText && <div>{renderFormattedText(cleanText)}</div>}
+        {speakingMessageId === msg.id && (
+          <div className="text-[10px] text-gold-400 font-bold flex items-center gap-1.5 animate-pulse mt-1">
+            <Volume2 className="w-3.5 h-3.5 shrink-0" />
+            <span>Josué parle...</span>
+          </div>
+        )}
         {exercises.map((ex, exIdx) => (
           <motion.div
             key={exIdx}
@@ -466,7 +581,7 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
     <div className="fixed bottom-6 right-6 z-[99999] font-sans">
       {/* Floating Action Button (FAB) */}
       <motion.button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggleOpen}
         aria-label="Discuter avec Josué"
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
@@ -519,6 +634,25 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {/* Voice Toggle Button */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={snappySpring}
+                  onClick={() => {
+                    const nextState = !isSpeechEnabled;
+                    setIsSpeechEnabled(nextState);
+                    if (!nextState && 'speechSynthesis' in window) {
+                      window.speechSynthesis.cancel();
+                      setSpeakingMessageId(null);
+                    }
+                  }}
+                  title={isSpeechEnabled ? "Désactiver la voix" : "Activer la voix"}
+                  className={`p-1.5 rounded-md transition-colors ${isSpeechEnabled ? 'bg-gold-500/10 text-gold-400' : 'hover:bg-white/5 text-zinc-400 hover:text-white'}`}
+                >
+                  {isSpeechEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                </motion.button>
+
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -617,6 +751,22 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
 
             {/* Footer Form */}
             <div className="p-3 bg-zinc-950 border-t border-white/5 flex items-end gap-2">
+              {/* Mic dictation button */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                transition={snappySpring}
+                onClick={toggleListening}
+                title={isListening ? "Arrêter l'écoute" : "Dicter votre message"}
+                className={`w-9 h-9 shrink-0 flex items-center justify-center rounded-xl transition-all border ${
+                  isListening 
+                    ? 'bg-rose-500/10 border-rose-500/30 text-rose-400 animate-pulse' 
+                    : 'bg-white/5 border-white/10 hover:border-white/20 text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Mic className="w-4 h-4" />
+              </motion.button>
+
               <textarea
                 ref={inputRef}
                 value={input}
@@ -628,7 +778,7 @@ Ce format sera intercepté par le système pour créer une carte d'action intera
                   }
                 }}
                 rows={1}
-                placeholder="Pose ta question à Josué..."
+                placeholder={isListening ? "Écoute en cours..." : "Pose ta question à Josué..."}
                 className="flex-1 bg-white/5 border border-white/10 hover:border-white/20 focus:border-gold-500/50 rounded-xl px-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none resize-none max-h-20"
                 style={{ height: 'auto' }}
               />

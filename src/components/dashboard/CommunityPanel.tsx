@@ -39,6 +39,97 @@ export const CommunityPanel: React.FC<CommunityPanelProps> = ({ supabaseConnecte
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
 
+  useEffect(() => {
+    const handleSharePatternEvent = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const base64 = customEvent.detail?.base64;
+      if (base64) {
+        setNewPostText(prev => {
+          const space = prev.trim() ? "\n\n" : "";
+          return prev + space + `[PATTERN: ${base64}]`;
+        });
+        setNewPostCategory('partage');
+        showToast("Rythme importé dans votre zone d'écriture ! Écrivez un message et publiez. 🥁", "info");
+      }
+    };
+
+    window.addEventListener('dma-share-pattern', handleSharePatternEvent);
+    return () => {
+      window.removeEventListener('dma-share-pattern', handleSharePatternEvent);
+    };
+  }, [showToast]);
+
+  const renderPostContent = (post: Post) => {
+    const patternRegex = /\[PATTERN:\s*([A-Za-z0-9+/=]+)\]/gi;
+    const match = patternRegex.exec(post.text);
+    
+    if (!match) {
+      return (
+        <p className="text-zinc-200 text-sm leading-relaxed whitespace-pre-wrap">
+          {post.text}
+        </p>
+      );
+    }
+
+    const base64Code = match[1];
+    const cleanText = post.text.replace(patternRegex, '').trim();
+
+    let decodedData: any = null;
+    try {
+      const jsonStr = new TextDecoder().decode(Uint8Array.from(atob(base64Code), c => c.charCodeAt(0)));
+      decodedData = JSON.parse(jsonStr);
+    } catch (e) {
+      console.error("Failed to decode pattern", e);
+    }
+
+    return (
+      <div className="space-y-4">
+        {cleanText && (
+          <p className="text-zinc-200 text-sm leading-relaxed whitespace-pre-wrap">
+            {cleanText}
+          </p>
+        )}
+        
+        {decodedData && (
+          <div className="p-4 bg-zinc-950/80 rounded-xl border border-gold-500/20 shadow-lg relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-gold-500/10 blur-xl pointer-events-none" />
+            <div className="space-y-1.5 flex-1">
+              <div className="flex items-center gap-1.5 text-[10px] text-gold-400 font-extrabold uppercase tracking-widest">
+                <span>🎵 Groove DMA Partagé</span>
+              </div>
+              <h5 className="font-extrabold text-white text-xs tracking-wide">
+                Configuration : {decodedData.channels?.length || 0} Pistes
+              </h5>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2 py-0.5 rounded bg-zinc-900 border border-white/5 text-[10px] text-gold-400 font-mono font-black">
+                  {decodedData.bpm || 120} BPM
+                </span>
+                <span className="text-[10px] text-zinc-500 font-semibold truncate max-w-[200px]">
+                  Instruments : {decodedData.channels?.map((c: any) => c.name).join(', ')}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('dma-load-shared-pattern', {
+                  detail: { patternData: decodedData }
+                }));
+                window.dispatchEvent(new CustomEvent('dma-switch-tab', {
+                  detail: { tab: 'studio' }
+                }));
+                showToast("Rythme chargé avec succès dans votre Studio Virtuel ! 🥁", "success");
+              }}
+              className="py-2 px-4 rounded-lg bg-gold-600 hover:bg-gold-500 text-obsidian font-extrabold text-[10px] tracking-wider uppercase text-center transition-all active:scale-95 shadow-md self-start sm:self-center"
+            >
+              📥 Importer le Groove
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -323,6 +414,93 @@ export const CommunityPanel: React.FC<CommunityPanelProps> = ({ supabaseConnecte
       transition={springTransition}
       className="space-y-6"
     >
+      {/* Weekly Rhythms Challenge Card */}
+      <div className="glass-card bg-gradient-to-r from-gold-500/10 via-purple-500/5 to-transparent border border-gold-500/20 p-5 rounded-2xl relative overflow-hidden group shadow-md">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+          <div className="space-y-1">
+            <span className="inline-flex items-center gap-1 bg-gold-400/15 border border-gold-400/30 text-gold-400 font-extrabold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              🏆 Défi de la Semaine
+            </span>
+            <h3 className="text-white font-extrabold text-base sm:text-lg">Groove Syncopé Gospel</h3>
+            <p className="text-zinc-400 text-xs leading-relaxed max-w-xl">
+              Programmez, ajustez et domptez ce groove Gospel syncopé. Visez la précision à 115 BPM. Relevez le défi et partagez votre score ou votre version modifiée !
+            </p>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="px-2.5 py-0.5 rounded bg-zinc-950/80 border border-white/5 text-[10px] text-gold-400 font-black font-mono">
+                115 BPM
+              </span>
+              <span className="px-2.5 py-0.5 rounded bg-zinc-950/80 border border-white/5 text-[10px] text-purple-400 font-bold font-mono">
+                Gospel Fusion
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              const challengePatternData = {
+                bpm: 115,
+                channels: [
+                  {
+                    name: "KICK",
+                    instrumentId: "kick",
+                    volume: 80,
+                    pan: 0,
+                    pitch: 0,
+                    effects: { delay: false, reverb: false, distortion: false, filter: false },
+                    patternSteps: {
+                      pat1: [true, false, false, false, false, false, true, false, false, true, false, false, false, false, false, false],
+                      pat2: [true, false, false, false, false, false, true, false, false, true, false, false, false, false, false, false],
+                      pat3: [true, false, false, false, false, false, true, false, false, true, false, false, false, false, false, false]
+                    }
+                  },
+                  {
+                    name: "SNARE",
+                    instrumentId: "snare",
+                    volume: 75,
+                    pan: 0,
+                    pitch: 0,
+                    effects: { delay: false, reverb: true, distortion: false, filter: false },
+                    patternSteps: {
+                      pat1: [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false],
+                      pat2: [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false],
+                      pat3: [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false]
+                    }
+                  },
+                  {
+                    name: "HI-HAT",
+                    instrumentId: "hihat",
+                    volume: 60,
+                    pan: -0.1,
+                    pitch: 0,
+                    effects: { delay: false, reverb: false, distortion: false, filter: false },
+                    patternSteps: {
+                      pat1: [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false],
+                      pat2: [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false],
+                      pat3: [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false]
+                    }
+                  }
+                ]
+              };
+
+              // Dispatch the load shared pattern event
+              window.dispatchEvent(new CustomEvent('dma-load-shared-pattern', {
+                detail: { patternData: challengePatternData }
+              }));
+
+              // Switch to studio tab
+              window.dispatchEvent(new CustomEvent('dma-switch-tab', {
+                detail: { tab: 'studio' }
+              }));
+
+              showToast("Défi chargé dans le Studio Virtuel ! 🥁", "success");
+            }}
+            className="btn-gold py-2 px-4 text-xs font-bold shrink-0 self-start sm:self-center uppercase tracking-wider cursor-pointer shadow-gold-glow group-hover:scale-[1.03] transition-all"
+          >
+            🚀 Lancer le Défi
+          </button>
+        </div>
+      </div>
+
       {/* Publish Box */}
       <div className="glass-card bg-obsidian-card/45 border border-white/5 p-5 rounded-2xl space-y-4">
         <h4 className="text-gold-400 font-extrabold text-sm uppercase tracking-wider">✍️ Partager avec l'Académie</h4>
@@ -445,9 +623,7 @@ export const CommunityPanel: React.FC<CommunityPanelProps> = ({ supabaseConnecte
                   </div>
 
                   {/* Card Body */}
-                  <p className="text-zinc-200 text-sm leading-relaxed whitespace-pre-wrap">
-                    {post.text}
-                  </p>
+                  {renderPostContent(post)}
 
                   {/* Attached Media Display */}
                   {post.media && (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
-import { Award, Star, Play, ArrowRight } from 'lucide-react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { Award, Star, Play, ArrowRight, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { PageTransition } from '../components/ui/PageTransition';
 import { 
@@ -129,24 +129,26 @@ const AnimatedCounter: React.FC<{ target: number; duration?: number; suffix?: st
 
 /* ─── Section Components ─── */
 
-const HeroSection: React.FC = () => (
+interface HeroSectionProps {
+  onPlayClick: () => void;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ onPlayClick }) => (
   <section className="relative min-h-[75vh] sm:min-h-[80vh] flex items-center justify-center bg-zinc-950 overflow-hidden py-14 sm:py-16 px-4 sm:px-6 lg:px-8" aria-label="Accueil héros">
-    {/* Cinematic Slow Ken Burns Background Image */}
-    <motion.div 
-      animate={{ 
-        scale: [1.02, 1.07, 1.02],
-        x: [0, 8, 0],
-        y: [0, -6, 0]
-      }}
-      transition={{ 
-        duration: 24, 
-        repeat: Infinity, 
-        ease: "linear" 
-      }}
-      className="absolute inset-0 bg-cover bg-center opacity-35 filter brightness-[0.7] contrast-[1.1]" 
-      style={{ backgroundImage: `url('/assets/images/josue_5.jpg')` }}
-      aria-hidden="true"
-    />
+    {/* Cinematic Video Background */}
+    <div className="absolute inset-0 overflow-hidden opacity-30 filter brightness-[0.6] contrast-[1.15] pointer-events-none" aria-hidden="true">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        className="w-full h-full object-cover"
+        poster="/assets/images/josue_5.jpg"
+      >
+        <source src="/assets/vidéos/Vidéo_Festival_Josue_ADETI.mp4" type="video/mp4" />
+      </video>
+    </div>
     <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/75 to-transparent z-[1]" aria-hidden="true" />
     
     <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -181,14 +183,14 @@ const HeroSection: React.FC = () => (
             </Link>
           </motion.div>
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={snappySpring}>
-            <Link to="/courses" className="btn-gold-outline flex items-center gap-2 text-sm md:text-base">
-              <Play className="w-4 h-4 fill-current" /> En savoir plus
-            </Link>
+            <button onClick={onPlayClick} className="btn-gold-outline flex items-center gap-2 text-sm md:text-base">
+              <Play className="w-4 h-4 fill-current" /> Voir le Live
+            </button>
           </motion.div>
         </div>
       </motion.div>
 
-      {/* Right Column: Cinematic Video Card (Ken Burns + REC elements + Waveform) */}
+      {/* Right Column: Cinematic Video Card (Live Video Preview + REC elements + Waveform) */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -199,21 +201,22 @@ const HeroSection: React.FC = () => (
         <div className="absolute inset-0 bg-gradient-to-r from-gold-600 to-gold-400 rounded-2xl blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none" />
         
         {/* Main Cinematic Video Box */}
-        <div className="relative rounded-2xl border border-white/10 overflow-hidden shadow-2xl bg-zinc-950 aspect-[4/5] w-full max-w-[340px] group cursor-pointer">
-          {/* Background image slow Ken Burns */}
-          <motion.div
-            animate={{ 
-              scale: [1, 1.06, 1],
-              rotate: [0, 0.5, 0]
-            }}
-            transition={{ 
-              duration: 12, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
-            className="w-full h-full bg-cover bg-center filter brightness-[0.85] contrast-[1.05]"
-            style={{ backgroundImage: `url('/assets/images/josue_5.jpg')` }}
-          />
+        <div 
+          onClick={onPlayClick}
+          className="relative rounded-2xl border border-white/10 overflow-hidden shadow-2xl bg-zinc-950 aspect-[4/5] w-full max-w-[340px] group cursor-pointer"
+        >
+          {/* Live Video Thumbnail */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700 ease-out"
+            poster="/assets/images/josue_5.jpg"
+          >
+            <source src="/assets/vidéos/Vidéo_Festival_Josue_ADETI.mp4" type="video/mp4" />
+          </video>
           
           {/* Cinema Overlay Gradients */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/30" />
@@ -580,21 +583,149 @@ const CTASection: React.FC<{ isLoggedIn: boolean }> = ({ isLoggedIn }) => (
   </section>
 );
 
+/* ─── Live Festival Showcase Section ─── */
+const LiveFestivalShowcase: React.FC<{ onPlayClick: () => void }> = ({ onPlayClick }) => (
+  <section className="py-16 bg-zinc-950/80 border-t border-b border-white/5 relative overflow-hidden">
+    {/* Background Glow */}
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.06),transparent_70%)] pointer-events-none" aria-hidden="true" />
+    
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="glass-card border border-gold-500/20 bg-zinc-900/35 p-8 sm:p-12 rounded-3xl flex flex-col lg:flex-row items-center gap-10 lg:gap-16 shadow-gold-glow-subtle">
+        
+        {/* Left Side: Information */}
+        <div className="flex-1 space-y-6 text-left">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wider text-gold-400 bg-gold-400/10 border border-gold-400/20 uppercase">
+            Performance de Scène
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight font-sans">
+            Josué ADETI en Concert :<br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-gold-600 to-gold-400 font-bold drop-shadow-[0_2px_10px_rgba(212,175,55,0.2)]">Festival Live 2026</span>
+          </h2>
+          <p className="text-zinc-400 leading-relaxed text-sm sm:text-base">
+            Découvrez la virtuosité technique et l'énergie scénique de Josué ADETI. Ce montage exclusif rassemble ses plus grands moments de scène, alliant fills linéaires gospel explosifs, grooves syncopés afro-fusion et technique de batterie moderne internationale.
+          </p>
+          <div className="flex flex-wrap gap-4 text-xs font-mono text-zinc-500">
+            <div className="bg-zinc-950/50 px-3.5 py-1.5 rounded-lg border border-white/5">
+              ⏱️ Durée : <span className="text-gold-400 font-bold">35s</span>
+            </div>
+            <div className="bg-zinc-950/50 px-3.5 py-1.5 rounded-lg border border-white/5">
+              🎵 Son : <span className="text-gold-400 font-bold">Stéréo Mixé</span>
+            </div>
+            <div className="bg-zinc-950/50 px-3.5 py-1.5 rounded-lg border border-white/5">
+              📺 Vidéo : <span className="text-gold-400 font-bold">HD 720p</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Clickable Interactive Player Card */}
+        <div className="w-full lg:w-[440px] shrink-0">
+          <div 
+            onClick={onPlayClick}
+            className="relative aspect-video rounded-2xl border border-white/10 overflow-hidden shadow-2xl bg-zinc-950 cursor-pointer group"
+          >
+            {/* Live background looping preview (sourdine) */}
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="w-full h-full object-cover filter brightness-[0.7] group-hover:scale-105 transition-transform duration-700 ease-out"
+              poster="/assets/images/josue_2.jpg"
+            >
+              <source src="/assets/vidéos/Vidéo_Festival_Josue_ADETI.mp4" type="video/mp4" />
+            </video>
+            
+            {/* Play Button Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/45 transition-colors">
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-16 h-16 rounded-full bg-gradient-to-r from-gold-600 to-gold-400 text-obsidian flex items-center justify-center shadow-gold-glow relative"
+              >
+                <div className="absolute inset-0 rounded-full border border-gold-400/40 animate-ping opacity-60 pointer-events-none" />
+                <Play className="w-6 h-6 fill-obsidian ml-1" />
+              </motion.div>
+            </div>
+            
+            <span className="absolute bottom-4 right-4 text-[9px] bg-black/75 backdrop-blur-md text-gold-400 font-bold px-2.5 py-1 rounded-md border border-gold-400/20 uppercase tracking-widest">
+              Lancer le show
+            </span>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+);
+
 /* ─── Main Home Page ─── */
 export const Home: React.FC = () => {
   const { user } = useAuth();
   const isLoggedIn = !!user;
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   return (
     <PageTransition>
       <div className="flex flex-col min-h-screen text-zinc-100 overflow-x-hidden font-sans">
-        <HeroSection />
+        <HeroSection onPlayClick={() => setIsLightboxOpen(true)} />
+        <LiveFestivalShowcase onPlayClick={() => setIsLightboxOpen(true)} />
         <AboutSection />
         <CollaborationsGallery />
         <DMAProToolsShowcase />
         <CoursesSection isLoggedIn={isLoggedIn} />
         <TestimonialsSection />
         <CTASection isLoggedIn={isLoggedIn} />
+
+        {/* Video Lightbox Modal */}
+        <AnimatePresence>
+          {isLightboxOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              {/* Backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsLightboxOpen(false)}
+                className="absolute inset-0 bg-black/95 backdrop-blur-xl"
+              />
+
+              {/* Video Modal Box */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="relative w-full max-w-4xl bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-10"
+              >
+                {/* Header Bar */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-zinc-950/50 backdrop-blur-md">
+                  <div>
+                    <span className="text-[10px] text-gold-400 font-bold uppercase tracking-wider">Performance Live de Scène</span>
+                    <h3 className="text-base font-bold text-white">Josué ADETI — Festival Showcase</h3>
+                  </div>
+                  <button 
+                    onClick={() => setIsLightboxOpen(false)}
+                    className="p-2 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Video Player */}
+                <div className="relative aspect-video w-full bg-black">
+                  <video
+                    src="/assets/vidéos/Vidéo_Festival_Josue_ADETI.mp4"
+                    autoPlay
+                    controls
+                    playsInline
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </PageTransition>
   );

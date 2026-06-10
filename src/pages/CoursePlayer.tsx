@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Play, BookOpen, Award, CheckCircle2, Menu, X, 
+  Play, Award, CheckCircle2, Menu, X, 
   ArrowLeft, Check, Sparkles, Clock, Music, Trophy, 
   Square, Save, ShieldCheck, TrendingUp, BookMarked
 } from 'lucide-react';
@@ -13,6 +13,8 @@ import { springTransition, snappySpring } from '../lib/motion';
 
 import { COURSES_DATABASE, CourseData, Lesson } from '../data/courses';
 import { useMetronome } from '../hooks/useMetronome';
+import { InteractiveDrumSheet } from '../components/studio/InteractiveDrumSheet';
+import { PerformanceAnalyzer } from '../components/studio/PerformanceAnalyzer';
 
 export const CoursePlayer: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -1136,6 +1138,14 @@ export const CoursePlayer: React.FC = () => {
                           </button>
                         </div>
 
+                        {/* Timing Performance Analyzer */}
+                        <div className="border-t border-white/5 pt-6 mt-6">
+                          <PerformanceAnalyzer
+                            metronomePlaying={metronomePlaying}
+                            bpm={bpm}
+                          />
+                        </div>
+
                       </motion.div>
                     )}
 
@@ -1148,47 +1158,14 @@ export const CoursePlayer: React.FC = () => {
                         exit={{ opacity: 0 }}
                         className="space-y-6"
                       >
-                        <div className="glass-card border border-white/10 p-6 rounded-3xl relative overflow-hidden">
-                          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-gold-600 to-transparent" />
-                          <div className="flex items-center gap-2 mb-4 text-gold-400">
-                            <BookOpen className="w-5 h-5 shrink-0" />
-                            <h3 className="text-xs font-black uppercase tracking-widest">Partition & Tablature de Batterie</h3>
-                          </div>
-                          
-                          <p className="text-[10px] text-zinc-500 mb-6 font-medium leading-relaxed">
-                            Suivez la tablature ci-dessous en synchronisant vos frappes. Configurez le métronome DMA dans l'onglet dédié pour vous caler sur la vitesse recommandée.
-                          </p>
-
-                          {/* Render Tab Sheet Monospace */}
-                          <div className="bg-zinc-950/80 border border-white/5 rounded-2xl p-5 overflow-x-auto shadow-inner relative group/tab">
-                            <div className="absolute top-2 right-2 text-[8px] bg-white/5 text-zinc-500 px-2 py-0.5 rounded border border-white/5 font-mono uppercase">
-                              Monospace Drum notation
-                            </div>
-                            <pre className="font-mono text-xs text-gold-400 leading-relaxed overflow-x-auto whitespace-pre font-bold select-all">
-                              {currentLesson.tablature}
-                            </pre>
-                          </div>
-
-                          {/* Key notations guide */}
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/5 text-[10px] font-medium text-zinc-500">
-                            <div className="flex items-center gap-2">
-                              <span className="w-6 h-6 rounded bg-zinc-950 flex items-center justify-center font-mono text-gold-400 text-xs font-bold border border-white/5">H</span>
-                              <span>Hi-Hat (Charleston)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="w-6 h-6 rounded bg-zinc-950 flex items-center justify-center font-mono text-gold-400 text-xs font-bold border border-white/5">S</span>
-                              <span>Snare (Caisse Claire)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="w-6 h-6 rounded bg-zinc-950 flex items-center justify-center font-mono text-gold-400 text-xs font-bold border border-white/5">B</span>
-                              <span>Bass Drum (Grosse Caisse)</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="w-6 h-6 rounded bg-zinc-950 flex items-center justify-center font-mono text-gold-400 text-xs font-bold border border-white/5">Ride</span>
-                              <span>Cymbale Ride / Dôme</span>
-                            </div>
-                          </div>
-                        </div>
+                        <InteractiveDrumSheet
+                          tablature={currentLesson.tablature}
+                          metronomePlaying={metronomePlaying}
+                          activeBeatVisual={activeBeatVisual}
+                          activeSubdivisionVisual={activeSubdivisionVisual}
+                          beatsPerMeasure={beatsPerMeasure}
+                          subdivision={subdivision}
+                        />
                       </motion.div>
                     )}
 
