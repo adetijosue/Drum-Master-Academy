@@ -59,7 +59,7 @@ export const Footer: React.FC = () => {
     { label: 'Toutes les Formations', to: '/courses' },
     { label: 'Gospel Drumming', to: '/courses?category=gospel' },
     { label: 'Afro Fusion', to: '/courses?category=afro' },
-    { label: 'Rudiments & Technique', to: '/courses?category=rudiments' },
+    { label: 'Galerie Photos', to: '/gallery' },
   ];
 
   const legalLinks = [

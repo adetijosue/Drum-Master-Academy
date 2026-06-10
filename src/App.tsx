@@ -25,6 +25,7 @@ const MentionsLegales = lazy(() => import('./pages/MentionsLegales').then(m => (
 const CGV = lazy(() => import('./pages/CGV').then(m => ({ default: m.CGV })));
 const Confidentialite = lazy(() => import('./pages/Confidentialite').then(m => ({ default: m.Confidentialite })));
 const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
+const Gallery = lazy(() => import('./pages/Gallery').then(m => ({ default: m.Gallery })));
 const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 
 // Premium loading fallback for Suspense
@@ -137,6 +138,7 @@ const AnimatedRoutes: React.FC = () => {
           <Route path="/cgv" element={<CGV />} />
           <Route path="/confidentialite" element={<Confidentialite />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/gallery" element={<Gallery />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />

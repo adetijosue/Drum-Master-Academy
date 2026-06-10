@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Drum, LayoutDashboard, Compass, Settings, LogOut, MessageSquare, LogIn, UserPlus, ArrowDownToLine } from 'lucide-react';
+import { Menu, X, Drum, LayoutDashboard, Compass, Settings, LogOut, MessageSquare, LogIn, UserPlus, ArrowDownToLine, Camera } from 'lucide-react';
 import { Avatar } from './ui/Avatar';
 import { snappySpring, staggerContainer, staggerChild } from '../lib/motion';
 
@@ -60,6 +60,7 @@ export const Navbar: React.FC = () => {
   const navLinks = [
     { name: "Accueil", path: "/", icon: <Compass className="w-4 h-4" /> },
     { name: "Formations", path: "/courses", icon: <Drum className="w-4 h-4" /> },
+    { name: "Galerie", path: "/gallery", icon: <Camera className="w-4 h-4" /> },
     ...(user
       ? [
           { name: "Mon Espace", path: "/dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
