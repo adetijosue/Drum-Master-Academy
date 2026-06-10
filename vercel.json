@@ -1,17 +1,14 @@
 {
+  "framework": "vite",
+  "buildCommand": "npm run build && node -e \"const fs=require('fs'),g=require('path').join;['video_1','video_2','video_3','video_4'].forEach(v=>{const p=g('dist','assets','videos',v+'_josue_adeti.mp4');try{fs.unlinkSync(p)}catch(e){}});const wp=g('dist','assets','images');try{fs.readdirSync(wp).filter(f=>f.startsWith('workshop_')).forEach(f=>fs.unlinkSync(g(wp,f)))}catch(e){}\"",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
   "rewrites": [
     { "source": "/((?!assets/).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
-      "source": "/assets/videos/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Accept-Ranges", "value": "bytes" }
-      ]
-    },
-    {
-      "source": "/assets/images/(.*)",
+      "source": "/assets/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]

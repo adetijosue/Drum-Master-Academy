@@ -1,0 +1,23 @@
+# All video files (now served from jsDelivr CDN)
+public/assets/videos/
+
+# Workshop images (gitignored, not needed)
+public/assets/images/workshop_*.jpg
+
+# Dev files
+scratch/
+*.log
+Drum Workshop 2026/
+scratch_yt_playlist.cjs
+scratch_yt_playlist.js
+.env
+.env.local
+.env.example
+
+# Source (not needed when deploying pre-built dist)
+src/
+tsconfig.json
+tsconfig.node.json
+postcss.config.js
+tailwind.config.js
+vite.config.ts

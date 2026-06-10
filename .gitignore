@@ -8,3 +8,5 @@ scratch/
 Drum Workshop 2026/
 public/assets/images/workshop_*.jpg
 *.log
+
+.vercel
