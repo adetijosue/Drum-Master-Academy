@@ -142,7 +142,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onPlayClick }) => (
         loop
         muted
         playsInline
-        preload="auto"
+        {...{ 'webkit-playsinline': '' } as any}
+        preload="none"
         className="w-full h-full object-cover"
         poster="/assets/images/josue_5.jpg"
       >
@@ -211,7 +212,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onPlayClick }) => (
             loop
             muted
             playsInline
-            preload="auto"
+            {...{ 'webkit-playsinline': '' } as any}
+            preload="metadata"
             className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700 ease-out"
             poster="/assets/images/josue_5.jpg"
           >
@@ -629,7 +631,8 @@ const LiveFestivalShowcase: React.FC<{ onPlayClick: () => void }> = ({ onPlayCli
               loop
               muted
               playsInline
-              preload="auto"
+              {...{ 'webkit-playsinline': '' } as any}
+              preload="metadata"
               className="w-full h-full object-cover filter brightness-[0.7] group-hover:scale-105 transition-transform duration-700 ease-out"
               poster="/assets/images/josue_2.jpg"
             >
@@ -719,6 +722,8 @@ export const Home: React.FC = () => {
                     autoPlay
                     controls
                     playsInline
+                    {...{ 'webkit-playsinline': '' } as any}
+                    preload="metadata"
                     className="w-full h-full object-contain"
                   />
                 </div>
