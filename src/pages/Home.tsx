@@ -10,6 +10,7 @@ import {
 } from '../lib/motion';
 import { CollaborationsGallery } from '../components/CollaborationsGallery';
 import { DMAProToolsShowcase } from '../components/studio/DMAProToolsShowcase';
+import { YoutubeChannelMiniature } from '../components/YoutubeChannelMiniature';
 
 /* ─── Course Data ─── */
 const courses = [
@@ -672,6 +673,7 @@ export const Home: React.FC = () => {
         <LiveFestivalShowcase onPlayClick={() => setIsLightboxOpen(true)} />
         <AboutSection />
         <CollaborationsGallery />
+        <YoutubeChannelMiniature />
         <DMAProToolsShowcase />
         <CoursesSection isLoggedIn={isLoggedIn} />
         <TestimonialsSection />

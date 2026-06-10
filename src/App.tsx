@@ -21,6 +21,10 @@ const Courses = lazy(() => import('./pages/Courses').then(m => ({ default: m.Cou
 const CoursePlayer = lazy(() => import('./pages/CoursePlayer').then(m => ({ default: m.CoursePlayer })));
 const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
 const DeleteAccount = lazy(() => import('./pages/DeleteAccount').then(m => ({ default: m.DeleteAccount })));
+const MentionsLegales = lazy(() => import('./pages/MentionsLegales').then(m => ({ default: m.MentionsLegales })));
+const CGV = lazy(() => import('./pages/CGV').then(m => ({ default: m.CGV })));
+const Confidentialite = lazy(() => import('./pages/Confidentialite').then(m => ({ default: m.Confidentialite })));
+const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
 const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 
 // Premium loading fallback for Suspense
@@ -127,6 +131,12 @@ const AnimatedRoutes: React.FC = () => {
               <DeleteAccount />
             </ProtectedRoute>
           } />
+
+          {/* Public Legal & Contact routes */}
+          <Route path="/mentions-legales" element={<MentionsLegales />} />
+          <Route path="/cgv" element={<CGV />} />
+          <Route path="/confidentialite" element={<Confidentialite />} />
+          <Route path="/contact" element={<Contact />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />

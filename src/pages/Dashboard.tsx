@@ -10,6 +10,7 @@ import { InteractiveStudioSection } from '../components/studio/InteractiveStudio
 import { useMetronome } from '../hooks/useMetronome';
 import { CommunityPanel } from '../components/dashboard/CommunityPanel';
 import { PracticeLogger } from '../components/dashboard/PracticeLogger';
+import { YoutubeChannelMiniature } from '../components/YoutubeChannelMiniature';
 import { 
   Home, 
   BookOpen, 
@@ -1114,6 +1115,9 @@ export const Dashboard: React.FC = () => {
               >
                 <div className="glass-card bg-obsidian-card/45 border border-white/5 p-4 sm:p-6 rounded-2xl">
                   <CollaborationsGallery isDashboard={true} />
+                </div>
+                <div className="glass-card bg-obsidian-card/45 border border-white/5 p-4 sm:p-6 rounded-2xl">
+                  <YoutubeChannelMiniature />
                 </div>
               </motion.div>
             )}
