@@ -7,7 +7,8 @@ scratch/
 .system_generated/
 Drum Workshop 2026/
 public/assets/images/workshop_*.jpg
-public/assets/videos/
+public/assets/videos/*
+!public/assets/videos/video_festival_josue_adeti.mp4
 *.log
 
 .vercel

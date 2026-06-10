@@ -9,30 +9,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 
-// Supprimer et désenregistrer tout Service Worker existant pour éviter les conflits de cache (Écran Blanc)
-try {
-  if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      for (const registration of registrations) {
-        registration.unregister().catch(() => {});
-      }
-    }).catch(() => {});
-  }
-} catch (e) {
-  console.warn('[DMA] Échec du nettoyage des Service Workers :', e);
+// Enregistrement du Service Worker pour rendre l'application installable (PWA)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => console.log('Service Worker enregistré avec succès :', reg.scope))
+      .catch((err) => console.error('Échec de l\'enregistrement du Service Worker :', err));
+  });
 }
-
-// Vider les anciens caches pour forcer le navigateur à charger les nouveaux assets compilés
-try {
-  if ('caches' in window && caches.keys) {
-    caches.keys().then((keys) => {
-      keys.forEach((key) => {
-        caches.delete(key).catch(() => {});
-      });
-    }).catch(() => {});
-  }
-} catch (e) {
-  console.warn('[DMA] Échec du nettoyage du cache browser :', e);
-}
-
-
