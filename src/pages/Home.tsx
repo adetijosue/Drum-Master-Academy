@@ -146,7 +146,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onPlayClick }) => (
         className="w-full h-full object-cover"
         poster="/assets/images/josue_5.jpg"
       >
-        <source src="/assets/vidéos/Vidéo_Festival_Josue_ADETI.mp4" type="video/mp4" />
+        <source src="/assets/videos/video_festival_josue_adeti.mp4" type="video/mp4" />
       </video>
     </div>
     <div className="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/75 to-transparent z-[1]" aria-hidden="true" />
@@ -215,7 +215,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onPlayClick }) => (
             className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700 ease-out"
             poster="/assets/images/josue_5.jpg"
           >
-            <source src="/assets/vidéos/Vidéo_Festival_Josue_ADETI.mp4" type="video/mp4" />
+            <source src="/assets/videos/video_festival_josue_adeti.mp4" type="video/mp4" />
           </video>
           
           {/* Cinema Overlay Gradients */}
@@ -633,7 +633,7 @@ const LiveFestivalShowcase: React.FC<{ onPlayClick: () => void }> = ({ onPlayCli
               className="w-full h-full object-cover filter brightness-[0.7] group-hover:scale-105 transition-transform duration-700 ease-out"
               poster="/assets/images/josue_2.jpg"
             >
-              <source src="/assets/vidéos/Vidéo_Festival_Josue_ADETI.mp4" type="video/mp4" />
+              <source src="/assets/videos/video_festival_josue_adeti.mp4" type="video/mp4" />
             </video>
             
             {/* Play Button Overlay */}
@@ -715,7 +715,7 @@ export const Home: React.FC = () => {
                 {/* Video Player */}
                 <div className="relative aspect-video w-full bg-black">
                   <video
-                    src="/assets/vidéos/Vidéo_Festival_Josue_ADETI.mp4"
+                    src="/assets/videos/video_festival_josue_adeti.mp4"
                     autoPlay
                     controls
                     playsInline
