@@ -22,33 +22,93 @@ interface UpcomingEvent {
 
 const WORKSHOP_PHOTOS: EventPhoto[] = [
   {
-    src: "/assets/images/workshop_1.jpg",
-    alt: "Drum Workshop Session 1",
-    caption: "Atelier pratique et démonstration des techniques de caisse claire par Josué ADETI.",
+    src: "/assets/images/workshop/IMG_1500.jpg",
+    alt: "Drum Workshop 2026 - Session Collective",
+    caption: "Introduction et explication de la posture devant les élèves attentifs.",
     category: "workshop2026"
   },
   {
-    src: "/assets/images/workshop_2.jpg",
-    alt: "Drum Workshop Session 2",
-    caption: "Session intensive sur l'indépendance des quatre membres et la posture.",
+    src: "/assets/images/workshop/IMG_1505.jpg",
+    alt: "Drum Workshop 2026 - Coaching Caisse Claire",
+    caption: "Focus sur le rebond et l'articulation des poignets lors des rudiments de caisse claire.",
     category: "workshop2026"
   },
   {
-    src: "/assets/images/workshop_3.jpg",
-    alt: "Drum Workshop Session 3",
-    caption: "Les étudiants de l'académie concentrés sur l'application des rudiments internationaux.",
+    src: "/assets/images/workshop/IMG_1511.jpg",
+    alt: "Drum Workshop 2026 - Technique de Mains",
+    caption: "Démonstration rapprochée des doigtés et de la technique Moeller.",
     category: "workshop2026"
   },
   {
-    src: "/assets/images/workshop_4.jpg",
-    alt: "Drum Workshop Session 4",
-    caption: "Travail de groupe et synchronisation sur des grooves Gospel et Afro-fusion.",
+    src: "/assets/images/workshop/IMG_1515.jpg",
+    alt: "Drum Workshop 2026 - Pratique sur Pad",
+    caption: "Exercice collectif d'échauffement sur pads d'entraînement pour synchroniser les frappes.",
     category: "workshop2026"
   },
   {
-    src: "/assets/images/workshop_5.jpg",
-    alt: "Drum Workshop Session 5",
-    caption: "Photo de famille : la grande communauté Drum Master Academy réunie en fin de session.",
+    src: "/assets/images/workshop/IMG_1520.jpg",
+    alt: "Drum Workshop 2026 - Groove Acoustique",
+    caption: "Josué ADETI illustrant un groove syncopé sur kit acoustique premium.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1525.jpg",
+    alt: "Drum Workshop 2026 - Session Rythmique",
+    caption: "Explication de la division du temps et de l'importance du clic au métronome.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1530.jpg",
+    alt: "Drum Workshop 2026 - Travail Individualisé",
+    caption: "Suivi et corrections personnalisés de la position de chaque élève derrière les fûts.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1550.jpg",
+    alt: "Drum Workshop 2026 - Rythmes du Monde",
+    caption: "Session spéciale sur les polyrythmies ouest-africaines appliquées à la batterie.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1573.jpg",
+    alt: "Drum Workshop 2026 - Coordination",
+    caption: "Exercices d'indépendance dissociant les pieds des mains sur des signatures asymétriques.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1580.jpg",
+    alt: "Drum Workshop 2026 - Masterclass Live",
+    caption: "Démonstration d'un solo Gospel Chops intégrant des rudiments linéaires complexes.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1601.jpg",
+    alt: "Drum Workshop 2026 - Session Studio",
+    caption: "Explications sur la gestion du son et l'acoustique de la pièce d'enregistrement.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1630.jpg",
+    alt: "Drum Workshop 2026 - Échange Didactique",
+    caption: "Temps de questions-réponses sur les carrières professionnelles de batteurs.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1656.jpg",
+    alt: "Drum Workshop 2026 - Analyse Audio",
+    caption: "Écoute comparative des prises de batterie enregistrées en studio.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1700.jpg",
+    alt: "Drum Workshop 2026 - Certificats",
+    caption: "Remise officielle des attestations de fin de stage de la Drum Master Academy.",
+    category: "workshop2026"
+  },
+  {
+    src: "/assets/images/workshop/IMG_1740.jpg",
+    alt: "Drum Workshop 2026 - Clôture",
+    caption: "Grande photo finale avec l'ensemble de la promotion Avril-Mai 2026.",
     category: "workshop2026"
   }
 ];
