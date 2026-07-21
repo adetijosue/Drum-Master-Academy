@@ -341,6 +341,12 @@ const AboutSection: React.FC = () => {
                 <p className="text-xs sm:text-sm text-zinc-500 font-medium">Langues Parlées</p>
               </div>
             </div>
+
+            <div className="pt-6">
+              <Link to="/gallery" className="btn-gold-outline inline-flex items-center gap-2 text-sm">
+                Découvrir la Galerie photos <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </motion.div>
 
           {/* Profile Image card */}
